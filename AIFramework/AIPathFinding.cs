@@ -8,6 +8,7 @@ using UnityEngine;
 /// </summary>
 public class AIPathFiding
 {
+    public delegate bool AIAction(Vector3 pos);
     /// <summary>
     /// 广度优先搜索路径
     /// </summary>
@@ -15,8 +16,9 @@ public class AIPathFiding
     /// <param name="b">目标位置</param>
     /// <param name="step">搜索步长，影响输出路径的位置数目，并影响性能</param>
     /// <param name="stopRange">搜索范围，每步搜索多大的范围能找到合适的位置，超过范围不能找到放弃搜索</param>
+    /// <param name="aIAction">判断点位是否合法，且将搜索过的方块标记
     /// <returns></returns>
-    public static List<Vector3> BFS(Vector3 a,Vector3 b, float step, float stopRange,bool drawLine)
+    public static List<Vector3> BFS(Vector3 a,Vector3 b, float step, float stopRange,bool drawLine, List<List<GameObject>> objSquar)
     {
         //对于目标位置是否合适，需要一个方法查询
 
@@ -38,6 +40,8 @@ public class AIPathFiding
         //{
 
         //}
+
+        
 
 
 

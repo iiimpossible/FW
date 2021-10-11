@@ -13,7 +13,7 @@ public class UIMainPanel : UIBasePanel
     public UIMainPanel() : base(new UIType(path))
     {
         luaText = Resources.Load<TextAsset>("Lua/UI/MainPanel.lua");
-        InitializeUIBehaviour(true,new GraphyFW.UIBehavior(luaText.text,luaText.name));
+        if(luaText)InitializeUIBehaviour(true,new GraphyFW.UIBehavior(luaText.text,luaText.name));
     }
 
 }
