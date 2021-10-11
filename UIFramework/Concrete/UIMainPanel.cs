@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIMainPanel : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+[System.Serializable]
+public class UIMainPanel : UIBasePanel
+{
+    
+    public static readonly string path = "Prefabs/UI/UIMainPanel";
+
+    public UIMainPanel() : base(new UIType(path)){}
+
+
+
+
 }
