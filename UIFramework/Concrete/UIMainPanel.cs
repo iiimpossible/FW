@@ -7,11 +7,13 @@ using UnityEngine;
 public class UIMainPanel : UIBasePanel
 {
     
-    public static readonly string path = "Prefabs/UI/UIMainPanel";
+    public static readonly string path = "Prefabs/UI/MainPanel";
 
-    public UIMainPanel() : base(new UIType(path)){}
-
-
-
+    TextAsset luaText;
+    public UIMainPanel() : base(new UIType(path))
+    {
+        luaText = Resources.Load<TextAsset>("Lua/UI/MainPanel.lua");
+        InitializeUIBehaviour(true,new GraphyFW.UIBehavior(luaText.text,luaText.name));
+    }
 
 }

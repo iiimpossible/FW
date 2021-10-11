@@ -91,7 +91,7 @@ public abstract class UIBasePanel
     /// </summary>
     public virtual void OnEnter() 
     { 
-        uiTool.targetPanel.SetActive(true);
+        uiTool?.targetPanel?.SetActive(true);
         //OnEnterUI(this); 
         uIBehavior?.Enter(); 
     }

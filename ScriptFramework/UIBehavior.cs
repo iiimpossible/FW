@@ -23,8 +23,16 @@ namespace GraphyFW
         private string luaCodeName;
         public UIBehavior(string luaCode, string luaCodeName)
         {
-            this.luaCode = luaCode;
-            this.luaCodeName = luaCodeName;
+            if(luaCode != null && luaCodeName != null)
+            {
+                this.luaCode = luaCode;
+                this.luaCodeName = luaCodeName;
+            }
+            else
+            {
+                Debug.Log("Lua code or lua name null.");
+            }
+         
         }
 
         private void Start()
