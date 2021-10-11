@@ -13,6 +13,7 @@ namespace GraphyFW
         private Action luaResume;
         private Action luaPausse;
         private Action luaExit;
+        private Action luaUpdate;
 
         private LuaTable scriptEnv;
         private LuaEnv refLuaEnv;
@@ -34,7 +35,7 @@ namespace GraphyFW
 
             // 为每个脚本设置一个独立的环境，可一定程度上防止脚本间全局变量、函数冲突
             LuaTable meta = XluaConfig.luaEnv.NewTable();
-            meta.Set("__index", XluaConfig.luaEnv.Global);
+            meta.Set("__index", XluaConfig.luaEnv.Global);//__index是table的一个元方法，用于到table中索引一个值（包括方法、变量），这里是给sriptEnv
             scriptEnv.SetMetaTable(meta);
             meta.Dispose();
 
@@ -45,7 +46,7 @@ namespace GraphyFW
             scriptEnv.Get("resume", out luaResume);
             scriptEnv.Get("pause", out luaPausse);
             scriptEnv.Get("exit", out luaExit);
-
+            scriptEnv.Get("update", out luaUpdate);
         }
         public void Enter()
         {
@@ -79,7 +80,13 @@ namespace GraphyFW
             }
         }
 
-
+        public void Update()
+        {
+            if(luaUpdate != null)
+            {
+                luaUpdate();
+            }
+        }
     }
 
 

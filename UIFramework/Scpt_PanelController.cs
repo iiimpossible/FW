@@ -22,6 +22,6 @@ public class Scpt_PanelController: MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        panelManager.UpdateTopPanel();
     }
 }

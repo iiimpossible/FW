@@ -74,6 +74,17 @@ public class UIPanelManager
         }
     }
 
+    /// <summary>
+    /// 执行位于栈顶的UIPanel的UPdate方法，避免在UI上挂载脚本以执行UPdate
+    /// </summary>
+    public void UpdateTopPanel()
+    {
+        if(stackPanels.Count > 0)
+        {
+            stackPanels.Peek().Update();
+        }
+    }
+
     public void PopPanelCallBack(UIBasePanel panel)
     {
         PopPanel(panel);

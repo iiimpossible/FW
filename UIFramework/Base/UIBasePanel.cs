@@ -92,7 +92,7 @@ public abstract class UIBasePanel
     public virtual void OnEnter() 
     { 
         uiTool.targetPanel.SetActive(true);
-        OnEnterUI(this); 
+        //OnEnterUI(this); 
         uIBehavior?.Enter(); 
     }
 
@@ -111,4 +111,9 @@ public abstract class UIBasePanel
     /// UI退出时执行的操作
     /// </summary>
     public virtual void OnExit() { OnExitUI(this); uIBehavior?.Exit();}
+
+    public virtual void Update()
+    {
+        uIBehavior?.Update();
+    }
 }
