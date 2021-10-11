@@ -14,7 +14,7 @@ public class Scpt_PanelController: MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        panelManager.PushPanel(new UIStartPanel());
+        panelManager.PushPanel(new UIShowModelPanel());
     }
 
        

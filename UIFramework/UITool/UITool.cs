@@ -14,7 +14,7 @@ public class UITool
     /// <summary>
     /// 当前的活动面板
     /// </summary>
-    private GameObject targetPanel;
+    public GameObject targetPanel {get; private set;}
 
     public UITool (GameObject panel)
     {
