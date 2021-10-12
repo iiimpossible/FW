@@ -16,9 +16,7 @@ public class UIPanelManager
     /// <summary>
     /// UI管理器
     /// </summary>
-    private UIManager uiManager;
-
-    
+    private UIManager uiManager;   
 
     private UIBasePanel lastPanel;
 
@@ -26,14 +24,13 @@ public class UIPanelManager
     {
         stackPanels = new Stack<UIBasePanel>();
 
-        uiManager = new UIManager();
-
-        
+        uiManager = new UIManager();        
     }
 
     /// <summary>
-    /// UI面板入栈操作，此操作会显示一个UI
-    /// 根据输入的UI类型，创建并显示一个UI
+    /// 1.将UIBasepanel进栈
+    /// 2.从UIBasePanel中读取信息，获取UI预制体的路径，然后通过UIManager克隆预制体
+    /// 3.将UI的创建于退出事件与面板管理器的出战入栈方法绑定
     /// </summary>
     /// <param name="nextPanel">要显示的面板 </param>
     public void PushPanel(UIBasePanel nextPanel)
@@ -43,15 +40,18 @@ public class UIPanelManager
             lastPanel = stackPanels.Peek();//获取栈顶的面板
             lastPanel.OnPause();//让之前栈顶的面板阻塞
         }
-        stackPanels.Push(nextPanel);
-        
+        stackPanels.Push(nextPanel);        
 
         //因为面板实际上不是一个能够显示的UI，它必须到UI管理器中使用路径找到UI的Prefab，然后克隆一个UI，注册到UI管理器，并被插入到Canvas中
         GameObject go_panel = uiManager.GetSingleUI(nextPanel.uiType);
         nextPanel.InitializeUITool(new UITool(go_panel));
-        nextPanel.OnEnter();
-        //nextPanel .uiTool.activePanel = cur_panel;
 
+        if(nextPanel.uiType.executeLua)
+        {
+            nextPanel.InitializeUIBehaviour(new GraphyFW.UIBehavior(nextPanel.uiType.luaCode,nextPanel.uiType.luaName,nextPanel));           
+        }  
+
+        nextPanel.OnEnter();
         //事件注册
         nextPanel.OnExitUI += this.PopPanelCallBack;
         nextPanel.OnCreateUI += this.PushPanel;

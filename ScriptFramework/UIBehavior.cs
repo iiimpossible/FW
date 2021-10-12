@@ -17,37 +17,25 @@ namespace GraphyFW
 
         private LuaTable scriptEnv;
         private LuaEnv refLuaEnv;
-
-        private string luaCode;
-
-        private string luaCodeName;
-        public UIBehavior(string luaCode, string luaCodeName)
+        
+        public UIBehavior(string luaCode, string luaName, UIBasePanel key)
         {
-            if(luaCode != null && luaCodeName != null)
+            if(luaCode == null)
             {
-                this.luaCode = luaCode;
-                this.luaCodeName = luaCodeName;
+                Debug.LogError("Lua code is NULL.");
+                return;
             }
-            else
-            {
-                Debug.Log("Lua code or lua name null.");
-            }
-         
-        }
-
-        private void Start()
-        {
-            refLuaEnv = XluaConfig.luaEnv;
-
-            scriptEnv = XluaConfig.luaEnv.NewTable();
+            refLuaEnv = Scpt_XluaConfig.luaEnv;
+            scriptEnv = Scpt_XluaConfig.luaEnv.NewTable();
 
             // 为每个脚本设置一个独立的环境，可一定程度上防止脚本间全局变量、函数冲突
-            LuaTable meta = XluaConfig.luaEnv.NewTable();
-            meta.Set("__index", XluaConfig.luaEnv.Global);//__index是table的一个元方法，用于到table中索引一个值（包括方法、变量），这里是给sriptEnv
+            LuaTable meta = Scpt_XluaConfig.luaEnv.NewTable();
+            meta.Set("__index", Scpt_XluaConfig.luaEnv.Global);//__index是table的一个元方法，用于到table中索引一个值（包括方法、变量），这里是给sriptEnv
             scriptEnv.SetMetaTable(meta);
             meta.Dispose();
 
-             XluaConfig.luaEnv.DoString(luaCode, luaCodeName, scriptEnv);
+            scriptEnv.Set("self", key);
+            Scpt_XluaConfig.luaEnv.DoString(luaCode, luaName, scriptEnv);
 
             Action luaAwake = scriptEnv.Get<Action>("awake");
             scriptEnv.Get("enter", out luaEnter);
@@ -55,7 +43,20 @@ namespace GraphyFW
             scriptEnv.Get("pause", out luaPausse);
             scriptEnv.Get("exit", out luaExit);
             scriptEnv.Get("update", out luaUpdate);
+
+            if(luaAwake != null)
+            {
+                luaAwake();
+            }
         }
+
+
+        //实体？虚体？系统？封装？本类和UI游戏物体是一一对应关系，或者说uikey,uivalue
+        public void SetValue(UIBasePanel panel)
+        {
+            scriptEnv.Set("uikey",panel);
+        }
+ 
         public void Enter()
         {
             if (luaEnter != null)

@@ -1,0 +1,37 @@
+﻿
+
+
+
+
+local Btn_ShowModel
+
+function enter()
+      
+   Btn_ShowModel = self.uiTool:FindChildObjectOfActivePanel("Btn_ShowModel")
+   print(Btn_ShowModel.name)
+   local comp_Button = Btn_ShowModel:GetComponent("Button")
+   
+   comp_Button.onClick:AddListener(
+      function()
+         print("Create showmodel panel.")
+         self.OnCreateUI(CS.UIShowModelPanel())
+      end
+   )
+
+end
+
+
+function pause()
+end
+
+
+
+function resume()
+end
+
+function exit()
+end
+
+function update()
+   print("update")
+end

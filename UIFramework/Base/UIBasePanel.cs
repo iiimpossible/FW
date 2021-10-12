@@ -3,23 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+
+ 
 public class UIType
 {
-    public string name { get; private set; }
+    public string uiName { get; private set; }
     /// <summary>
     /// UI的路径,通过这个路径加载
     /// </summary>
-    public string path { get; private set; }   
+    public string uiPrefabPath { get; private set; }
+
+    public bool executeLua { get; private set; }
+
+    public string luaCode { get; private set; }
+
+    public string luaName { get; private set; }
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="path"></param>
-    public UIType(string path)
+    public UIType(string prefabPath, bool executeLua = false, string luaPath = "")
     {
-        this.path = path;
+        this.uiPrefabPath = prefabPath;
         //从path中获得UI的名字，如[Asset/UI/MainiPanel]
-        this.name = path.Substring(path.LastIndexOf('/') + 1);       
+        this.uiName = prefabPath.Substring(prefabPath.LastIndexOf('/') + 1);
+
+        if (executeLua)
+        {
+            TextAsset luaText = Resources.Load<TextAsset>(luaPath);
+            luaCode = luaText.text;
+            luaName = luaText.name;                 
+        }
+        this.executeLua = executeLua;
     }
 }
 
@@ -40,10 +56,6 @@ public abstract class UIBasePanel
 
     public UnityAction<UIBasePanel> OnEnterUI;
 
-    /// <summary>
-    /// 是否通过lua执行UI逻辑
-    /// </summary>
-    protected bool executeLuaBehaviour;
 
     /// <summary>
     /// UI管理工具，保存对应UI对象的引用，并对他进行一些操作
@@ -64,9 +76,7 @@ public abstract class UIBasePanel
     /// UIBasePanel的构造函数，在子类中调用并赋值UIType(UI实例路径)
     public UIBasePanel(UIType type)
     {
-        uiType = type;
-        //uIBehavior = new GraphyFW.UIBehavior();
-        //uiTool = new UITool();
+        uiType = type;      
     }
 
     /// <summary>
@@ -75,16 +85,17 @@ public abstract class UIBasePanel
     public void InitializeUITool(UITool tool)
     {
         uiTool = tool;
-    }
+    }   
 
     /// <summary>
     /// 初始化UIBehaviour，开启lua执行逻辑，在子类中调用
+    /// @note 如果要使用此方法开启Lua执行逻辑，需要在场景中用一个游戏物体挂载Scpt_XLuaConfig(FW/ScriptFramework/Scpt_XLuaConfig)
     /// </summary>
-    protected void InitializeUIBehaviour(bool executeLua, GraphyFW.UIBehavior behavior)
-    {
-        executeLuaBehaviour = executeLua;
-        uIBehavior = behavior;
-    }
+    public void InitializeUIBehaviour(GraphyFW.UIBehavior behavior)
+    {         
+        uIBehavior = behavior;     
+        uIBehavior.SetValue(this);//将自己作为一个uikey注册到脚本表  
+    } 
 
     /// <summary>
     /// UI激活时执行的操作，执行一次
@@ -92,8 +103,9 @@ public abstract class UIBasePanel
     public virtual void OnEnter() 
     { 
         uiTool?.targetPanel?.SetActive(true);
-        //OnEnterUI(this); 
+        
         uIBehavior?.Enter(); 
+
     }
 
     /// <summary>

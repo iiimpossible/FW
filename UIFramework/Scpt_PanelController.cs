@@ -25,16 +25,19 @@ namespace GraphyFW
             private List<UIBasePanel> basePanels;
             private void Awake()
             {
+                //实例化UI面板管理器
                 panelManager = new UIPanelManager();
             }
 
-            // Start is called before the first frame update
+            
             void Start()
             {
+                //将UI推入栈，并将UI类与UI实例关联
                 panelManager.PushPanel(new UIMainPanel());
             }
 
-            // Update is called once per frame
+           
+           //每帧更新PanelManager的顶部的面板逻辑
             void Update()
             {
                 panelManager.UpdateTopPanel();

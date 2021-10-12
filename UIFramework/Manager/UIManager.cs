@@ -39,15 +39,15 @@ public class UIManager
         }
 
         //注意：使用Resources.Load一定要在Resources文件夹下
-        GameObject prefab = Resources.Load<GameObject>(type.path);
+        GameObject prefab = Resources.Load<GameObject>(type.uiPrefabPath);
         if(!prefab)
         {
-            Debug.LogError("UI prefab path is not valid. "+ type.path);
+            Debug.LogError("UI prefab path is not valid. "+ type.uiPrefabPath);
             return null;
         }
 
         GameObject ui = GameObject.Instantiate(prefab, canvas.transform);
-        ui.name = type.name;
+        ui.name = type.uiName;
         dicUIObjects.Add(type, ui);
         return ui;
     }

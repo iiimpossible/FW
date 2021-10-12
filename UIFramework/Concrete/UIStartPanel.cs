@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class UIStartPanel : UIBasePanel
 {
     static public readonly string path = "Prefabs/UI/Panels/StartPanel";
-    public UIStartPanel() : base(new UIType(path)) { Debug.Log(uiType.name); }
+    public UIStartPanel() : base(new UIType(path)) { Debug.Log(uiType.uiName); }
 
 
     public override void OnEnter()
