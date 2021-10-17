@@ -112,28 +112,28 @@ namespace GraphyFW
                             GameObject up = GetObjInSquar(cur_pos.x, cur_pos.y + 1, matrixObjs);
                             if (up)
                             {
-                                dicBrickStates[up].SetParentState(curState, curState.distance);
+                                dicBrickStates[up].SetParentState(curState);
                                 que_objs.Enqueue(up);
                             }
                             //ÏÂ
                             GameObject down = GetObjInSquar(cur_pos.x, cur_pos.y - 1, matrixObjs);
                             if (down)
                             {
-                                dicBrickStates[down].SetParentState(curState, curState.distance);
+                                dicBrickStates[down].SetParentState(curState);
                                 que_objs.Enqueue(down);
                             }
                             //×ó
                             GameObject left = GetObjInSquar(cur_pos.x - 1, cur_pos.y, matrixObjs);
                             if (left)
                             {
-                                dicBrickStates[left].SetParentState(curState, curState.distance);
+                                dicBrickStates[left].SetParentState(curState);
                                 que_objs.Enqueue(left);
                             }
                             //ÓÒ
                             GameObject right = GetObjInSquar(cur_pos.x + 1, cur_pos.y, matrixObjs);
                             if (right)
                             {
-                                dicBrickStates[right].SetParentState(curState, curState.distance);
+                                dicBrickStates[right].SetParentState(curState);
                                 que_objs.Enqueue(right);
                             }                                                
                         }

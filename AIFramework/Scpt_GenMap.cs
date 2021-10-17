@@ -9,9 +9,21 @@ using GraphyFW.Common;
     通过各种方法封装，
 */
 
+[System.Serializable]
+public enum ESearchType
+{
+    DFS,
+    BFS,
+    AStar,
+    DJ
+}
+
+
+
 
 public class Scpt_GenMap : MonoBehaviour
 {
+    public ESearchType searchType = ESearchType.DFS;
     public Vector2 gridSize;
 
     public Vector2Int gridNum = new Vector2Int(20, 20);
@@ -50,7 +62,7 @@ public class Scpt_GenMap : MonoBehaviour
     private Timer runGetNear = new Timer("GetNear");
 
 
-    private AIBFSSearch aiBFS;
+    private AISearchBase aiBFS;
     void Start()
     {
         if(radomTarget)
@@ -58,8 +70,24 @@ public class Scpt_GenMap : MonoBehaviour
             targetPos = new Vector2Int(Random.Range(0, gridNum.x - 1), Random.Range(0, gridNum.y - 1));
         }
 
-        aiBFS = new AIBFSSearch(gridNum);
-        
+        switch (searchType)
+        {
+            case ESearchType.DFS:
+                {
+                    aiBFS = new AIDFSSerch(gridNum);
+                    break;
+                }
+
+            case ESearchType.BFS:
+                {
+                    aiBFS = new AIBFSSearch(gridNum);
+                    break;
+                }
+        }
+
+        //
+
+
         if (palyOld)
         {
             strategy.SetTargetPos(targetPos);
@@ -76,6 +104,8 @@ public class Scpt_GenMap : MonoBehaviour
             aiBFS.levelDelayTime = delayTime;
             StartCoroutine(aiBFS.Search());
         }
+
+       
     }
 
 

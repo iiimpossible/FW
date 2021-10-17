@@ -495,11 +495,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 504af3d9d8fdc2e4cb486fca129b855d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  searchType: 0
   gridSize: {x: 1.1, y: 1.1}
   gridNum: {x: 30, y: 30}
   genOriginPos: {x: 0, y: 0}
   delayTime: 0.05
-  blackRate: 0.315
+  blackRate: 0.323
   brick: {fileID: 8594037050041403796, guid: 2f7ef7b8319f69a448e0e898bddf9e06, type: 3}
   offset: {x: 0, y: 0}
   searchOrigin: {x: 15, y: 15}

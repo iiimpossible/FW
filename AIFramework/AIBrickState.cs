@@ -12,10 +12,12 @@ public class AIBrickState
     public bool isColorVariable { get; private set; }
     public bool isObstacle { get; private set; }
     public float distance { get; private set; }//砖块到源节点的距离
-    public Vector2Int pos { get; set; }
+    public Vector2Int pos { get; set; } 
     public Color color { get; private set; }
     public GameObject self { get; private set; }
     public AIBrickState parentState { get; private set; }
+
+    public float weight {get; set;}
 
     public int accsessFlag;
 
@@ -30,6 +32,7 @@ public class AIBrickState
         this.isFound = false;
         this.self = self;
         this.isColorVariable = true;
+        this.weight = 0;
     } 
 
     public AIBrickState SetAccess()
@@ -68,11 +71,11 @@ public class AIBrickState
         return this;
     }
 
-    public AIBrickState SetParentState(AIBrickState parent,float distance)
+    public AIBrickState SetParentState(AIBrickState parent)
     {
         if (isAccess) return this;
         this.parentState = parent;
-        this.distance += distance + 1;
+        this.distance += parent.distance + 1;
         this.SetFound();
         return this;
     }
@@ -90,6 +93,13 @@ public class AIBrickState
         return this;
     }
 
+    public AIBrickState SetWeiget(float weight, Color color)
+    {
+        this.weight = weight;
+        this.color = color;
+        return this;
+    }
+
     public void Clear()
     {        
       isAccess = false;
@@ -102,6 +112,25 @@ public class AIBrickState
       accsessFlag = 0;
       this.SetColor(Color.white);
     }
+
+    public Vector2Int GetUp()
+    {
+        return new Vector2Int(pos.x, pos.y + 1);
+    }
+
+    public Vector2Int GetDown()
+    {
+        return new Vector2Int(pos.x, pos.y - 1);
+    }
+
+    public Vector2Int GetLeft()
+    {
+        return new Vector2Int(pos.x - 1, pos.y);
+    }
+
+    public Vector2Int GetRight()
+    {
+        return new Vector2Int(pos.x + 1, pos.y);
+    }
 }
 
- 

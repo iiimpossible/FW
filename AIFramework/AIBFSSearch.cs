@@ -48,7 +48,7 @@ public class AIBFSSearch : AISearchBase
                     AIBrickState up = GetBirckStateDic(tpos);
                     if (up != null)
                     {
-                        up.SetParentState(curState, curState.distance);
+                        up.SetParentState(curState);
                         que_objs.Enqueue(up);
                     }
                     //下
@@ -56,7 +56,7 @@ public class AIBFSSearch : AISearchBase
                     AIBrickState down = GetBirckStateDic(tpos);
                     if (down != null)
                     {
-                        down.SetParentState(curState, curState.distance);
+                        down.SetParentState(curState);
                         que_objs.Enqueue(down);
                     }
                     //左     
@@ -64,7 +64,7 @@ public class AIBFSSearch : AISearchBase
                     AIBrickState left = GetBirckStateDic(tpos);
                     if (left != null)
                     {
-                        left.SetParentState(curState, curState.distance);
+                        left.SetParentState(curState);
                         que_objs.Enqueue(left);
                     }
                     //右 
@@ -72,7 +72,7 @@ public class AIBFSSearch : AISearchBase
                     AIBrickState right = GetBirckStateDic(tpos);
                     if (right != null)
                     {
-                        right.SetParentState(curState, curState.distance);
+                        right.SetParentState(curState);
                         que_objs.Enqueue(right);
                     }
                 }
