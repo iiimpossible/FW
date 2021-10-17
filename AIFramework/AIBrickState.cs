@@ -17,6 +17,8 @@ public class AIBrickState
     public GameObject self { get; private set; }
     public AIBrickState parentState { get; private set; }
 
+    public int accsessFlag;
+
     public AIBrickState(Vector2Int pos, GameObject self, AIBrickState parent = null)
     {
         this.color = Color.white;
@@ -33,13 +35,15 @@ public class AIBrickState
     public AIBrickState SetAccess()
     {
         this.isAccess = true;
-        this.SetColor(Color.yellow);
+        this.SetColor(Color.yellow);        
+        PermissionMask.Enable((int)EBitMask.ACSSESS,ref this.accsessFlag);
         return this;
     }
 
     public AIBrickState SetFound()
     {
         this.isFound = true;
+        PermissionMask.Enable((int)EBitMask.FOUND,ref this.accsessFlag);
         if (isObstacle)
             return this;
         this.SetColor(Color.grey);
@@ -48,8 +52,11 @@ public class AIBrickState
 
     public AIBrickState SetObstacle(bool isObstacle = true)
     {
-        this.isObstacle = isObstacle;         
+        this.isObstacle = isObstacle;  
+        int tf = (System.Convert.ToInt32(isObstacle) <<1 )& (int)EBitMask.OBSTACLE;//将bool值转为掩码与OBSTACLE &
+        PermissionMask.Enable(tf,ref this.accsessFlag);//这里当SetObstacle 参数为假，不能关闭其flag权限，最多不开 
         this.SetColor(Color.black);
+        if(!isObstacle) PermissionMask.Disable((int)EBitMask.OBSTACLE,ref accsessFlag);//因为上边的位操作不能改变已经被设为1的位
         return this;
     }
 
@@ -66,6 +73,7 @@ public class AIBrickState
         if (isAccess) return this;
         this.parentState = parent;
         this.distance += distance + 1;
+        this.SetFound();
         return this;
     }
 
@@ -80,6 +88,19 @@ public class AIBrickState
     {
         this.isColorVariable = isVariable;
         return this;
+    }
+
+    public void Clear()
+    {        
+      isAccess = false;
+      isFound = false;
+      isColorVariable = true;
+      isObstacle =false;
+      distance = 0;      
+      color = Color.white;    
+      parentState  = null;
+      accsessFlag = 0;
+      this.SetColor(Color.white);
     }
 }
 

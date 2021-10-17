@@ -22,37 +22,44 @@ public class PermissionMask
         flag = (int)mask;
     }
 
+    public static int SetPermistion(int mask,ref int flag)
+    {
+        return flag = mask;
+    }    
+
     //开启权限
-    public void Enable(EBitMask mask)
+    public static int Enable(int mask ,ref int flag)
     {
-        //mask = 011  flag = 100  011 | 100 = 111
-        flag |= (int)mask;
+         //mask = 011  flag = 100  011 | 100 = 111
+        return flag |= mask;
+    } 
+
+    public static int Disable(int mask, ref int flag)
+    {
+         //mask = 001 ~mask = 110  flag & ~mask     001 & 110 = 000   011 & 100 = 000
+        return flag &= ~(int)mask;
     }
 
-    //关闭权限
-    public void Disable(EBitMask mask)
+    public static bool ISAllow(int mask, int flag)
     {
-        //mask = 001 ~mask = 110  flag & ~mask     001 & 110 = 000   011 & 100 = 000
-        flag &= ~(int)mask;
+        // mask = 001 falg = 011  mask & falg = 001
+        //mask = 000 flag = 000
+        return (mask & flag) == flag;       
     }
 
-    //是否拥有某权限
-    public bool isAllow()
+    //是否禁用了某些权限
+    public static bool IsNotAllow(int mask ,int flag)
     {
-        return false;
-    }
-
-    //是否未拥有权限
-    public bool IsNotAllow()
-    {
-        return false;
+        return ( mask & flag ) == 0;
     }
 
     //是否仅拥有某些权限
-    public bool isOnlyAllow()
+    public static bool isOnlyAllow(int mask, int flag)
     {
-        return false;
+       return mask == flag;
     }
+
+     
 
 
 }

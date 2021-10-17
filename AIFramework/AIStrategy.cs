@@ -140,7 +140,7 @@ namespace GraphyFW
                         //yield return new WaitForSeconds(0.001f);  
                         objNumOfLevel--; 
                     }
-                    yield return new WaitForSeconds(levelDelayTime);                                       
+                yield return new WaitForSeconds(levelDelayTime);                                       
                     objNumOfLevel = que_objs.Count;
                     if (que_objs.Count <= 0)
                     {

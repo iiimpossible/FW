@@ -32,6 +32,10 @@ public class Scpt_GenMap : MonoBehaviour
 
     public Vector2Int targetPos = new Vector2Int();
 
+    public bool palyOld = false;
+
+    public bool radomTarget = false;
+
     private List<List<GameObject>> squarObjs = new List<List<GameObject>>();
 
     private Dictionary<GameObject, AIBrickState> dicBrickStates = new Dictionary<GameObject, AIBrickState>();
@@ -45,17 +49,47 @@ public class Scpt_GenMap : MonoBehaviour
     private Timer runList = new Timer("List");
     private Timer runGetNear = new Timer("GetNear");
 
+
+    private AIBFSSearch aiBFS;
     void Start()
     {
+        if(radomTarget)
+        {
+            targetPos = new Vector2Int(Random.Range(0, gridNum.x - 1), Random.Range(0, gridNum.y - 1));
+        }
 
-        targetPos = new Vector2Int(Random.Range(0, gridNum.x - 1), Random.Range(0, gridNum.y - 1));
-        strategy.SetTargetPos(targetPos );
-        strategy.SetSourcePos(searchOrigin);
-        GenMap();       
-        //StartCoroutine(BFS(gridNum.x, gridNum.y)); 
-        StartCoroutine(strategy.BFSSearch(targetPos)); 
+        aiBFS = new AIBFSSearch(gridNum);
+        
+        if (palyOld)
+        {
+            strategy.SetTargetPos(targetPos);
+            strategy.SetSourcePos(searchOrigin);
+            GenMap();
+            StartCoroutine(strategy.BFSSearch(targetPos));
+        }
+        else
+        {
+            
+            aiBFS.SetSourcePos(searchOrigin);
+            aiBFS.SetTargetPos(targetPos).SetGridSize(gridSize).blackRate = this.blackRate;
+            aiBFS.GenMap(brick, GameObject.Find("Floors"));
+            aiBFS.levelDelayTime = delayTime;
+            StartCoroutine(aiBFS.Search());
+        }
     }
-     
+
+
+    public void SearchBFS()
+    {
+        StartCoroutine(aiBFS.Search());
+    }
+
+    public void ClearBFS()
+    {
+        aiBFS.Clear();
+        StopAllCoroutines();
+    }
+
     //生成随机地图
     public void GenMap()
     {
