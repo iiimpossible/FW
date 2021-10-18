@@ -101,7 +101,7 @@ public class AISearchBase
 
 
      //随机生成障碍物（黑方块）
-    protected void RandomIsObstacle(Vector2Int pos)
+    protected virtual void RandomIsObstacle(Vector2Int pos)
     {
         int ran = Random.Range(0, 100);
         AIBrickState state = GetBirckStateDic(pos, EBitMask.OBSTACLE);
