@@ -56,7 +56,7 @@ public class AISearchBase
                 coord.Set(i,j);
                 dicBrickStates[coord].Clear();
 
-                RandomIsObstacle(coord);//设置状态,必须在字典初始化这个key之后调用此方法
+                RandomIsObstacle(dicBrickStates[coord]);//设置状态,必须在字典初始化这个key之后调用此方法
             }
         }
          InitOriginTargetPos(sourcePos,targetPos);
@@ -85,8 +85,11 @@ public class AISearchBase
                 }             
                 newGo.transform.SetParent(container.transform);               
                 pos.Set(column,row);
-                dicBrickStates.Add(pos,new AIBrickState(pos, newGo));
-                RandomIsObstacle(pos);//设置状态,必须在字典初始化这个key之后调用此方法
+
+                AIBrickState newBrick = new AIBrickState(pos,newGo);
+                dicBrickStates.Add(pos,newBrick);
+                RandomIsObstacle(newBrick);//设置状态,必须在字典初始化这个key之后调用此方法
+                RandomColorForWeight(newBrick);
             }
         }
         InitOriginTargetPos(sourcePos,targetPos);
@@ -101,12 +104,19 @@ public class AISearchBase
 
 
      //随机生成障碍物（黑方块）
-    protected virtual void RandomIsObstacle(Vector2Int pos)
+    protected virtual void RandomIsObstacle(AIBrickState state)
     {
-        int ran = Random.Range(0, 100);
-        AIBrickState state = GetBirckStateDic(pos, EBitMask.OBSTACLE);
+        int ran = Random.Range(0, 100);         
         if (ran > 100 * (1 - blackRate))
             state.SetObstacle();
+    }
+
+    protected virtual void RandomColorForWeight(AIBrickState state)
+    {
+        if(state.isObstacle) return;
+        float res = Random.Range(0.5f,1.0f);
+        state.SetColor(new Color(res,res,res,1));
+        state.weight = res * 10;
     }
    
     //从当前节点的上下左右四个方向上选取一个distance值最小的节点

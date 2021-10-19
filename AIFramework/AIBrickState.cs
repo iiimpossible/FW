@@ -11,7 +11,7 @@ public class AIBrickState
     public bool isFound { get; private set; }
     public bool isColorVariable { get; private set; }
     public bool isObstacle { get; private set; }
-    public float distance { get; private set; }//砖块到源节点的距离
+    public float distance { get; set; }//砖块到源节点的距离
     public Vector2Int pos { get; set; } 
     public Color color { get; private set; }
     public GameObject self { get; private set; }

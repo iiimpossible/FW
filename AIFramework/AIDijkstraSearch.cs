@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GraphyFW.Common;
 
 //Dijkstra 算法解决的是带权重的有向图中的单源最短路径问题。该算法要求所有变边的权重都为非负值
 //松弛操作：对于每个节点v来说，维持一个属性v.d 用来记录从源节点s到节点v的最短路径权重的上界
@@ -46,6 +47,35 @@ public class AIDijkstraSearch : AISearchBase
 
    public override IEnumerator Search()
    {
+       //最小优先队列
+       PriorityQueue<AIBrickState> pque = new PriorityQueue<AIBrickState>();
+       List<AIBrickState> list = new List<AIBrickState>();
+
+        var s = GetBirckStateDic(sourcePos,EBitMask.OBSTACLE | EBitMask.ACSSESS | EBitMask.FOUND);
+        pque.EnQUeue(s,s.distance);
+
+        Vector2Int pos = new Vector2Int();
+
+        //将所有的节点都入队 目前权重都是1，要随机显示一个权重到颜色上
+        for(int i = 0 ; i < mapSize.x; i ++ )
+        {
+            for(int j = 0 ; j < mapSize.y; j++)
+            {
+                pos.Set(i,j);
+                AIBrickState tstate = dicBrickStates[pos];
+                tstate.distance = 1e10f;
+                pque.EnQUeue(dicBrickStates[pos],dicBrickStates[pos].weight);
+            }
+        }
+
+        AIBrickState u;
+        
+        while( pque.Count > 0)
+        {
+            u = pque.DeQueue();
+            list.Add(u);
+            
+        }
        yield return 0;
    }
 
