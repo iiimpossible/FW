@@ -66,6 +66,7 @@ public class AIDijkstraSearch : AISearchBase
                 pos.Set(i,j);
                 AIBrickState tstate = dicBrickStates[pos];
                 tstate.distance = 1e10f;
+                if(pos == targetPos)tstate.distance = 0;
                 pque.EnQUeue(dicBrickStates[pos],dicBrickStates[pos].weight);
             }
         }
