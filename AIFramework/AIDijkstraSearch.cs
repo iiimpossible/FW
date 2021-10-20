@@ -39,11 +39,13 @@ public class AIDijkstraSearch : AISearchBase
             while Q != null                     循环，注意一开始u = s
                 u = Extract-Min(Q)              从优先队列Q中抽取节点u
                 S = S.Add(u)                    将u加入到S集合
-                foreach vertex v in G.Adj[u]    对所有从节点u出发的边做松弛操作
+                foreach vertex v in G.Adj[u]    对所有从节点u出发的边做松弛操作 v点是u点周围的能访问到的节点？ 计算v点 到u点的代价？
                     Relax(u,v,w)
         }
     
     */
+
+    /*在Dijkstra算法中，需要计算每一个节点距离起点的总移动代价。同时，还需要一个优先队列结构。对于所有待遍历的节点，放入优先队列中会按照代价进行排序。*/
 
    public override IEnumerator Search()
    {
