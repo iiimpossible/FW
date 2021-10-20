@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using GraphyFW.Common;
  
-    
 //用一个数据结构来存储节点的状态
-public class AIBrickState
+public class AIBrickState :IGetPriority
 {
     public bool isAccess { get; private set; }
     public bool isFound { get; private set; }
@@ -131,6 +130,11 @@ public class AIBrickState
     public Vector2Int GetRight()
     {
         return new Vector2Int(pos.x + 1, pos.y);
+    }
+
+    public float GetPriority()
+    {
+        return this.distance;
     }
 }
 

@@ -121,13 +121,14 @@ public class AISearchBase
    
     //从当前节点的上下左右四个方向上选取一个distance值最小的节点
     //TODO：计算源节点和目标节点方向与源节点到周边节点的方向的夹角从而判断是否略过
-    protected AIBrickState GetNearestObject(Vector2Int pos, int arraySize = 4)
+    protected AIBrickState GetNearestObject(Vector2Int pos, bool diagonal = false,int arraySize = 4)
     {
         AIBrickState state = GetBirckStateDic(pos,EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE);
         if (state == null) return null;       
         Debug.Log("Target pos--------->" + state.pos);
         Vector2Int tpos = new Vector2Int();    
         AIBrickState res = null;
+        List<AIBrickState> tlist = new List<AIBrickState>(10);
         AIBrickState[] ss = new AIBrickState[arraySize];
         //遍历四方，选择distance最小的那个,但是不能选择障碍物
         tpos.Set(state.pos.x + 1, state.pos.y);
@@ -139,20 +140,24 @@ public class AISearchBase
         tpos.Set(state.pos.x, state.pos.y - 1);
         ss[3] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
 
-        //  tpos.Set(state.pos.x + 1, state.pos.y + 1);//右上
-        // ss[4] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
-        //  tpos.Set(state.pos.x + 1, state.pos.y - 1);//右下
-        // ss[5] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
-        //  tpos.Set(state.pos.x - 1, state.pos.y - 1);//左下
-        // ss[6] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
-        //  tpos.Set(state.pos.x - 1, state.pos.y + 1);//左上
-        // ss[7] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
+        if (diagonal)
+        {        
+            tpos.Set(state.pos.x + 1, state.pos.y + 1);//右上
+            ss[4] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
+            tpos.Set(state.pos.x + 1, state.pos.y - 1);//右下
+            ss[5] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
+            tpos.Set(state.pos.x - 1, state.pos.y - 1);//左下
+            ss[6] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
+            tpos.Set(state.pos.x - 1, state.pos.y + 1);//左上
+            ss[7] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
+        }
+
         //四方物体有可能空，临时State是空的
         for (int i = 0; i < arraySize; i++)
         {
             if (ss[i] == null) continue;
             if (ss[i].parentState == null) {
-                Debug.Log("Node parent is null---------->" + ss[i].pos);
+                //Debug.Log("Node parent is null---------->" + ss[i].pos);
                 continue;
             }
             if (res == null) res = ss[i];

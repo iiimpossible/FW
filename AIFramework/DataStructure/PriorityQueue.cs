@@ -4,10 +4,12 @@ using UnityEngine;
 
 namespace GraphyFW.Common
 {
-    //对于一个优先队列来说，不同于普通队列的先进先出，优先队列为优先级最高的对象先出，涉及新元素入队后后元素排序问题
-    //应该使用二叉堆实现，目前使用一个普通排序，因为数据量还不大
-    public class PriorityQueue<T>
-    {
+
+    
+        public interface IGetPriority
+        {
+            float GetPriority();
+        }
         struct PQElemet<M> : IComparer<PQElemet<M>>
         {
             public M data;
@@ -38,6 +40,11 @@ namespace GraphyFW.Common
             }
 
         }
+    //对于一个优先队列来说，不同于普通队列的先进先出，优先队列为优先级最高的对象先出，涉及新元素入队后后元素排序问题
+    //应该使用二叉堆实现，目前使用一个普通排序，因为数据量还不大
+    public class PriorityQueue<T> where T: IGetPriority
+    {
+
         private List<PQElemet<T>> listElemnts = new List<PQElemet<T>>();
         private HashSet<int> prioSet = new HashSet<int>();
 
@@ -46,10 +53,10 @@ namespace GraphyFW.Common
 
         public int Count {get{return listElemnts.Count;}}
 
-        public void EnQUeue(T data, float priority)
+        public void EnQUeue(T data)
         {
             //if( prioSet.Contains(priority))
-            this.listElemnts.Add(new PQElemet<T>(priority, data));
+            this.listElemnts.Add(new PQElemet<T>(data.GetPriority(), data));
             this.listElemnts.Sort(new PQElemet<T>());
             // if (minPriority)
             //     this.listElemnts.Sort(delegate (PQElemet<T> a, PQElemet<T> b) { return System.Convert.ToInt32((a < b)); });
@@ -59,7 +66,8 @@ namespace GraphyFW.Common
 
         public T DeQueue() 
         {
-            if(listElemnts.Count>0)
+
+            if(listElemnts.Count>=1)
             {
                 T t = listElemnts[0].data;
                 listElemnts.RemoveAt(0);

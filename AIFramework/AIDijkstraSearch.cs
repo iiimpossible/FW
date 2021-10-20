@@ -28,6 +28,18 @@ public class AIDijkstraSearch : AISearchBase
 
     */
 
+    private void Relax(AIBrickState cur, AIBrickState next)
+    {
+        if( (cur == null) || (next == null) )return ;
+        float pathL = cur.distance + next.weight;
+        if(next.distance > pathL)
+        {
+            next.distance = pathL;
+            next.SetParentState(cur);
+            next.SetFound();            
+        }       
+    }
+
 
     /*
         伪码：
@@ -44,7 +56,6 @@ public class AIDijkstraSearch : AISearchBase
         }
     
     */
-
     /*在Dijkstra算法中，需要计算每一个节点距离起点的总移动代价。同时，还需要一个优先队列结构。对于所有待遍历的节点，放入优先队列中会按照代价进行排序。*/
 
    public override IEnumerator Search()
@@ -54,11 +65,12 @@ public class AIDijkstraSearch : AISearchBase
        List<AIBrickState> list = new List<AIBrickState>();
 
         var s = GetBirckStateDic(sourcePos,EBitMask.OBSTACLE | EBitMask.ACSSESS | EBitMask.FOUND);
-        pque.EnQUeue(s,s.distance);
+        pque.EnQUeue(s);
 
         Vector2Int pos = new Vector2Int();
 
         //将所有的节点都入队 目前权重都是1，要随机显示一个权重到颜色上
+        //这个操作不需要每次搜索都执行，实际上是一次性预处理的，有改动可以直接更新
         for(int i = 0 ; i < mapSize.x; i ++ )
         {
             for(int j = 0 ; j < mapSize.y; j++)
@@ -66,20 +78,43 @@ public class AIDijkstraSearch : AISearchBase
                 pos.Set(i,j);
                 AIBrickState tstate = dicBrickStates[pos];
                 tstate.distance = 1e10f;
-                if(pos == targetPos)tstate.distance = 0;
-                pque.EnQUeue(dicBrickStates[pos],dicBrickStates[pos].weight);
+                //if(pos == sourcePos)tstate.distance = 0;
+                pque.EnQUeue(dicBrickStates[pos]);
             }
         }
+        pque.Watch();
 
         AIBrickState u;
         
         while( pque.Count > 0)
         {
             u = pque.DeQueue();
+            Debug.Log("Brick distance----------->"+ u.distance);
+            u.SetAccess();           
+         
+            AIBrickState up = GetBirckStateDic(u.GetUp());
+            up?.SetFound();
+            Relax(u,up);
+            AIBrickState down = GetBirckStateDic(u.GetDown());
+            down?.SetFound();
+            Relax(u,down);
+            AIBrickState left = GetBirckStateDic(u.GetLeft());
+            left?.SetFound();
+            Relax(u,left);
+            AIBrickState right = GetBirckStateDic(u.GetRight());
+            right?.SetFound();
+            Relax(u,right);
+
+            if(u.pos == targetPos)
+            {
+                DrawPath(u);
+            }
             list.Add(u);
+            yield return new WaitForSeconds(levelDelayTime);
             
         }
-       yield return 0;
+        
+       
    }
 
 }
