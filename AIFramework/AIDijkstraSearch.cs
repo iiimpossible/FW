@@ -28,18 +28,6 @@ public class AIDijkstraSearch : AISearchBase
 
     */
 
-    private void Relax(AIBrickState cur, AIBrickState next)
-    {
-        if( (cur == null) || (next == null) )return ;
-        float pathL = cur.distance + next.weight;
-        if(next.distance > pathL)
-        {
-            next.distance = pathL;
-            next.SetParentState(cur);
-            next.SetFound();            
-        }       
-    }
-
 
     /*
         伪码：
@@ -57,6 +45,19 @@ public class AIDijkstraSearch : AISearchBase
     
     */
     /*在Dijkstra算法中，需要计算每一个节点距离起点的总移动代价。同时，还需要一个优先队列结构。对于所有待遍历的节点，放入优先队列中会按照代价进行排序。*/
+
+    private void Relax(AIBrickState u, AIBrickState v)
+    {
+        if( (u == null) || (v == null) )return ;
+        float pathL = u.distance + v.weight;
+        if(v.distance > pathL)
+        {
+            v.distance = pathL;
+            v.SetParentState(u);
+            v.SetFound(); 
+            Debug.Log("relax v.distance------->" + v.distance);           
+        }       
+    }
 
    public override IEnumerator Search()
    {
@@ -82,28 +83,24 @@ public class AIDijkstraSearch : AISearchBase
                 pque.EnQUeue(dicBrickStates[pos]);
             }
         }
-        pque.Watch();
+        //pque.Watch();
 
         AIBrickState u;
         
         while( pque.Count > 0)
         {
-            u = pque.DeQueue();
-            Debug.Log("Brick distance----------->"+ u.distance);
+            Debug.Log("The first priority is----------->"+ pque.First().distance);
+            u = pque.DeQueue();            
             u.SetAccess();           
          
-            AIBrickState up = GetBirckStateDic(u.GetUp());
-            up?.SetFound();
-            Relax(u,up);
-            AIBrickState down = GetBirckStateDic(u.GetDown());
-            down?.SetFound();
-            Relax(u,down);
-            AIBrickState left = GetBirckStateDic(u.GetLeft());
-            left?.SetFound();
-            Relax(u,left);
-            AIBrickState right = GetBirckStateDic(u.GetRight());
-            right?.SetFound();
-            Relax(u,right);
+            for(int i = 0;i<4;i++)
+            {
+                AIBrickState v = GetBirckStateDic(u.GetNeighbors(i)) ;
+                Relax(u,v);
+                pque.Refresh();
+            }
+
+
 
             if(u.pos == targetPos)
             {

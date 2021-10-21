@@ -58,6 +58,7 @@ public class AIBrickState :IGetPriority
         int tf = (System.Convert.ToInt32(isObstacle) <<1 )& (int)EBitMask.OBSTACLE;//将bool值转为掩码与OBSTACLE &
         PermissionMask.Enable(tf,ref this.accsessFlag);//这里当SetObstacle 参数为假，不能关闭其flag权限，最多不开 
         this.SetColor(Color.black);
+        this.isColorVariable =false;
         if(!isObstacle) PermissionMask.Disable((int)EBitMask.OBSTACLE,ref accsessFlag);//因为上边的位操作不能改变已经被设为1的位
         return this;
     }
@@ -135,6 +136,39 @@ public class AIBrickState :IGetPriority
     public float GetPriority()
     {
         return this.distance;
+    }
+
+
+    public void SetPriority(float p)
+    {
+        this.distance = p;
+    }
+
+    public Vector2Int GetNeighbors(int i)
+    {
+        switch(i)
+        {
+            case 0:
+            {
+                return GetUp();
+            }
+            case 1:
+            {
+                return GetRight();
+            }
+            case 2:
+            {
+                return GetDown();
+            }
+            case 3:
+            {
+                return GetLeft();
+            }
+            default:
+            {
+                return new Vector2Int();
+            }
+        }
     }
 }
 
