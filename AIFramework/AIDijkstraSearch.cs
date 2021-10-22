@@ -46,16 +46,17 @@ public class AIDijkstraSearch : AISearchBase
     */
     /*在Dijkstra算法中，需要计算每一个节点距离起点的总移动代价。同时，还需要一个优先队列结构。对于所有待遍历的节点，放入优先队列中会按照代价进行排序。*/
 
-    private void Relax(AIBrickState u, AIBrickState v)
+    private void Relax(AIBrickState u, AIBrickState v,PriorityQueue<AIBrickState> q)
     {
         if( (u == null) || (v == null) )return ;
         float pathL = u.distance + v.weight;
-        if(v.distance > pathL)
+        if(v.distance > pathL)//根本就过不了这个检测，因为 u.distance == max
         {
             v.distance = pathL;
             v.SetParentState(u);
             v.SetFound(); 
-            Debug.Log("relax v.distance------->" + v.distance);           
+            Debug.Log("relax v.distance------->" + v.distance);      
+            q.Refresh();     
         }       
     }
 
@@ -77,13 +78,15 @@ public class AIDijkstraSearch : AISearchBase
             for(int j = 0 ; j < mapSize.y; j++)
             {
                 pos.Set(i,j);
-                AIBrickState tstate = dicBrickStates[pos];
+                AIBrickState tstate = GetBirckStateDic(pos);
+                if(tstate == null) continue;                     
                 tstate.distance = 1e10f;
-                //if(pos == sourcePos)tstate.distance = 0;
-                pque.EnQUeue(dicBrickStates[pos]);
+                if(pos == sourcePos)tstate.distance = 0;                 
             }
         }
         //pque.Watch();
+
+        pque.EnQUeue(GetBirckStateDic(sourcePos));
 
         AIBrickState u;
         
@@ -93,18 +96,26 @@ public class AIDijkstraSearch : AISearchBase
             u = pque.DeQueue();            
             u.SetAccess();           
          
+            AIBrickState v = null;
             for(int i = 0;i<4;i++)
             {
-                AIBrickState v = GetBirckStateDic(u.GetNeighbors(i)) ;
-                Relax(u,v);
-                pque.Refresh();
+
+                v = GetBirckStateDic(u.GetNeighbors(i)) ;
+                if(v != null)
+                {
+                    pque.EnQUeue(v);
+                    Relax(u,v,pque);
+                }
+                
             }
 
+            //if(v == null) yield break;
 
-
+        
             if(u.pos == targetPos)
             {
                 DrawPath(u);
+                yield break;
             }
             list.Add(u);
             yield return new WaitForSeconds(levelDelayTime);

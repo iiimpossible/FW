@@ -500,13 +500,13 @@ MonoBehaviour:
   gridNum: {x: 20, y: 20}
   genOriginPos: {x: 0, y: 0}
   delayTime: 0
-  blackRate: 0.194
+  blackRate: 0.237
   brick: {fileID: 8594037050041403796, guid: 2f7ef7b8319f69a448e0e898bddf9e06, type: 3}
   offset: {x: 0, y: 0}
   searchOrigin: {x: 0, y: 0}
-  targetPos: {x: 1, y: 1}
+  targetPos: {x: 19, y: 19}
   palyOld: 0
-  radomTarget: 1
+  radomTarget: 0
 --- !u!4 &1654881653
 Transform:
   m_ObjectHideFlags: 0

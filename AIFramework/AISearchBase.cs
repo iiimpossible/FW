@@ -89,10 +89,16 @@ public class AISearchBase
                 AIBrickState newBrick = new AIBrickState(pos,newGo);
                 dicBrickStates.Add(pos,newBrick);
                 RandomIsObstacle(newBrick);//设置状态,必须在字典初始化这个key之后调用此方法
-                RandomColorForWeight(newBrick);
+                //RandomColorForWeight(newBrick);
             }
         }
         InitOriginTargetPos(sourcePos,targetPos);
+    }
+
+    //@description 初始化图，权重、颜色、访问权限
+    public void InitMap()
+    {
+
     }
 
 
