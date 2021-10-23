@@ -62,7 +62,7 @@ public class Scpt_GenMap : MonoBehaviour
     private Timer runGetNear = new Timer("GetNear");
 
 
-    private AISearchBase aiBFS;
+    private AISearchBase aiSearch;
     void Start()
     {
         if(radomTarget)
@@ -74,20 +74,30 @@ public class Scpt_GenMap : MonoBehaviour
         {
             case ESearchType.DFS:
                 {
-                    aiBFS = new AIDFSSerch(gridNum);
+                    aiSearch = new AIDFSSerch(gridNum);
                     break;
                 }
 
             case ESearchType.BFS:
                 {
-                    aiBFS = new AIBFSSearch(gridNum);
+                    aiSearch = new AIBFSSearch(gridNum);
                     break;
                 }
             case ESearchType.Dijkstra:
                 {
-                    aiBFS = new AIDijkstraSearch(gridNum);
+                    aiSearch = new AIDijkstraSearch(gridNum);
                     break;
                 }
+                case ESearchType.AStar:
+                {
+                     aiSearch = new AIAStarSearch(gridNum);
+                    break;
+                }
+            default :
+            {
+                  aiSearch = new AIBFSSearch(gridNum);
+                    break;
+            }
 
         }
 
@@ -104,11 +114,11 @@ public class Scpt_GenMap : MonoBehaviour
         else
         {
             
-            aiBFS.SetSourcePos(searchOrigin);
-            aiBFS.SetTargetPos(targetPos).SetGridSize(gridSize).blackRate = this.blackRate;
-            aiBFS.GenMap(brick, GameObject.Find("Floors"));
-            aiBFS.levelDelayTime = delayTime;
-            StartCoroutine(aiBFS.Search());
+            aiSearch.SetSourcePos(searchOrigin);
+            aiSearch.SetTargetPos(targetPos).SetGridSize(gridSize).blackRate = this.blackRate;
+            aiSearch.GenMap(brick, GameObject.Find("Floors"));
+            aiSearch.levelDelayTime = delayTime;
+            StartCoroutine(aiSearch.Search());
         }
 
        
@@ -117,12 +127,12 @@ public class Scpt_GenMap : MonoBehaviour
 
     public void SearchBFS()
     {
-        StartCoroutine(aiBFS.Search());
+        StartCoroutine(aiSearch.Search());
     }
 
     public void ClearBFS()
     {
-        aiBFS.Clear();
+        aiSearch.Clear();
         StopAllCoroutines();
     }
 
