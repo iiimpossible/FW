@@ -4,7 +4,7 @@ using UnityEngine;
 using GraphyFW.Common;
  
 //用一个数据结构来存储节点的状态
-public class AIBrickState :IGetPriority
+public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
 {
     public bool isAccess { get; private set; }
     public bool isFound { get; private set; }
@@ -169,6 +169,24 @@ public class AIBrickState :IGetPriority
                 return new Vector2Int();
             }
         }
+    }
+
+
+    public void SetData(float d)
+    {
+        this.distance = d;
+    }
+
+    public float GetData()
+    {
+        return this.distance;
+    }
+
+    public int Compare(AIBrickState a, AIBrickState b)
+    {
+        if(a.distance > b.distance)
+            return 1;
+        return -1;
     }
 }
 

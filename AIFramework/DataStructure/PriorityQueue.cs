@@ -44,12 +44,13 @@ namespace GraphyFW.Common
         
     //对于一个优先队列来说，不同于普通队列的先进先出，优先队列为优先级最高的对象先出，涉及新元素入队后后元素排序问题
     //应该使用二叉堆实现，目前使用一个普通排序，因为数据量还不大
-    public class PriorityQueue<T> where T: IGetPriority
+    public class PriorityQueue<T> where T: IGetPriority,IBinaryHeapData<T,float>
     {
 
          public delegate float NoneName(T a, T b);
         
         private List<T> listElemnts = new List<T>();
+        private BinaryHeap<T,float> heapElements = new BinaryHeap<T, float>();
         private HashSet<int> prioSet = new HashSet<int>();
 
         public bool minPriority {get;set;}
@@ -63,10 +64,8 @@ namespace GraphyFW.Common
            
             this.listElemnts.Add(data);
             this.listElemnts.Sort(delegate(T a, T b){return (a.GetPriority() < b.GetPriority()) ?-1:1;});
-            // if (minPriority)
-            //     this.listElemnts.Sort(delegate (PQElemet<T> a, PQElemet<T> b) { return System.Convert.ToInt32((a < b)); });
-            // else
-            //     this.listElemnts.Sort(delegate (PQElemet<T> a, PQElemet<T> b) { return System.Convert.ToInt32((a > b)); });
+            this.heapElements.Insert(data);
+       
         }
 
         public T DeQueue() 
@@ -88,8 +87,7 @@ namespace GraphyFW.Common
 
          public void Refresh()
          {
-             this.listElemnts.Sort((T a, T b) =>{return (a.GetPriority() < b.GetPriority()) ? -1:1;});
-             this.Watch();
+             this.listElemnts.Sort((T a, T b) =>{return (a.GetPriority() < b.GetPriority()) ? -1:1;});              
          }
 
         //public PQElemet<T> First() { if() return listElemnts[0];}
