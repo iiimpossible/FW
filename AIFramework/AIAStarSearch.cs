@@ -43,14 +43,15 @@ public class AIAStarSearch : AISearchBase
         GraphyFW.Common.PriorityQueue<AIBrickState> q = new GraphyFW.Common.PriorityQueue<AIBrickState>();
 
         //源节点入队
-        q.EnQUeue(GetBirckStateDic(sourcePos));
+        q.EnQueueBh(GetBirckStateDic(sourcePos));
 
         Vector2Int vpos = new Vector2Int();
         int max = 2000;
         GraphyFW.Common.DebugTime.StartTimer(timeTotal);
-        while (q.Count > 0 && max != 0)
+        while (q.bhCout > 0 && max != 0)
         {
-             AIBrickState u = q.DeQueue();
+             //AIBrickState u = q.DeQueue();
+             AIBrickState u = q.DeQueueBh();
              u.SetAccess();
 
             //搜索u节点周围的f(v) = g(v) + h(v)最小的节点 g(v)是v（下一个要搜索的点）点到当前点的距离耗费，
@@ -68,7 +69,7 @@ public class AIAStarSearch : AISearchBase
                 if(v != null)
                 {
                     v.distance =  this.ManhattanDistance(vpos,u.pos,targetPos);
-                    q.EnQUeue(v);//入队会排序 这里每次都排序，效率太低，考虑小根堆
+                    q.EnQueueBh(v);//入队会排序 这里每次都排序，效率太低，考虑小根堆
                     v.SetFound();          
                     //v.SetParentState(u);         
                     //TODO:计算距离优先级并选择

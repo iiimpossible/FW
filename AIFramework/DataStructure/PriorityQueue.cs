@@ -58,6 +58,32 @@ namespace GraphyFW.Common
 
         public int Count {get{return listElemnts.Count;}}
 
+        public int bhCout {get {return heapElements.Count;}}
+
+
+        
+        public void EnQueueBh(T data)
+        {
+            this.heapElements.Insert(data);
+        }
+
+
+        public T DeQueueBh()
+        {
+            return this.heapElements.Pop();
+        }
+
+
+        public void WatchBh()
+        {
+            this.heapElements.Watch();
+        }
+
+
+
+
+
+
         public void EnQUeue(T data)
         {
             //if( prioSet.Contains(priority))
@@ -67,6 +93,7 @@ namespace GraphyFW.Common
             this.heapElements.Insert(data);
        
         }
+
 
         public T DeQueue() 
         {
@@ -120,6 +147,8 @@ namespace GraphyFW.Common
             Debug.Log(log);
 
         }
+
+
 
 
 
