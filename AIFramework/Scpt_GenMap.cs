@@ -48,19 +48,11 @@ public class Scpt_GenMap : MonoBehaviour
 
     public bool radomTarget = false;
 
-    private List<List<GameObject>> squarObjs = new List<List<GameObject>>();
+    //private List<List<GameObject>> squarObjs = new List<List<GameObject>>();
 
     private Dictionary<GameObject, AIBrickState> dicBrickStates = new Dictionary<GameObject, AIBrickState>();
 
-    private List<Vector2> path = new List<Vector2>();
-
     AIStrategy strategy = new AIStrategy();
-
-    private Timer runTotal = new Timer("Total timer");
-    private Timer runFourChild = new Timer("Four children");
-    private Timer runList = new Timer("List");
-    private Timer runGetNear = new Timer("GetNear");
-
 
     private AISearchBase aiSearch;
     void Start()
@@ -69,7 +61,6 @@ public class Scpt_GenMap : MonoBehaviour
         {
             targetPos = new Vector2Int(Random.Range(0, gridNum.x - 1), Random.Range(0, gridNum.y - 1));
         }
-
         switch (searchType)
         {
             case ESearchType.DFS:
@@ -98,30 +89,12 @@ public class Scpt_GenMap : MonoBehaviour
                   aiSearch = new AIBFSSearch(gridNum);
                     break;
             }
-
         }
-
-        //
-
-
-        if (palyOld)
-        {
-            strategy.SetTargetPos(targetPos);
-            strategy.SetSourcePos(searchOrigin);
-            GenMap();
-            StartCoroutine(strategy.BFSSearch(targetPos));
-        }
-        else
-        {
-            
-            aiSearch.SetSourcePos(searchOrigin);
-            aiSearch.SetTargetPos(targetPos).SetGridSize(gridSize).blackRate = this.blackRate;
-            aiSearch.GenMap(brick, GameObject.Find("Floors"));
-            aiSearch.levelDelayTime = delayTime;
-            StartCoroutine(aiSearch.Search());
-        }
-
-       
+        aiSearch.SetSourcePos(searchOrigin);
+        aiSearch.SetTargetPos(targetPos).SetGridSize(gridSize).blackRate = this.blackRate;
+        aiSearch.GenMap(brick, GameObject.Find("Floors"));
+        aiSearch.levelDelayTime = delayTime;
+        StartCoroutine(aiSearch.Search());
     }
 
 
@@ -134,37 +107,6 @@ public class Scpt_GenMap : MonoBehaviour
     {
         aiSearch.Clear();
         StopAllCoroutines();
-    }
-
-    //生成随机地图
-    public void GenMap()
-    {
-        GameObject brickContainer = GameObject.Find("Floors");
-
-        if (brickContainer == null || brick == null)
-        {
-            Debug.LogError("GenMap error, floor is null.");
-            return;
-        }
-        for (int column = 0; column < gridNum.x; column++)
-        {
-            strategy.matrixObjs.Add(new List<GameObject>());
-            for (int row = 0; row < gridNum.y; row++)
-            {
-                GameObject newGo = Instantiate<GameObject>(brick, new Vector3(gridSize.x * column + offset.x, gridSize.y * row + offset.y, 0), Quaternion.identity);
-                if (!newGo)
-                {
-                    Debug.Log("Invalid prefab.");
-                    return;
-                }
-                newGo.transform.SetParent(brickContainer.transform);
-
-                strategy.matrixObjs[column].Add(newGo);
-                strategy.dicBrickStates.Add(newGo, new AIBrickState(new Vector2Int(column, row), newGo));//将游戏物体与其状态关联      
-                RandomIsObstacle(newGo, strategy.dicBrickStates);//设置状态
-            }
-        }
-        strategy.InitOriginTargetPos(searchOrigin,targetPos);
     }
 
     //随机生成障碍物（黑方块）

@@ -67,7 +67,7 @@ public class AIDijkstraSearch : AISearchBase
        List<AIBrickState> list = new List<AIBrickState>();
 
         var s = GetBirckStateDic(sourcePos,EBitMask.OBSTACLE | EBitMask.ACSSESS | EBitMask.FOUND);
-        pque.EnQUeue(s);
+        pque.EnQueue(s);
 
         Vector2Int pos = new Vector2Int();
 
@@ -86,7 +86,7 @@ public class AIDijkstraSearch : AISearchBase
         }
         //pque.Watch();
 
-        pque.EnQUeue(GetBirckStateDic(sourcePos));
+        pque.EnQueue(GetBirckStateDic(sourcePos));
 
         AIBrickState u;
         
@@ -103,7 +103,7 @@ public class AIDijkstraSearch : AISearchBase
                 v = GetBirckStateDic(u.GetNeighbors(i)) ;
                 if(v != null)
                 {
-                    pque.EnQUeue(v);
+                    pque.EnQueue(v);
                     Relax(u,v,pque);
                 }
                 

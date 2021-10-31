@@ -59,8 +59,7 @@ public class AIAStarSearch : AISearchBase
             AIBrickState v = null;
             
             for(int i = 0;i < 4; i++)
-            {
-                
+            {                
                 vpos.Set(u.GetNeighbors(i).x,u.GetNeighbors(i).y);
                 //这个访问周边节点要入队吗？ 优先级是动态计算还是预计算？总是可以预计算吗？
                 //如果周边访问就入队，和Dijkstra就没啥分别了，就是要用h(v)来防止耗费大的入队
@@ -71,10 +70,9 @@ public class AIAStarSearch : AISearchBase
                     v.distance =  this.ManhattanDistance(vpos,u.pos,targetPos);
                     q.EnQueueBh(v);//入队会排序 这里每次都排序，效率太低，考虑小根堆
                     v.SetFound();          
-                    //v.SetParentState(u);         
+                    v.SetParent(u);         
                     //TODO:计算距离优先级并选择
-                }
-                 
+                }                 
             }
 
              if(u.pos == targetPos)
@@ -86,28 +84,11 @@ public class AIAStarSearch : AISearchBase
             max --;
              yield return new WaitForSeconds(levelDelayTime);
              
-        }
-
-
-        
-
-
-       
+        }       
     }
 
-
-    public void Relax()
-    {
-
-    }
-
-
-    //计算启发函数以获得优先级
-    public void CalcPriority()
-    {
-
-    }
-
+ 
+ 
     //曼哈顿距离d(i,j)=|X1-X2|+|Y1-Y2|. 即在只能水平和竖直移动的区域，两点的距离是东西方向的距离加上南北方向的距离。
     //直线距离即欧氏（几何）距离
     //对角距离

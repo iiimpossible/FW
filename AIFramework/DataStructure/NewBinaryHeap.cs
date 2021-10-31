@@ -22,6 +22,7 @@ namespace GraphyFW.Common
 
         public void Push(T d)
         {
+            Debug.Log($"[Push]Push data----->{d.GetData()}");
             heap.Add(d);
             this.ComeUp(heap.Count);
         }
@@ -30,27 +31,30 @@ namespace GraphyFW.Common
         {
             if(heap.Count == 1)
             {
+                 Debug.Log($"[Pop]Current pop index {1} data{heap[heap.Count -1].GetData()}");
                  T res = heap[heap.Count - 1];
                 heap.RemoveAt(heap.Count - 1);
+               
                 return res;
             }
             //首尾交换
             if (TopToButtom())
             {
+                Debug.Log($"[Pop]Current pop index {1} data{heap[heap.Count -1].GetData()}");
                 T res = heap[heap.Count - 1];
-                heap.RemoveAt(heap.Count - 1);
+                heap.RemoveAt(heap.Count - 1);                
                 Sink(1);
                 return res;
             }
             
-            Debug.Log("BinaryHeap count less than 2.");
+            Debug.Log("[Pop]BinaryHeap count less than 2.");
             return default(T);
         }
 
         private void Sink(int n)
         {            
             int si = Son(n);
-            Debug.Log($"The fist son is--------->{si}");
+            Debug.Log($"[Sink]The fist son is--------->{si}");
             for (int i = n; i < heap.Count && i > 0; i = si)
             {
                 //如果这两个有非法，不能进行
@@ -58,9 +62,9 @@ namespace GraphyFW.Common
                 T b = Index(si);
                 if (a.Compare(a,b) > 0)//如果son(i)非法，index返回index.minValue，不管如何，过不了swap判断
                 {
-                    if (!Swap(i, si)) { Debug.Log("[BinaryHeap] Sink over."); return; };
+                    if (!Swap(i, si)) { Debug.Log("[Sink] Sink over."); return; };
                 }
-                Debug.Log($"Son index is----->{si}");
+                Debug.Log($"[Sink]Son index is----->{si}");
                 si = Son(si);
             }
         }
@@ -69,13 +73,15 @@ namespace GraphyFW.Common
         {
             for (int i = n; i > 0; i /= 2)//死循环预警：可能不会小于0
             {
-                Debug.Log($"(Cur index {i},data {Index(i)}) (Farth index {i / 2},data {Index(i / 2)})");
+                Debug.Log($"[ComeUp](Cur index {i},data {Index(i).GetData()}) (Farth index {i / 2},data {Index(i / 2)?.GetData()})");
                 T a = Index(i);
                 T b = Index(i / 2);
                 if (a.Compare(a,b ) < 0)//当i/2非法时，Index返回int.minValue 当n节点小于它的父节点，那么就交换
                 {
-                    if (!Swap(i, i / 2)) { Debug.Log("[BinaryHeap] ComeUp over."); return; };//当索引非法，不继续进行操作
+                    if (!Swap(i, i / 2)) { Debug.Log("[ComeUp] ComeUp over."); return; };//当索引非法，不继续进行操作
                 }
+                else
+                    break;
             }
         }
 
@@ -91,8 +97,8 @@ namespace GraphyFW.Common
             {
                 T a = Index(n * 2);
                 T b = Index(n * 2 + 1);
-                //TODO:返回大的那个儿子的索引
-                return a.Compare(a,b) > 0 ? n * 2 : n * 2 + 1;
+                //TODO:返回小的那个儿子的索引
+                return a.Compare(a,b) < 0 ? n * 2 : n * 2 + 1;
             }
             else if (Valid(n * 2 - 1))
                 return n * 2;
@@ -139,11 +145,10 @@ namespace GraphyFW.Common
             sa = a - 1;
             sb = b - 1;
             if (!Valid(sa) || !Valid(sb))
-            {
-                Debug.Log($"Invalid index,index {b},data {Index(b)}");
+            {             
                 return false;
             }
-            Debug.Log($"(index {a},data {heap[sa]}) swap to (index {b},data {heap[sb]})");
+            Debug.Log($"[Swap](index {a},data {heap[sa].GetData()}) swap to (index {b},data {heap[sb].GetData()})");
             T t = heap[sa];
             heap[sa] = heap[sb];
             heap[sb] = t;
@@ -157,7 +162,7 @@ namespace GraphyFW.Common
         /// </summary>
         public void Watch()
         {
-            string log = "";
+            string log = "[Watch]";
             for (int i = 0; i < heap.Count; i++)
             {
                 log += $"Total Index{i + 1}, Data----------->{heap[i].GetData()}\n";

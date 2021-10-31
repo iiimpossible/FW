@@ -80,6 +80,14 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
         return this;
     }
 
+    public AIBrickState SetParent(AIBrickState parent)
+    {
+        if(isAccess) return this;
+        this.parentState = parent;
+        this.SetFound();
+        return this;
+    }
+
     public AIBrickState SetDistance(int dis)
     {
         this.distance += dis;
@@ -186,6 +194,7 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
     {
         if(a == null) return -2;//a = null
         if(b == null) return -3;//b = null
+        if(a == b) return 0;
         if(a.distance > b.distance)
             return 1; //a > b
         return -1;//a < b

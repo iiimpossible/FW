@@ -62,15 +62,17 @@ namespace GraphyFW.Common
 
         
         public void EnQueueBh(T data)
-        {
-            Debug.Log($"Push data----->{data.GetData()}");
+        {  
             this.newHeap.Push(data);
+            this.newHeap.Watch();
         }
 
 
         public T DeQueueBh()
         {
-            return this.newHeap.Pop();
+            T data = this.newHeap.Pop();            
+            this.newHeap.Watch();
+            return data;             
         }
 
 
@@ -79,7 +81,7 @@ namespace GraphyFW.Common
             this.newHeap.Watch();
         }
 
-        public void EnQUeue(T data)
+        public void EnQueue(T data)
         {
             //if( prioSet.Contains(priority))
            
