@@ -50,47 +50,41 @@ namespace GraphyFW.Common
          public delegate float NoneName(T a, T b);
         
         private List<T> listElemnts = new List<T>();
-        private BinaryHeap<T,float> heapElements = new BinaryHeap<T, float>();
-        private HashSet<int> prioSet = new HashSet<int>();
+       
+        private NewBinaryHeap<T, float> newHeap  = new NewBinaryHeap<T, float>();
 
         public bool minPriority {get;set;}
         public PriorityQueue() {this.minPriority = true; }
 
         public int Count {get{return listElemnts.Count;}}
 
-        public int bhCout {get {return heapElements.Count;}}
-
+        public int bhCout {get {return newHeap.Count;}}
 
         
         public void EnQueueBh(T data)
         {
-            this.heapElements.Insert(data);
+            Debug.Log($"Push data----->{data.GetData()}");
+            this.newHeap.Push(data);
         }
 
 
         public T DeQueueBh()
         {
-            return this.heapElements.Pop();
+            return this.newHeap.Pop();
         }
 
 
         public void WatchBh()
         {
-            this.heapElements.Watch();
+            this.newHeap.Watch();
         }
-
-
-
-
-
 
         public void EnQUeue(T data)
         {
             //if( prioSet.Contains(priority))
            
             this.listElemnts.Add(data);
-            this.listElemnts.Sort(delegate(T a, T b){return (a.GetPriority() < b.GetPriority()) ?-1:1;});
-            this.heapElements.Insert(data);
+            this.listElemnts.Sort(delegate(T a, T b){return (a.GetPriority() < b.GetPriority()) ?-1:1;});           
        
         }
 

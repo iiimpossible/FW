@@ -31,19 +31,23 @@ class TData : GraphyFW.Common.IBinaryHeapData<TData,int>
 
 public class Scpt_Test : MonoBehaviour
 {
+    BHTest bh = new BHTest();
      GraphyFW.Common.BinaryHeap<TData,int> a = new GraphyFW.Common.BinaryHeap<TData,int>();    
+     
     void Start()
     {
        
+       Debug.Log("Begin Test.");
+        bh.Test();
+        // for(int  i = 10 ;i > 0;i--)
+        // {
+        //     a.Insert( new TData (Random.Range(0,50)));
+        // }
 
-        for(int  i = 10 ;i > 0;i--)
-        {
-            a.Insert( new TData (Random.Range(0,50)));
-        }
-
-        Debug.Log(a.Count);
-        a.Watch();
+        // Debug.Log(a.Count);
+        // a.Watch();
         
+
 
 
     }

@@ -704,7 +704,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1654881651}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 504af3d9d8fdc2e4cb486fca129b855d, type: 3}
   m_Name: 
@@ -718,9 +718,9 @@ MonoBehaviour:
   brick: {fileID: 8594037050041403796, guid: 2f7ef7b8319f69a448e0e898bddf9e06, type: 3}
   offset: {x: 0, y: 0}
   searchOrigin: {x: 0, y: 0}
-  targetPos: {x: 19, y: 19}
+  targetPos: {x: 8, y: 8}
   palyOld: 0
-  radomTarget: 0
+  radomTarget: 1
 --- !u!4 &1654881653
 Transform:
   m_ObjectHideFlags: 0
@@ -742,7 +742,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1654881651}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 492636ce12d96f649b42276d8e62ae34, type: 3}
   m_Name: 

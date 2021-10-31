@@ -184,9 +184,11 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
 
     public int Compare(AIBrickState a, AIBrickState b)
     {
+        if(a == null) return -2;//a = null
+        if(b == null) return -3;//b = null
         if(a.distance > b.distance)
-            return 1;
-        return -1;
+            return 1; //a > b
+        return -1;//a < b
     }
 }
 
