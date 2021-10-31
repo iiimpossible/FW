@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GraphyFW.Common;
+using TMPro;
  
 //用一个数据结构来存储节点的状态
 public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
@@ -154,28 +155,74 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
 
     public Vector2Int GetNeighbors(int i)
     {
-        switch(i)
+        switch (i)
         {
             case 0:
-            {
-                return GetUp();
-            }
+                {
+                    return GetUp();
+                }
             case 1:
-            {
-                return GetRight();
-            }
+                {
+                    return GetRight();
+                }
             case 2:
-            {
-                return GetDown();
-            }
+                {
+                    return GetDown();
+                }
             case 3:
-            {
-                return GetLeft();
-            }
+                {
+                    return GetLeft();
+                }
             default:
-            {
-                return new Vector2Int();
-            }
+                {
+                    return default(Vector2Int);
+                }
+        }
+    }
+
+    /// <summary>
+    /// 逆时针
+    /// </summary>
+    /// <param name="i"></param>
+    /// <returns></returns>
+    public Vector2Int GetNeighborsDiagnol(int i)
+    {
+        switch (i)
+        {
+            case 0://上
+                {
+                    return new Vector2Int(pos.x, pos.y+1);
+                }
+            case 1://右上
+                {
+                    return new Vector2Int(pos.x +1,pos.y +1);
+                }
+            case 2://右
+                {
+                    return new Vector2Int(pos.x +1,pos.y);
+                }
+            case 3://右下
+                {
+                    return new Vector2Int(pos.x +1,pos.y -1);
+                }
+            case 4://下
+                {
+                    return new Vector2Int(pos.x,pos.y -1);
+                }
+            case 5://左下
+                {
+                    return new Vector2Int(pos.x -1,pos.y -1);
+                }
+            case 6://左
+                {
+                    return new Vector2Int(pos.x -1,pos.y );
+                }
+            case 7://左上
+                {
+                    return new Vector2Int(pos.x -1,pos.y +1);
+                }
+            default:
+                return default(Vector2Int);
         }
     }
 
@@ -194,10 +241,18 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
     {
         if(a == null) return -2;//a = null
         if(b == null) return -3;//b = null
-        if(a == b) return 0;
+        float delta = Mathf.Abs( a.distance - b.distance);
+        if(delta < 0.01) return 0;
+        
         if(a.distance > b.distance)
             return 1; //a > b
         return -1;//a < b
+    }
+
+    public void SetText(string str)
+    {
+        TextMeshPro tmp = self.transform.Find("Text")?.GetComponent<TextMeshPro>();
+        if(tmp != null)tmp.text = str;
     }
 }
 

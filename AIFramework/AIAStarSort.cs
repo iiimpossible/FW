@@ -30,9 +30,9 @@ using UnityEngine;
                     * 将节点m加入open_set中
 
 */
-public class AIAStarSearch : AISearchBase
+public class AIAstarSort : AISearchBase
 {
-    public AIAStarSearch(Vector2Int mapSize):base(mapSize)
+    public AIAstarSort(Vector2Int mapSize):base(mapSize)
     {
 
     }
@@ -43,31 +43,32 @@ public class AIAStarSearch : AISearchBase
         GraphyFW.Common.PriorityQueue<AIBrickState> q = new GraphyFW.Common.PriorityQueue<AIBrickState>();
 
         //源节点入队
-        q.EnQueueBh(GetBirckStateDic(sourcePos));
+        q.EnQueue(GetBirckStateDic(sourcePos));
 
-        Vector2Int vpos = new Vector2Int();        
+        Vector2Int vpos = new Vector2Int();
         int max = 2000;
         GraphyFW.Common.DebugTime.StartTimer(timeTotal);
-        while (q.bhCout > 0 && max != 0)
+        while (q.Count > 0 && max != 0)
         {
              //AIBrickState u = q.DeQueue();
-             AIBrickState u = q.DeQueueBh();
-              
+             AIBrickState u = q.DeQueue();
              u.SetAccess();
 
             //搜索u节点周围的f(v) = g(v) + h(v)最小的节点 g(v)是v（下一个要搜索的点）点到当前点的距离耗费，
             //h(v)是v点到目标点的实际距离的估算（有障碍物，无障碍就是精确值）
-            AIBrickState v = null;            
-            for(int i = 0;i < 8; i++)
+            AIBrickState v = null;
+            
+            for(int i = 0;i < 4; i++)
             {                
                 vpos = u.GetNeighborsDiagnol(i);
                 //这个访问周边节点要入队吗？ 优先级是动态计算还是预计算？总是可以预计算吗？
-                //如果周边访问就入队，和Dijkstra就没啥分别了，就是要用h(v)来防止耗费大的入队                 
+                //如果周边访问就入队，和Dijkstra就没啥分别了，就是要用h(v)来防止耗费大的入队
+                 
                 v = GetBirckStateDic(vpos) ;
                 if(v != null)
                 {
                     v.distance =  this.ManhattanDistance(vpos,u.pos,targetPos);
-                    q.EnQueueBh(v);//入队会排序 这里每次都排序，效率太低，考虑小根堆
+                    q.EnQueue(v);//入队会排序 这里每次都排序，效率太低，考虑小根堆
                     v.SetFound();          
                     v.SetParent(u);   
                     v.SetText(v.distance.ToString());      

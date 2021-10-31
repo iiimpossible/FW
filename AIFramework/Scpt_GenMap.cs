@@ -15,7 +15,8 @@ public enum ESearchType
     DFS,
     BFS,
     AStar,
-    Dijkstra
+    Dijkstra,
+    AStarSort
 }
 
 
@@ -79,14 +80,19 @@ public class Scpt_GenMap : MonoBehaviour
                     aiSearch = new AIDijkstraSearch(gridNum);
                     break;
                 }
-                case ESearchType.AStar:
+            case ESearchType.AStar:
                 {
-                     aiSearch = new AIAStarSearch(gridNum);
+                    aiSearch = new AIAStarSearch(gridNum);
                     break;
                 }
-            default :
-            {
-                  aiSearch = new AIBFSSearch(gridNum);
+            case ESearchType.AStarSort:
+                {
+                    aiSearch = new AIAstarSort(gridNum);
+                    break;
+                }
+            default:
+                {
+                    aiSearch = new AIBFSSearch(gridNum);
                     break;
             }
         }
