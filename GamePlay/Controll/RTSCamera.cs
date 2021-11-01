@@ -22,9 +22,14 @@ public class RTSCamera : MonoBehaviour
     public float maxCameraFOV = 160;
     public float minCameraFOV = 30;
 
+    public float maxCameraOrthSize = 40;
+
+    public float minCameraOrthSize = 5;
     private float speed = 1f;  
     
     private Camera myCamera;
+
+    
     void Start()
     {
         myCamera = transform.GetComponent<Camera>(); 
@@ -36,7 +41,7 @@ public class RTSCamera : MonoBehaviour
     {
         keyboardMove();
         MouseMove();
-        CamraField();
+        CameraSize();
     }
 
     /// <summary>
@@ -61,16 +66,32 @@ public class RTSCamera : MonoBehaviour
 
     private void CamraField()
     {
-        float d = Input.GetAxis("Mouse ScrollWheel");        
+        float d = -Input.GetAxis("Mouse ScrollWheel");               
         if(d > 0 && myCamera.fieldOfView < maxCameraFOV)
-        {
+        {            
              myCamera.fieldOfView += d * fieldOfViewScale * Time.deltaTime;
+             Debug.Log("myCamera.fieldOfView: " + myCamera.fieldOfView); 
+            //myCamera.sensorSize
+           
         }
         if( d < 0 && myCamera.fieldOfView > minCameraFOV)
         {
+             
             myCamera.fieldOfView += d * fieldOfViewScale * Time.deltaTime;
+            Debug.Log("myCamera.fieldOfView: " + myCamera.fieldOfView); 
         }
         //if()
+    }
+
+    private void CameraSize()
+    {
+        float d = -Input.GetAxis("Mouse ScrollWheel");
+        if (d > 0 && myCamera.orthographicSize < maxCameraOrthSize)
+            myCamera.orthographicSize += d * fieldOfViewScale * Time.deltaTime;
+
+        if (d < 0 && myCamera.orthographicSize > minCameraOrthSize)
+            myCamera.orthographicSize += d * fieldOfViewScale * Time.deltaTime;
+
     }
 
     private void keyboardMove()
