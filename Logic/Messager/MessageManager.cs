@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Events;
+using System;
 public enum ECoordinations
 {
     MOUSE_WORLD_POS = 1,
@@ -18,6 +19,31 @@ public enum ECoordinations
 */
 
 /// <summary>
+/// 消息基类
+/// </summary>
+public class BaseMessage
+{
+    public string messageType;
+
+    public virtual void Invoke(){}
+
+}
+
+/// <summary>
+/// 当鼠标点击屏幕，转为世界坐标，然后发送
+/// </summary>
+public class OnMousePosInWorld :BaseMessage
+{
+    Vector2Int mousePos;   
+
+    UnityAction<Vector2Int> func;
+    public override void Invoke()
+    {
+        func(mousePos);
+    }
+}
+
+/// <summary>
 /// 消息管理器
 /// 静态方法:消息注册，消息发送，消息订阅
 /// 消息还是要分类，分为普通无参消息，和特定系统消息
@@ -26,22 +52,38 @@ public enum ECoordinations
 public class MessageManager 
 {
     delegate void MAction();
-    Dictionary<string,MAction> dicMessage;
+    Dictionary<string,BaseMessage> dicMessage;
 
-    public void RigistMessage(string message)
+    private List<BaseMessage> messages;
+ 
+
+    public void SendMessage(BaseMessage message)
     {
-
+        dicMessage.Add(message.messageType,message);
     }
 
-    public void SendMessage()
+    /// <summary>
+    /// 添加一个监听者到一个事件上
+    /// </summary>
+    public void AddListener(string messageType)
     {
-
+        if(dicMessage.ContainsKey(messageType))
+        {
+            
+        }
     }
 
-    public void AddListener()
+
+    public void Dispatch(string messageType)
     {
+        if(dicMessage.ContainsKey(messageType))
+        {
 
+        }
     }
+        
+    
 
+    
 
 }

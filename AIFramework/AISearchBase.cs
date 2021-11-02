@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GraphyFW.Common;
+using UnityEngine.Events;
 //寻路算法的基类
 public class AISearchBase
 {
-
+     
     public Dictionary<Vector2Int, AIBrickState> dicBrickStates;
     private List<List<AIBrickState>> listBrickStates;
     public Vector2Int mapSize { get; private set; }
@@ -107,6 +108,12 @@ public class AISearchBase
     {
         yield return new WaitForSeconds(0.1f) ;
     }
+
+    public  virtual void SearchPath(List<Vector2Int> nodes)
+    {
+        
+    }    
+
 
 
      //随机生成障碍物（黑方块）
@@ -223,6 +230,8 @@ public class AISearchBase
             c--;
         }
     }
+
+   
 
     //是否是目标节点
 

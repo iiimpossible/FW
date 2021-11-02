@@ -46,9 +46,6 @@ namespace GraphyFW.Common
     //应该使用二叉堆实现，目前使用一个普通排序，因为数据量还不大
     public class PriorityQueue<T> where T: IGetPriority,IBinaryHeapData<T,float>
     {
-
-         public delegate float NoneName(T a, T b);
-        
         private List<T> listElemnts = new List<T>();
        
         private NewBinaryHeap<T, float> newHeap  = new NewBinaryHeap<T, float>();
@@ -117,6 +114,11 @@ namespace GraphyFW.Common
 
         public void Remove() { }
 
+        public void Clear()
+        {
+            this.listElemnts.Clear();
+            this.newHeap.Clear();
+        }
 
         public T First()
         {

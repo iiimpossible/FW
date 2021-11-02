@@ -123,5 +123,15 @@ public class Scpt_GenMap : MonoBehaviour
         if (ran > 100 * (1 - blackRate))
             state.SetObstacle();
     }
+
+    /// <summary>
+    /// 输入目标位置，执行寻路算法并返回路径点
+    /// </summary>
+    /// <param name="tgpos"></param>
+    public void GetPath(Vector2Int tgpos)
+    {
+        //TODO：返回路径点
+        
+    }
   
 }

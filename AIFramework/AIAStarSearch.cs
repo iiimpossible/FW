@@ -32,16 +32,16 @@ using UnityEngine;
 */
 public class AIAStarSearch : AISearchBase
 {
+    GraphyFW.Common.PriorityQueue<AIBrickState> q;
     public AIAStarSearch(Vector2Int mapSize):base(mapSize)
     {
-
+        q = new GraphyFW.Common.PriorityQueue<AIBrickState>();
     }
 
     public override IEnumerator Search()
     {
         //最小优先队列
-        GraphyFW.Common.PriorityQueue<AIBrickState> q = new GraphyFW.Common.PriorityQueue<AIBrickState>();
-
+        q.Clear();
         //源节点入队
         q.EnQueueBh(GetBirckStateDic(sourcePos));
 
@@ -49,7 +49,7 @@ public class AIAStarSearch : AISearchBase
         int max = 2000;
         GraphyFW.Common.DebugTime.StartTimer(timeTotal);
         while (q.bhCout > 0 && max != 0)
-        {
+        {           
              //AIBrickState u = q.DeQueue();
              AIBrickState u = q.DeQueueBh();
               
@@ -66,12 +66,11 @@ public class AIAStarSearch : AISearchBase
                 v = GetBirckStateDic(vpos) ;
                 if(v != null)
                 {
-                    v.distance =  this.ManhattanDistance(vpos,u.pos,targetPos);
-                    q.EnQueueBh(v);//入队会排序 这里每次都排序，效率太低，考虑小根堆
+                    v.distance =  this.DiagonalDistance(vpos,u.pos,targetPos);
+                    q.EnQueueBh(v); 
                     v.SetFound();          
                     v.SetParent(u);   
-                    v.SetText(v.distance.ToString());      
-                    //TODO:计算距离优先级并选择
+                    v.SetText(v.distance.ToString()); 
                 }                 
             }
 
@@ -87,23 +86,43 @@ public class AIAStarSearch : AISearchBase
         }       
     }
 
- 
+    public override void SearchPath(List<Vector2Int> nodes)
+    {
+        q.Clear();
+    }
+
+    
+    
+
  
     //曼哈顿距离d(i,j)=|X1-X2|+|Y1-Y2|. 即在只能水平和竖直移动的区域，两点的距离是东西方向的距离加上南北方向的距离。
     //直线距离即欧氏（几何）距离
     //对角距离
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="v">当前节点</param>
+    /// <param name="u">v的父节点</param>
+    /// <param name="s">目标节点</param>
+    /// <returns></returns>
     public float ManhattanDistance(Vector2Int v, Vector2Int u, Vector2Int s)
     {
         return Mathf.Abs(v.x - u.x) + Mathf.Abs(v.y - u.y) + Mathf.Abs(s.x - v.x) + Mathf.Abs(s.y - v.y);    
     }
 
+    /**/
 
-    public float DiagonalDistance()
-    {
-        return 0;
+    /// <summary>
+    /// 求两点对角距离
+    /// d = sqrt((x-x)^2 + (y-y)^2)
+    /// </summary>
+    /// <returns></returns>
+    public float DiagonalDistance(Vector2Int v, Vector2Int u,Vector2Int s)
+    {       
+        return  Mathf.Round(Mathf.Sqrt(Mathf.Pow((v.x - s.x), 2) + Mathf.Pow(v.y - s.y, 2)));
     }
 
-    
+
 
 }

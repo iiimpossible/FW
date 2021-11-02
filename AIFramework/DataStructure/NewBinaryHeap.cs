@@ -156,6 +156,12 @@ namespace GraphyFW.Common
         }
 
 
+        public void Clear()
+        {
+            this.heap.Clear();
+        }
+
+
 
         /// <summary>
         /// 输出堆中的值

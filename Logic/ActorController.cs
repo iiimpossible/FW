@@ -51,7 +51,7 @@ public class ActorController : MonoBehaviour
         return (tg - transform.position).normalized;
     }
     
-    
+    //行为
 
     
 }
