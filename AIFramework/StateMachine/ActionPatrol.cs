@@ -33,6 +33,8 @@ namespace GraphyFW.AI
         public ActionPatrol(ActorController controller, AIRunData runData) : base(controller, runData)
         {
            // runData.SetVec3Data()
+           _patrolRadius = 10.0f;
+           _originPos = _controller.actor.transform.position;
         }
 
 
@@ -46,12 +48,16 @@ namespace GraphyFW.AI
         /// </summary>
         public override void ActionUpdate()
         {
-            _timeCounter += Time.deltaTime;
-            if( _timeCounter > _delayTime){
-                _timeCounter = 0.0f; 
+           // Debug.Log("Action ActionPatrol Called.~~~~~");
+            _timeCounter += Time.deltaTime;          
+            if (_timeCounter > _delayTime)//
+            {                
+                //if(_isCompleted == true) return;
+                _timeCounter = 0.0f;
                 RandowmTarget();
-                _runData.SetVec3Data("TargetPos",_RandomPos);
-            _isCompleted = true;
+                _runData.SetVec3Data("TargetPos", _RandomPos);
+                Debug.Log("Target date----->"+ _runData.GetVec3Data("TargetPos"));
+                _isCompleted = true;
             }
         }
 
@@ -106,7 +112,9 @@ namespace GraphyFW.AI
 
         public override void ActionEnter()
         {
+            if(_isMove == true)return;
             _target = _runData.GetVec3Data("TargetPos");
+            Debug.Log("Enter actioin MoveTO"+ _target);
             _isMove = true;
             _direction = (_target - _controller.actor.transform.position).normalized;
         }
@@ -119,6 +127,7 @@ namespace GraphyFW.AI
 
         public override void ActionUpdate()
         {
+            Debug.Log("Action MoveTo Called.~~~~~");
             if(_isMove)
                 _controller.actor.transform.position+= _direction * speed * Time.deltaTime;
             if(Arrive())
@@ -127,6 +136,12 @@ namespace GraphyFW.AI
 
         public override bool ActionCompleted()
         {
+            // if(condition != null)
+            // {
+            //     bool c = condition.Invoke();
+            //     if(_isMove != c) _isMove = false;                 
+            // }
+            
             return !_isMove;
         }
 

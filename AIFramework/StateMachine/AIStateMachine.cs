@@ -39,8 +39,7 @@ namespace GraphyFW.AI
         /// 循环执行状态
         /// </summary>
         public void Update()
-        {
-            Debug.Log("Machine called.");
+        {            
             if(curAction == null) return;
             curAction.ActionUpdate();
             SwicthState();          
@@ -51,15 +50,17 @@ namespace GraphyFW.AI
         /// </summary>
         public void SwicthState()
         {
-            if(curAction == null) return;
-            if (curAction.ActionCompleted() && curAction.condition != null)
+            if (curAction == null) return;
+            if (curAction.ActionCompleted())
             {
-                if (curAction.condition.Invoke())
+                lastAction = curAction;
+                if (curAction.nextAction != null)
                 {
-                    lastAction = curAction;
-                    if(curAction.nextAction != null) curAction = curAction.nextAction;   
+                    Debug.Log("Switch state.~~~~~~~~");
+                    curAction = curAction.nextAction;
+                    curAction.ActionEnter();
+                    lastAction.ActionExit();
                 }
-                   
             }
         }
 
@@ -71,6 +72,7 @@ namespace GraphyFW.AI
         public void SetStartState(ActionBase action)
         {
             curAction = action;
+            curAction.ActionEnter();
         }
     }
 
