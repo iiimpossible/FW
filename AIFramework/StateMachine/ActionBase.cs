@@ -8,12 +8,16 @@ namespace GraphyFW.AI
     public class ActionBase
     {
         public AIFunction condition;
-        private ActorController _controller;
+
+        protected AIRunData _runData{get;set;}
+        protected ActorController _controller;
 
         public ActionBase nextAction;
-        public ActionBase(ActorController controller)
+        public ActionBase(ActorController controller, AIRunData runData)
         {
+            if(controller == null) Debug.Log  ("At ActionBase cotroll null~~~~~~~");
             this._controller = controller;
+            this._runData = runData;
         }
          public virtual void ActionEnter()
         {

@@ -17,17 +17,33 @@ public class ActorController
 
     private  ActionMoveTo move ;
 
-    public ActorController(GameObject acotr)
+    private ActionPatrol patrol;
+
+    private AIRunData runData;
+
+    /// <summary>
+    /// 注意在构造函数中将自己作为参数是不被允许的，此时自己还没有构造完成
+    /// </summary>
+    /// <param name="actor"></param>
+    public ActorController(GameObject actor)
     {
         Debug.Log("Init controller");
-        this.actor = acotr;
+        this.actor = actor;
         ScptInputManager.instance.eventMouseInWorldPos += AddPos;
-        
-        move = new ActionMoveTo(this);
-       
-        move.condition = ()=>{if(this.poss.Count == 0) Debug.Log("Poss count is zero"); return true;};
+    }
+
+    public void Start()
+    {
+        runData = new AIRunData();
+        move = new ActionMoveTo(this, runData);
+        patrol = new ActionPatrol(this,runData);
+        move.nextAction = patrol;
+        patrol.nextAction = move;
+        move.condition = () => { if (this.poss.Count == 0) Debug.Log("Poss count is zero"); return true; };
         machine.SetStartState(move);
     }
+
+
     public void Update()
     {
         machine.Update();
