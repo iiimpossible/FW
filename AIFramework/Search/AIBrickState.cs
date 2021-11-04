@@ -21,7 +21,8 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
 
     public int accsessFlag;
 
-    public AIBrickState(Vector2Int pos, GameObject self, AIBrickState parent = null)
+    public AIBrickState(){}
+    public AIBrickState(Vector2Int pos = default(Vector2Int), GameObject self = null, AIBrickState parent = null)
     {
         this.color = Color.white;
         this.pos = pos;
@@ -34,6 +35,22 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
         this.isColorVariable = true;
         this.weight = 0;
     } 
+
+    //泛型构造函数不能有参数？
+    public  void InitBrick(Vector2Int pos = default(Vector2Int), GameObject self = null, AIBrickState parent = null)
+    {
+        this.color = Color.white;
+        this.pos = pos;
+        this.distance = 0;
+        this.isAccess = false;
+        this.isObstacle = false;
+        this.parentState = null;
+        this.isFound = false;
+        this.self = self;
+        this.isColorVariable = true;
+        this.weight = 0;
+    }
+
 
     public AIBrickState SetAccess()
     {
@@ -57,7 +74,7 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
     {
         this.isObstacle = isObstacle;  
         int tf = (System.Convert.ToInt32(isObstacle) <<1 )& (int)EBitMask.OBSTACLE;//将bool值转为掩码与OBSTACLE &
-        PermissionMask.Enable(tf,ref this.accsessFlag);//这里当SetObstacle 参数为假，不能关闭其flag权限，最多不开 
+        PermissionMask.Enable(tf,ref this.accsessFlag);//这里当SetObstacle 参数为假，不能关闭其flag权限，最多不开     
         this.SetColor(Color.black);
         //this.isColorVariable =false;
         if(!isObstacle) PermissionMask.Disable((int)EBitMask.OBSTACLE,ref accsessFlag);//因为上边的位操作不能改变已经被设为1的位
@@ -66,7 +83,7 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
 
     public AIBrickState SetColor(Color color)
     {
-        if (!isColorVariable) return this;
+        if (!isColorVariable) return this;       
         this.color = color;
         self.GetComponent<SpriteRenderer>().color = color;
         return this;

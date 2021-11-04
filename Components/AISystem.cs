@@ -2,20 +2,43 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ai系统管理场景中的所有AIContorller组件，并生成地图？
+/// </summary>
 public class AISystem : MonoBehaviour
 {
-     private ActorController _controller;
-     
-    private void Awake() {
-        //因为这个组件比gameOject还先实例吗？
-        //_controller = new ActorController(transform.gameObject);
+    public Vector2Int mapSize;
+
+    public Vector3 mapOrigin;
+
+    public Vector2Int gridOffSet;
+    public static AISystem instance;
+
+    public GameObject birck;
+
+    public GameObject birckContainer;
+
+
+    public Dictionary<string, MapBase<AIBrickState>> dicMaps;
+
+    public MapBase<AIBrickState> mainMap;
+
+    private void Awake()
+    {
+        instance = this;
+        mainMap = new MapBase<AIBrickState>(mapSize);
+        mainMap.offset = gridOffSet;
+        mainMap.mapZero = Vector3.zero;
+        mainMap.GenMap(birck,birckContainer);
     }
 
-    private void Start() {
-        _controller = new ActorController(transform.gameObject);
-        _controller.Start();
+    private void Start()
+    {
+
+
     }
-    private void Update() {
-        _controller.Update();
+    private void Update()
+    {
+
     }
 }

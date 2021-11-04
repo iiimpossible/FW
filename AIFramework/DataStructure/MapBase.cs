@@ -14,7 +14,7 @@ using UnityEngine;
 /// 4.关于着色器，如果使用许多的Sprite绘制地图，至少需要n*4的定点数目，如果使用一个网格，每个格子使用一个顶点，向周围的像素操作，使得颜色改变
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MapBase<T> where T:new()
+public class MapBase<T> where T: AIBrickState,new()
 {
     
     //地图中心点
@@ -29,8 +29,17 @@ public class MapBase<T> where T:new()
     /// <value></value>
     public Vector2Int size{get;private set;}
 
-
+    /// <summary>
+    /// 每个格子与其他格子的偏移
+    /// </summary>
+    /// <value></value>
     public Vector2 offset{get;set;}
+
+    /// <summary>
+    /// 每个格子的大小（不是砖块的大小）
+    /// </summary>
+    /// <value></value>
+    public Vector2 gridSize{get;set;}
 
     /// <summary>
     /// 地图的本地坐标在世界坐标系中的原点
@@ -38,6 +47,8 @@ public class MapBase<T> where T:new()
     /// <value></value>
     public Vector3 mapZero{get;set;}
 
+
+    public float obstacleRate{get;set;}
     private Dictionary<Vector2Int,T> dicMap = new Dictionary<Vector2Int, T>();
 
     public MapBase(Vector2Int size)
@@ -46,6 +57,8 @@ public class MapBase<T> where T:new()
         offset = Vector2.zero;
         size = Vector2Int.zero;
         mapZero = Vector3.zero;
+        gridSize = Vector2.one;
+        obstacleRate = 0.4f;
     }
 
     
@@ -56,23 +69,10 @@ public class MapBase<T> where T:new()
     public T this[Vector2Int i]
     {
         get{return dicMap[i];}
-    }
-
-
-
-    /// <summary>
-    /// 地图生成方法，使用该方法生成网格---砖块一一对应的地图，性能很低
-    /// </summary>
-    /// <param name="brick"></param>
-    public void GenMap(GameObject brick)
-    {
-
-    }
-
-
+    } 
 
      //生成地图
-    public void GenMap(GameObject prefab, GameObject container, Vector2 initOffset = new Vector2())
+    public void GenMap(GameObject prefab, GameObject container)
     {
         if (container == null || prefab == null)
         {
@@ -80,12 +80,14 @@ public class MapBase<T> where T:new()
             return;
         }
         Vector2Int pos = new Vector2Int();
+        Vector3 worldPos = Vector3.zero;
         for (int column = 0; column < this.size.x; column++)
         {            
             //listBrickStates.Add(new List<AIBrickState>());
             for (int row = 0; row < this.size.y; row++)
             {
-                GameObject newGo = GameObject.Instantiate<GameObject>(prefab, new Vector3(this.size.x * column + offset.x, this.size.y * row + offset.y, 0), Quaternion.identity);
+                worldPos.Set(this.gridSize.x * column + offset.x, this.gridSize.y * row + offset.y, mapZero.z);
+                GameObject newGo = GameObject.Instantiate<GameObject>(prefab, worldPos, Quaternion.identity);
                 if (!newGo)
                 {
                     Debug.Log("Invalid prefab.");
@@ -95,12 +97,28 @@ public class MapBase<T> where T:new()
                 pos.Set(column,row);
 
                 T newBrick = new T();
-                dicMap.Add(pos,newBrick);              
+                newBrick.InitBrick(pos,newGo);
+                dicMap.Add(pos,newBrick);   
+                InitBricks(newBrick);           
             }
         }
        
     }
- 
+
+    /// <summary>
+    /// 初始化砖块，随机是否是障碍物
+    /// 设置状态,必须在字典初始化这个key之后调用此方法
+    /// </summary>
+    /// <param name="brick"></param>
+    /// <param name="blackRate"></param>
+    private void InitBricks(T brick, float blackRate = 0.4f)
+    {
+       
+        int ran = Random.Range(0, 100);
+        if (ran > 100 * (1 - blackRate))
+            brick.SetObstacle();
+    }
+
 
     /// <summary>
     /// 获取整个的地图的四个角的格子
@@ -142,11 +160,28 @@ public class MapBase<T> where T:new()
     /// <returns></returns>
     public Vector2Int GetAdjacencys(Vector2Int origin, int i)
     {
+
+
+
         return Vector2Int.zero;
     }
 
 
-
+    /// <summary>
+    /// 根据索引获取对应位置的砖块状态
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    public T GetBrickState(Vector2Int pos, EBitMask mask = EBitMask.NONE)
+    { 
+        if(dicMap.ContainsKey(pos))
+        {
+            T state =  dicMap[pos];
+            if(PermissionMask.ISAllow((int)mask,state.accsessFlag))
+                return state;
+        } 
+        return default(T);
+    }
      
 
     

@@ -17,6 +17,8 @@ public class AIRunData
 
     Dictionary<string, GameObject> _dicGoData;
 
+    Dictionary<string,MapBase<AIBrickState>> _dicBrickData;
+
     //List<string> defaultKey ;
     public AIRunData()
     {       
@@ -188,6 +190,35 @@ public class AIRunData
         if(_dicGoData != null)
             return _dicGoData[dataName];
         return default(GameObject);
+    }
+
+
+
+          public void SetBrickData(string dataName, MapBase<AIBrickState> data)
+    {
+        if(_dicBrickData != null)
+        {
+            if(_dicBrickData.ContainsKey(dataName))
+            {
+                _dicBrickData[dataName] = data;
+            }
+            else
+            {
+                _dicBrickData.Add(dataName,data);
+            }
+        }
+        else
+        {
+            _dicBrickData = new Dictionary<string,  MapBase<AIBrickState>>();
+            _dicBrickData.Add(dataName,data);
+        }
+    }
+
+    public  MapBase<AIBrickState> GetBrickData(string dataName)
+    {
+        if(_dicBrickData != null)
+            return _dicBrickData[dataName];
+        return default( MapBase<AIBrickState>);
     }
     
 }

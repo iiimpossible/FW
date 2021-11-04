@@ -34,7 +34,7 @@ namespace GraphyFW.AI
         {
            // runData.SetVec3Data()
            _patrolRadius = 10.0f;
-           _originPos = _controller.actor.transform.position;
+           _originPos = _controller.transform.position;
         }
 
 
@@ -74,7 +74,7 @@ namespace GraphyFW.AI
 
         private void RandowmTarget()
         {
-            _RandomPos.Set(Random.Range(_originPos.x, _patrolRadius),Random.Range(_originPos.y, _patrolRadius),_controller.actor.transform.position.z);           
+            _RandomPos.Set(Random.Range(_originPos.x, _patrolRadius),Random.Range(_originPos.y, _patrolRadius),_controller.transform.position.z);           
         }
     }
 
@@ -102,7 +102,7 @@ namespace GraphyFW.AI
         {
             _target = target;
             _isMove = true;
-            _direction = (_target - _controller.actor.transform.position).normalized;
+            _direction = (_target - _controller.transform.position).normalized;
         }
 
         public void SetNextState(ActionBase action)
@@ -116,7 +116,7 @@ namespace GraphyFW.AI
             _target = _runData.GetVec3Data("TargetPos");
             Debug.Log("Enter actioin MoveTO"+ _target);
             _isMove = true;
-            _direction = (_target - _controller.actor.transform.position).normalized;
+            _direction = (_target - _controller.transform.position).normalized;
         }
 
         public override void ActionExit()
@@ -129,7 +129,7 @@ namespace GraphyFW.AI
         {
             Debug.Log("Action MoveTo Called.~~~~~");
             if(_isMove)
-                _controller.actor.transform.position+= _direction * speed * Time.deltaTime;
+                _controller.transform.position+= _direction * speed * Time.deltaTime;
             if(Arrive())
                 _isMove = false;            
         }
@@ -152,7 +152,7 @@ namespace GraphyFW.AI
         /// <returns></returns>
         private bool Arrive()
         {            
-            if((_target - _controller.actor.transform.position).sqrMagnitude < 0.01f)
+            if((_target - _controller.transform.position).sqrMagnitude < 0.01f)
                 return true;
             return false;
         }
