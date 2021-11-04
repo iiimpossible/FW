@@ -38,6 +38,9 @@ namespace GraphyFW.AI
             return true;
         }
 
+        //TODO:某些行为独立于状态机转换，需要计时以及时调用。即当时间到达时候，立即将状态转换为该状态 再说吧
+
+
     }
 
 }

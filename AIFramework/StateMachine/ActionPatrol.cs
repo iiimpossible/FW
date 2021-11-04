@@ -184,4 +184,45 @@ namespace GraphyFW.AI
 
     }
 
+
+
+    /// <summary>
+    /// 调用搜索算法，寻找目标物体或者寻路
+    /// 1.寻路算法和移动行为、巡逻行为怎么联动？
+    /// </summary>
+    public class ActionSearch : ActionBase
+    {
+
+        public ActionSearch(ActorController controller, AIRunData runData): base(controller, runData)
+        {
+
+        }
+
+
+        public override void ActionEnter()
+        {
+            base.ActionEnter();
+        }
+
+        public override void ActionUpdate()
+        {
+            base.ActionUpdate();
+        }
+
+
+        public override void ActionExit()
+        {
+            base.ActionExit();
+        }
+
+
+    }
+
+    /*
+        优先队列控制任务？（状态机）
+        
+    
+    
+    */
+
 }
