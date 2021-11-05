@@ -122,23 +122,24 @@ public class MapBase<T> where T: AIBrickState,new()
 
     /// <summary>
     /// 获取整个的地图的四个角的格子
+    /// 顺时针，0 右上
     /// </summary>
     /// <param name="i"></param>
     /// <returns></returns>
-    public Vector2 GetMapCorner(int i)
+    public Vector2Int GetMapCorner(int i)
     {
         switch (i)
         {
-            case 0://右上 逆时针
-            break;
+            case 0://右上 顺时针            
+                return new Vector2Int(size.x-1,size.y-1); 
             case 1://右下
-            break;
+                return new Vector2Int(size.x-1, 0);
             case 2://左下
-            break;
+                return new Vector2Int(0,0);
             case 3://左上
-            break;
+                return new Vector2Int(0,size.y-1);
         }
-        return default(Vector2);
+        return default(Vector2Int);
     }
 
 
@@ -148,7 +149,7 @@ public class MapBase<T> where T: AIBrickState,new()
     /// <returns></returns>
     public Vector2Int GetMapCenter()
     {
-        return Vector2Int.zero;
+        return new Vector2Int(size.x/2 , size.y/2);
     }
 
 
@@ -183,6 +184,36 @@ public class MapBase<T> where T: AIBrickState,new()
         return default(T);
     }
      
+
+    /// <summary>
+    /// 在地图上获取一个点用于生成AI 对象
+    /// 这个在未来应该是从一个点搜索，搜索出一片空白地区，生成一个蚁巢
+    /// </summary>
+    /// <returns></returns>
+    public Vector2Int GetSpawnPos(Vector2Int pos)
+    {         
+        T tbrick = this.GetBrickState(pos,EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE);
+        for(int i= 0;i< 8;i++)
+        {
+            GetBrickState(tbrick.GetNeighbors(i),EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE).Clear();
+        }
+        return pos;
+    }
+
+
+    /// <summary>
+    /// 将2D地图上的坐标转为世界空间中的3D坐标（z = 0）
+    /// </summary>
+    /// <param name="mapPos"></param>
+    /// <returns></returns>
+    public Vector3 MapSpaceToWorldSpace(Vector2Int mapPos)
+    {   
+        Debug.Log("Center pos ?0------>" + mapPos);
+        //Maps属性：size offset girdsize mapZero
+        // worldPos.x = mapZero.x + (size.x * (offset.x +gridsize.x)) 
+        Debug.Log("offset.x + gridSize.x------>" + (offset.x + gridSize.x));
+        return new Vector3(mapZero.x + (mapPos.x * offset.x * gridSize.x), mapZero.y + (mapPos.y * offset.y * gridSize.y)  ,0);
+    }
 
     
 }

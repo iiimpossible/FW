@@ -18,11 +18,15 @@ public class AISystem : MonoBehaviour
 
     public GameObject birckContainer;
 
+    public GameObject aiActor;
 
     public Dictionary<string, MapBase<AIBrickState>> dicMaps;
 
     public MapBase<AIBrickState> mainMap;
 
+    /// <summary>
+    /// 生成地图
+    /// </summary>
     private void Awake()
     {
         instance = this;
@@ -30,6 +34,8 @@ public class AISystem : MonoBehaviour
         mainMap.offset = gridOffSet;
         mainMap.mapZero = Vector3.zero;
         mainMap.GenMap(birck,birckContainer);
+
+        SpawnAIObject();
     }
 
     private void Start()
@@ -41,4 +47,20 @@ public class AISystem : MonoBehaviour
     {
 
     }
+
+    public void SpawnAIObject()
+    {
+        //在地图上选择一个点，
+        //采样点
+        //像素一个采样点，
+        Vector2Int pos = mainMap.GetSpawnPos(mainMap.GetMapCenter());
+
+        Vector3 p3 = mainMap.MapSpaceToWorldSpace(pos);
+        Debug.Log("Map center in the world------>" + p3);
+        //在这个位置实例一个AI对象
+        GameObject.Instantiate(aiActor,p3,Quaternion.identity);
+    }
+
+
+
 }
