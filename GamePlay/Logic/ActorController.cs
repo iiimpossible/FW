@@ -20,7 +20,9 @@ public class ActorController :MonoBehaviour
 
     private AIRunData runData;
 
-  
+    private ActionSearchMove searchMove;
+
+    private ActionSearchProp searchProp;
     private void Awake() {   
         
     }
@@ -33,7 +35,8 @@ public class ActorController :MonoBehaviour
     private void InitRunData()
     {
         //地图数据
-        this.runData.SetBrickData("MainMap",new MapBase<AIBrickState>(Vector2Int.zero));
+      
+      
         
     }   
 
@@ -42,13 +45,21 @@ public class ActorController :MonoBehaviour
     {
         ScptInputManager.instance.eventMouseInWorldPos += AddPos;
         runData = new AIRunData();
-        move = new ActionMoveTo(this, runData);
-        patrol = new ActionPatrol(this,runData);
-        move.nextAction = patrol;
-        patrol.nextAction = move;
-        move.condition = () => { if (this.poss.Count == 0) Debug.Log("Poss count is zero"); return true; };
-        machine.SetStartState(move);
+        this.runData.SetMapData("MainMap",  AISystem.instance.mainMap);
+
+
+        //move = new ActionMoveTo(this, runData);
+        //patrol = new ActionPatrol(this,runData);
+        //searchMove = new ActionSearchMove(this, runData);
+        searchProp = new ActionSearchProp(this,runData);
+        
+
+        //move.nextAction = patrol;
+       // patrol.nextAction = move;
+       // move.condition = () => { if (this.poss.Count == 0) Debug.Log("Poss count is zero"); return true; };
+        machine.SetStartState(searchProp);
     }
+
 
 
     public void Update()
@@ -56,6 +67,13 @@ public class ActorController :MonoBehaviour
         machine.Update();
         //Move();
     }
+
+
+    private void GenAIState()
+    {
+
+    }
+
 
     private void Move()
     {

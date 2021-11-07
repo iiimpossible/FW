@@ -22,7 +22,7 @@ namespace GraphyFW.Common
 
         public void Push(T d)
         {
-            Debug.Log($"[Push]Push data----->{d.GetData()}");
+            //Debug.Log($"[Push]Push data----->{d.GetData()}");
             heap.Add(d);
             this.ComeUp(heap.Count);
         }
@@ -31,7 +31,7 @@ namespace GraphyFW.Common
         {
             if(heap.Count == 1)
             {
-                 Debug.Log($"[Pop]Current pop index {1} data{heap[heap.Count -1].GetData()}");
+                 //Debug.Log($"[Pop]Current pop index {1} data{heap[heap.Count -1].GetData()}");
                  T res = heap[heap.Count - 1];
                 heap.RemoveAt(heap.Count - 1);
                
@@ -40,21 +40,21 @@ namespace GraphyFW.Common
             //首尾交换
             if (TopToButtom())
             {
-                Debug.Log($"[Pop]Current pop index {1} data{heap[heap.Count -1].GetData()}");
+                //Debug.Log($"[Pop]Current pop index {1} data{heap[heap.Count -1].GetData()}");
                 T res = heap[heap.Count - 1];
                 heap.RemoveAt(heap.Count - 1);                
                 Sink(1);
                 return res;
             }
             
-            Debug.Log("[Pop]BinaryHeap count less than 2.");
+            //Debug.Log("[Pop]BinaryHeap count less than 2.");
             return default(T);
         }
 
         private void Sink(int n)
         {            
             int si = Son(n);
-            Debug.Log($"[Sink]The fist son is--------->{si}");
+            //Debug.Log($"[Sink]The fist son is--------->{si}");
             for (int i = n; i < heap.Count && i > 0; i = si)
             {
                 //如果这两个有非法，不能进行
@@ -64,7 +64,7 @@ namespace GraphyFW.Common
                 {
                     if (!Swap(i, si)) { Debug.Log("[Sink] Sink over."); return; };
                 }
-                Debug.Log($"[Sink]Son index is----->{si}");
+                //Debug.Log($"[Sink]Son index is----->{si}");
                 si = Son(si);
             }
         }
@@ -73,7 +73,7 @@ namespace GraphyFW.Common
         {
             for (int i = n; i > 0; i /= 2)//死循环预警：可能不会小于0
             {
-                Debug.Log($"[ComeUp](Cur index {i},data {Index(i).GetData()}) (Farth index {i / 2},data {Index(i / 2)?.GetData()})");
+                //Debug.Log($"[ComeUp](Cur index {i},data {Index(i).GetData()}) (Farth index {i / 2},data {Index(i / 2)?.GetData()})");
                 T a = Index(i);
                 T b = Index(i / 2);
                 if (a.Compare(a,b ) < 0)//当i/2非法时，Index返回int.minValue 当n节点小于它的父节点，那么就交换
@@ -148,7 +148,7 @@ namespace GraphyFW.Common
             {             
                 return false;
             }
-            Debug.Log($"[Swap](index {a},data {heap[sa].GetData()}) swap to (index {b},data {heap[sb].GetData()})");
+            //Debug.Log($"[Swap](index {a},data {heap[sa].GetData()}) swap to (index {b},data {heap[sb].GetData()})");
             T t = heap[sa];
             heap[sa] = heap[sb];
             heap[sb] = t;

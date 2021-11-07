@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GraphyFW.Common;
 
 namespace GraphyFW.AI
 {
     public class AIAlgorithm
     {
         static GraphyFW.Common.PriorityQueue<AIBrickState> q = new Common.PriorityQueue<AIBrickState>();
+
+        static Timer timer = new Timer("Search time:");
         /// <summary>
         /// 静态A*算法，根据提供的地图，输出路径
         /// 搜索u节点周围的f(v) = g(v) + h(v)最小的节点 g(v)是v（下一个要搜索的点）点到当前点的距离耗费，
@@ -14,12 +17,15 @@ namespace GraphyFW.AI
         /// </summary>
         /// <param name="map"></param>
         /// <param name="path"></param>
-        public static void AstarSearch(MapBase<AIBrickState> map, Vector2Int sourcePos, Vector2Int targetPos, List<Vector2Int> path)
+        public static void AstarSearch(MapBase<AIBrickState> map, Vector2Int sourcePos, Vector2Int targetPos, List<Vector2> path)
         {           
+            Debug.Log("AStarsearch sourcepos-->" + sourcePos + "targetpos--->" + targetPos);
+            DebugTime.StartTimer(timer);
+            
             q.Clear();           
             q.EnQueueBh(map.GetBrickState(sourcePos));//源节点入队获取状态
             Vector2Int vpos = new Vector2Int();
-            int max = 2000;
+            int max = 200;
             while (q.bhCout > 0 && max != 0)
             {
                 AIBrickState u = q.DeQueueBh();
@@ -28,23 +34,34 @@ namespace GraphyFW.AI
                 for (int i = 0; i < 8; i++)
                 {
                     vpos = u.GetNeighborsDiagnol(i);
+                    // Debug.Log("v pos is---->" + vpos);
+                    // Debug.Log("Choose neighbor-->" + i);
+                    // if(i >3)
+                    // {
+                    //     if(IsObstacle(map,u.pos,vpos)) continue ;
+                    // }
                     v = map.GetBrickState(vpos);//邻居节点状态
                     if (v != null)
                     {
                         v.distance = DiagonalDistance(vpos, u.pos, targetPos);
+                        
                         q.EnQueueBh(v);
                         //v.SetFound();
                         v.SetParent(u);
                         v.SetText(v.distance.ToString());
                     }
+                   
                 }
+                // Debug.Log("Cur priority queue count is--->" + q.Count);
                 if (u.pos == targetPos)
                 {
                     while(u.parentState != null)
                     {
-                        path.Add(u.pos);
+                        path.Add(map.MapSpaceToWorldSpace(u.pos));
                         u = u.parentState;
                     }
+                     DebugTime.EndTimer(timer);
+                    return;
                 }
                 max--;
             }
@@ -72,6 +89,27 @@ namespace GraphyFW.AI
         public static float DiagonalDistance(Vector2Int v, Vector2Int u, Vector2Int s)
         {
             return Mathf.Round(Mathf.Sqrt(Mathf.Pow((v.x - s.x), 2) + Mathf.Pow(v.y - s.y, 2)));
+        }
+
+        /// <summary>
+        /// 判断这两个位置是否是对角阻塞的
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public static bool IsObstacle(MapBase<AIBrickState> map,Vector2Int u,Vector2Int v)
+        {
+            //两个点的1号方块
+            Vector2Int a  = Vector2Int.zero;
+            Vector2Int b = Vector2Int.zero;
+            a.Set(u.x, v.y);
+            b.Set(v.x, u.y);
+            if(map.GetBrickState(a) != null || map.GetBrickState(b) != null)
+            {
+                Debug.Log("Is not obstable");
+                return false;
+            }
+            return true;
         }
 
     }

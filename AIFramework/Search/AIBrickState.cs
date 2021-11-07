@@ -21,6 +21,7 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
 
     public int accsessFlag;
 
+    private Vector2Int setNeighborPos = new Vector2Int();
     public AIBrickState(){}
     public AIBrickState(Vector2Int pos = default(Vector2Int), GameObject self = null, AIBrickState parent = null)
     {
@@ -208,35 +209,54 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
         {
             case 0://上
                 {
-                    return new Vector2Int(pos.x, pos.y+1);
+                    setNeighborPos.Set(pos.x, pos.y + 1);
+                    return setNeighborPos;
+                    //return new Vector2Int(pos.x, pos.y+1);
                 }
-            case 1://右上
+            case 1://右
                 {
-                    return new Vector2Int(pos.x +1,pos.y +1);
+                    setNeighborPos.Set(pos.x + 1, pos.y);
+                    return setNeighborPos;
+                    //return new Vector2Int(pos.x +1,pos.y);
                 }
-            case 2://右
+            case 2://下
                 {
-                    return new Vector2Int(pos.x +1,pos.y);
+                    setNeighborPos.Set(pos.x, pos.y - 1);
+                    return setNeighborPos;
+                    //return new Vector2Int(pos.x,pos.y -1);
                 }
-            case 3://右下
+            case 3://左
                 {
-                    return new Vector2Int(pos.x +1,pos.y -1);
+                    setNeighborPos.Set(pos.x - 1, pos.y);
+                    return setNeighborPos;
+                    //return new Vector2Int(pos.x -1,pos.y );
                 }
-            case 4://下
+            case 4://右上
                 {
-                    return new Vector2Int(pos.x,pos.y -1);
+                    setNeighborPos.Set(pos.x + 1, pos.y + 1);
+                    return setNeighborPos;
+                    //return new Vector2Int(pos.x +1,pos.y +1);
                 }
-            case 5://左下
+        
+            case 5://右下
                 {
-                    return new Vector2Int(pos.x -1,pos.y -1);
+                    setNeighborPos.Set(pos.x +1,pos.y -1); 
+                    return setNeighborPos;
+                    //return new Vector2Int(pos.x +1,pos.y -1);
                 }
-            case 6://左
+          
+            case 6://左下
                 {
-                    return new Vector2Int(pos.x -1,pos.y );
+                    setNeighborPos.Set(pos.x -1,pos.y -1); 
+                    return setNeighborPos;
+                    //return new Vector2Int(pos.x -1,pos.y -1);
                 }
+         
             case 7://左上
                 {
-                    return new Vector2Int(pos.x -1,pos.y +1);
+                    setNeighborPos.Set(pos.x -1,pos.y +1); 
+                    return setNeighborPos;
+                    //return new Vector2Int(pos.x -1,pos.y +1);
                 }
             default:
                 return default(Vector2Int);

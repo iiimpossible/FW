@@ -7,7 +7,7 @@ public class ScptInputManager : MonoBehaviour
 {
     public UnityAction<Vector2Int> eventMouseInWorldPos;
     
-    public static ScptInputManager  instance;
+    public static ScptInputManager  instance{get;private set;}
 
     private void Awake() {
         instance = this;
@@ -32,4 +32,6 @@ public class ScptInputManager : MonoBehaviour
            eventMouseInWorldPos?.Invoke(tgpos);
         }
     }
+
+    //鼠标控制
 }

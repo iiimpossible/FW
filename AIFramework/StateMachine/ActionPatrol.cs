@@ -12,11 +12,11 @@ namespace GraphyFW.AI
     /// 1.随机巡逻或者定义巡逻路径
     /// 2.搜索行为
     /// 3.使用一个全局变量，巡逻改变该变量吗？
+    /// 4.该状态实际是一个idle状态，是在没有任务的时候
     /// </summary>
     public class ActionPatrol : ActionBase
     {
-        //随机巡逻目标点
-        bool _isCompleted;
+        //随机巡逻目标点       
 
         Vector3 _currrentPos;
         Vector3 _targetPos;
@@ -190,39 +190,147 @@ namespace GraphyFW.AI
     /// 调用搜索算法，寻找目标物体或者寻路
     /// 1.寻路算法和移动行为、巡逻行为怎么联动？
     /// </summary>
-    public class ActionSearch : ActionBase
+    public class ActionSearchMove : ActionBase
     {
 
-        public ActionSearch(ActorController controller, AIRunData runData): base(controller, runData)
-        {
+        public float speed = 10f;
 
+        private Vector2 _dir;
+        private List<Vector2> _path;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="runData"></param>
+        /// <returns></returns>
+        public ActionSearchMove(ActorController controller, AIRunData runData): base(controller, runData)
+        {            
+            _runData.SetVec2IData("TargetPos",  _map.GetMapCorner(1));
+            _path = new List<Vector2>();
+            _dir = new Vector2();            
+        }
+
+        /// <summary>
+        /// 当actor进入这个状态，进行寻路
+        /// 要想访问格子上的物体，是否需要更新格子的信息？如当前游戏物体是否在格子上？
+        /// </summary>
+        public override void ActionEnter()
+        {
+            Debug.Log("Action search move ActionEnter.");
+            _isCompleted = false;   
+            //这个actor在地图中的位置，应该找到对应的状态类？
+            AIAlgorithm.AstarSearch(_map,_map.WorldSpaceToMapSpace(_controller.transform.position),_runData.GetVec2IData("TargetPos"),_path);
+        }
+
+        public override void ActionUpdate()
+        {            
+            if (_path.Count > 0)
+            {
+                _dir = _path[_path.Count-1] - (Vector2)_controller.transform.position;
+                _controller.transform.Translate(_dir.x * Time.deltaTime * speed, _dir.y * Time.deltaTime * speed, _controller.transform.position.z);
+                if (Arrive(_path[_path.Count-1]))
+                {
+                    _path.RemoveAt(_path.Count-1);
+                }
+            }
+            else
+            {
+                _isCompleted = true;
+            }
         }
 
 
+        /// <summary>
+        /// 处理一些状态，还原？
+        /// </summary>
+        public override void ActionExit()
+        {
+             Debug.Log("Action search move ActionExit.");
+            _path.Clear();
+        }
+
+
+        public override bool ActionCompleted()
+        {
+             Debug.Log("Action search move ActionCompleted.");
+            return _isCompleted;
+        }
+
+
+        public bool Arrive(Vector3 pos)
+        {
+            if ((pos - _controller.transform.position).sqrMagnitude < 0.01f)
+                return true;
+            return false;
+        }
+    }
+
+
+
+    /// <summary>
+    /// 以自身位置为中心，搜索目标道具
+    /// </summary>
+    public class ActionSearchProp : ActionBase
+    {
+        
+        public float speed = 10f;
+
+        private Vector2 _dir;
+
+        private List<Vector2> _path;
+        public ActionSearchProp(ActorController controller, AIRunData runData):base(controller,runData)
+        {
+            _path = new List<Vector2>();
+              _dir = new Vector2();     
+        }
+
+        /// <summary>
+        /// 进入时查询可以获取的道具
+        /// </summary>
         public override void ActionEnter()
         {
-            base.ActionEnter();
+             AIAlgorithm.AstarSearch(_map, _map.WorldSpaceToMapSpace(_controller.transform.position), 
+                _map.WorldSpaceToMapSpace(AISystem.instance.GetFoodObject().transform.position),_path);
         }
 
         public override void ActionUpdate()
         {
-            base.ActionUpdate();
+             if (_path.Count > 0)
+            {
+                _dir = _path[_path.Count-1] - (Vector2)_controller.transform.position;
+                _controller.transform.Translate(_dir.x * Time.deltaTime * speed, _dir.y * Time.deltaTime * speed, _controller.transform.position.z);
+                if (Arrive(_path[_path.Count-1]))
+                {
+                    _path.RemoveAt(_path.Count-1);
+                }
+            }
+            else
+            {
+                _isCompleted = true;
+            }
         }
-
 
         public override void ActionExit()
         {
             base.ActionExit();
         }
 
-
+        public override bool ActionCompleted()
+        {
+            return base.ActionCompleted();
+        }
+        
+        public bool Arrive(Vector3 pos)
+        {
+            if ((pos - _controller.transform.position).sqrMagnitude < 0.01f)
+                return true;
+            return false;
+        }
     }
 
-    /*
-        优先队列控制任务？（状态机）
-        
     
+
+
     
-    */
 
 }

@@ -12,12 +12,17 @@ namespace GraphyFW.AI
         protected AIRunData _runData{get;set;}
         protected ActorController _controller;
 
+        protected bool _isCompleted{get;set;}
+
+        protected MapBase<AIBrickState> _map;
         public ActionBase nextAction;
         public ActionBase(ActorController controller, AIRunData runData)
         {
             if(controller == null) Debug.Log  ("At ActionBase cotroll null~~~~~~~");
+            
             this._controller = controller;
             this._runData = runData;
+            _map = _runData.GetMapData("MainMap");
         }
          public virtual void ActionEnter()
         {

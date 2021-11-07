@@ -48,7 +48,7 @@ namespace GraphyFW.AI
         }
 
         /// <summary>
-        /// 怎么条件转换？
+        /// 当curAction完成的时候，转换状态
         /// </summary>
         public void SwicthState()
         {

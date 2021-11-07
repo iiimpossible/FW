@@ -8,6 +8,21 @@ using UnityEngine;
 /// </summary>
 public class AIRunData 
 {
+    enum KeyValue
+    {   
+        ORIGIN_POS = 1,
+        TARGET_POS = 2,
+
+        MAIN_MAP = 3,
+
+        PLAYER_POS = 4
+    }
+    /*
+        需求：定义一些ai运行数据的关键字，能够输入枚举关键字，输出对应的关键字的数据
+
+    */
+ 
+
     Dictionary<string, float> _dicFloatData;
     Dictionary<string, int> _dicIntData;
 
@@ -119,106 +134,106 @@ public class AIRunData
             }
             else
             {
-                _dicVec2IData.Add(dataName,data);
+                _dicVec2IData.Add(dataName, data);
             }
         }
         else
         {
             _dicVec2IData = new Dictionary<string, Vector2Int>();
-            _dicVec2IData.Add(dataName,data);
+            _dicVec2IData.Add(dataName, data);
         }
     }
 
     public Vector2Int GetVec2IData(string dataName)
     {
-        if(_dicVec2IData != null)
+        if (_dicVec2IData != null)
             return _dicVec2IData[dataName];
         return default(Vector2Int);
     }
 
 
-    
+
     public void SetVec3Data(string dataName, Vector3 data)
     {
-        if(_dicVec3Data != null)
+        if (_dicVec3Data != null)
         {
-            if(_dicVec3Data.ContainsKey(dataName))
+            if (_dicVec3Data.ContainsKey(dataName))
             {
                 _dicVec3Data[dataName] = data;
             }
             else
             {
-                _dicVec3Data.Add(dataName,data);
+                _dicVec3Data.Add(dataName, data);
             }
         }
         else
         {
             _dicVec3Data = new Dictionary<string, Vector3>();
-            _dicVec3Data.Add(dataName,data);
+            _dicVec3Data.Add(dataName, data);
         }
     }
 
     public Vector3 GetVec3Data(string dataName)
     {
-        if(_dicVec3Data != null)
+        if (_dicVec3Data != null)
             return _dicVec3Data[dataName];
         return default(Vector3);
     }
 
-      public void SetGoData(string dataName, GameObject data)
+    public void SetGoData(string dataName, GameObject data)
     {
-        if(_dicGoData != null)
+        if (_dicGoData != null)
         {
-            if(_dicGoData.ContainsKey(dataName))
+            if (_dicGoData.ContainsKey(dataName))
             {
                 _dicGoData[dataName] = data;
             }
             else
             {
-                _dicGoData.Add(dataName,data);
+                _dicGoData.Add(dataName, data);
             }
         }
         else
         {
             _dicGoData = new Dictionary<string, GameObject>();
-            _dicGoData.Add(dataName,data);
+            _dicGoData.Add(dataName, data);
         }
     }
 
     public GameObject GetGoData(string dataName)
     {
-        if(_dicGoData != null)
+        if (_dicGoData != null)
             return _dicGoData[dataName];
         return default(GameObject);
     }
 
 
 
-          public void SetBrickData(string dataName, MapBase<AIBrickState> data)
+    public void SetMapData(string dataName, MapBase<AIBrickState> data)
     {
-        if(_dicBrickData != null)
+        if (_dicBrickData != null)
         {
-            if(_dicBrickData.ContainsKey(dataName))
+            if (_dicBrickData.ContainsKey(dataName))
             {
                 _dicBrickData[dataName] = data;
             }
             else
             {
-                _dicBrickData.Add(dataName,data);
+                _dicBrickData.Add(dataName, data);
             }
         }
         else
         {
-            _dicBrickData = new Dictionary<string,  MapBase<AIBrickState>>();
-            _dicBrickData.Add(dataName,data);
+            _dicBrickData = new Dictionary<string, MapBase<AIBrickState>>();
+            _dicBrickData.Add(dataName, data);
         }
     }
 
-    public  MapBase<AIBrickState> GetBrickData(string dataName)
+    public MapBase<AIBrickState> GetMapData(string dataName)
     {
-        if(_dicBrickData != null)
+        if (_dicBrickData != null)
             return _dicBrickData[dataName];
-        return default( MapBase<AIBrickState>);
+        return default(MapBase<AIBrickState>);
     }
-    
+
 }

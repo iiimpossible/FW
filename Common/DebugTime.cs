@@ -57,11 +57,19 @@ namespace GraphyFW
             }
 
 
+            /// <summary>
+            /// ????????????
+            /// </summary>
+            /// <param name="timer"></param>
             public static void StartTimer(Timer timer)
             {
                 timer.counter = System.Environment.TickCount;                
             }
 
+            /// <summary>
+            /// ????????????
+            /// </summary>
+            /// <param name="timer"></param>
             public static void EndTimer(Timer timer)
             {
                 timer.delta = System.Environment.TickCount - timer.counter;                     

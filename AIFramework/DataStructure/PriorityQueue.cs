@@ -61,21 +61,21 @@ namespace GraphyFW.Common
         public void EnQueueBh(T data)
         {  
             this.newHeap.Push(data);
-            this.newHeap.Watch();
+            //this.newHeap.Watch();
         }
 
 
         public T DeQueueBh()
         {
             T data = this.newHeap.Pop();            
-            this.newHeap.Watch();
+            //this.newHeap.Watch();
             return data;             
         }
 
 
         public void WatchBh()
         {
-            this.newHeap.Watch();
+            //this.newHeap.Watch();
         }
 
         public void EnQueue(T data)
