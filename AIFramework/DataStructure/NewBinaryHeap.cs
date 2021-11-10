@@ -76,6 +76,7 @@ namespace GraphyFW.Common
                 //Debug.Log($"[ComeUp](Cur index {i},data {Index(i).GetData()}) (Farth index {i / 2},data {Index(i / 2)?.GetData()})");
                 T a = Index(i);
                 T b = Index(i / 2);
+                if(a == null) return;
                 if (a.Compare(a,b ) < 0)//当i/2非法时，Index返回int.minValue 当n节点小于它的父节点，那么就交换
                 {
                     if (!Swap(i, i / 2)) { Debug.Log("[ComeUp] ComeUp over."); return; };//当索引非法，不继续进行操作

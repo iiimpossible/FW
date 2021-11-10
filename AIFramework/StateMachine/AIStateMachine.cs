@@ -22,14 +22,15 @@ namespace GraphyFW.AI
     /// 4.状态的对象一定是一个可以被控制的游戏物体
     /// 5.一个状态应该由一个回调函数和某些数据组成，回调函数控制数据，状态根据数据变化？
     /// 6.对于一个状态机，应该有当前状态、过去状态以及全局状态（每次FMS更新都会调用该状态）
+    /// 7.该状态机需要一个优先队列，从队列中获取事件，从而转换状态。一个事件需要执行多种行为
     /// </summary>
     public class AIStateMachine
     {
-        private ActionBase lastAction;
+        private StateBase lastAction;
 
-        private ActionBase globalAction;
+        private StateBase globalAction;
 
-        private ActionBase curAction;
+        private StateBase curAction;
 
         public AIStateMachine()
         {
@@ -71,7 +72,7 @@ namespace GraphyFW.AI
 
         } 
 
-        public void SetStartState(ActionBase action)
+        public void SetStartState(StateBase action)
         {
             curAction = action;
             curAction.ActionEnter();
