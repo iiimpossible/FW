@@ -222,9 +222,9 @@ public class MapBase<T> where T: AIBrickState,new()
     /// <returns></returns>
     public Vector3 MapSpaceToWorldSpace(Vector2Int mapPos)
     {   
-        Debug.Log("[MapSpaceToWorldSpace]map pos is----->" + mapPos);
+        Debug.Log("[MapSpaceToWorldSpace]  map pos is----->" + mapPos);
         toWorldPos.Set(mapZero.x + (mapPos.x  * gridSize.x + offset.x), mapZero.y + (mapPos.y *   gridSize.y + offset.y)  ,0);
-        Debug.Log("[MapSpaceToWorldSpace]world pos is----->" + toWorldPos);
+        Debug.Log("[MapSpaceToWorldSpace]  world pos is----->" + toWorldPos);
         //Maps属性：size offset girdsize mapZero    
         return toWorldPos;
     }
@@ -236,18 +236,18 @@ public class MapBase<T> where T: AIBrickState,new()
     /// <returns></returns>
     public Vector2Int WorldSpaceToMapSpace(Vector3 worldPos)
     {
-        Debug.Log("[WorldSpaceToMapSpace]world pos is---->"+ worldPos);
+        Debug.Log("[WorldSpaceToMapSpace]  world pos is---->"+ worldPos);
         //计算地图的世界坐标范围   
         //1.求w到m的相对距离
         //判断是否在地图范围中
         if (IsValidInMap(worldPos.x - mapZero.x, worldPos.y - mapZero.y))
         {          
             //假设输入相对坐标（16.5，18.5）/（1，1） (16,18) 问题 需要将地图的索引定为1开始？
-            toMapPos.Set((int)(worldPos.x / brickSize), (int)(worldPos.y / brickSize));
-            Debug.Log("[WorldSpaceToMapSpace]Map pos is----->" + toMapPos);
+            toMapPos.Set((int)(worldPos.x-mapZero.x / brickSize)-1, (int)(worldPos.y-mapZero.y / brickSize)-1);//这里有问题，如果是小数就有舍入误差了，避免的方法是，地图远点不应该有小数，CellSize也不应该为小数
+            Debug.Log("[WorldSpaceToMapSpace]  Map pos is----->" + toMapPos);
             return toMapPos;
         }
-        Debug.Log("[WorldSpaceToMapSpace]Worldpos is not valid.");
+        Debug.Log("[WorldSpaceToMapSpace]  Worldpos is not valid.");
         //不在地图中，返回中心      
         return this.GetMapCenter();
     }

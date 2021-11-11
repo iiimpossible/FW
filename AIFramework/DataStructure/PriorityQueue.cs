@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace GraphyFW.Common
 {
@@ -133,6 +134,11 @@ namespace GraphyFW.Common
             {
                 yield return listElemnts[i];
             }
+        }
+
+        public void Foreach(Action<T> action)
+        {
+            this.newHeap.Foreach(action);
         }
 
         public void Watch()
