@@ -332,78 +332,24 @@ namespace GraphyFW.AI
 
     
     /// <summary>
-    /// 搬运行为，将目标物体搬运到巢穴中去
-    /// 1.当到达
+    /// 拿起物体行为
+    /// 1.目标物体引用
+    /// 怎么搜索物体？使用一个写好的方法搜索吗
+    /// 当点击一个Actor，直接让它去捡起地图上的任意一个物体又该如何实现？
+    /// 
     /// </summary>
-    public class ActionCarray : StateBase
+    public class ActionTakeUp :StateBase
     {
-        private Vector2Int _nestPos = new Vector2Int(2,2);
-
-        public ActionCarray(ActorController controller, AIRunData runData):base(controller,runData)
+        public ActionTakeUp(ActorController controller, AIRunData runData):base(controller, runData)
         {
 
         }
 
-
-        public override void ActionEnter()
-        {
-            base.ActionEnter();
-        }
-
-
-        public override void ActionUpdate()
-        {
-            base.ActionUpdate();
-        }
-
-        public override void ActionExit()
-        {
-            base.ActionExit();
-        }
-
-        public override bool ActionCompleted()
-        {
-            return base.ActionCompleted();
-        }
 
 
     }
 
-
-    /// <summary>
-    /// 执行任务状态，会从该目标任务中读取需要几条行为执行任务
-    /// 1.任务必须有开始状态和结束状态，从而能够回到执行任务之前的状态
-    /// </summary>
-    public class ActionTask: StateBase
-    {
-        public ActionTask(ActorController controller, AIRunData runData):base(controller, runData ) 
-        {
-
-        } 
-
-        public override void ActionEnter()
-        {
-            base.ActionEnter();
-        }
-
-       
-        public override void ActionUpdate()
-        {
-            base.ActionUpdate();
-        }
-
-        public override void ActionExit()
-        {
-            base.ActionExit();
-        }
-
-        public override bool ActionCompleted()
-        {
-            return base.ActionCompleted();
-        }
-    
-    }
-
+ 
 
     
 
