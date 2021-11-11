@@ -105,8 +105,6 @@ public class AISystem : MonoBehaviour
     }
 
 
-
-
     public void LoadPrefab()
     {
         food = Resources.Load<GameObject>("Prefabs/Food");

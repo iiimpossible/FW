@@ -14,7 +14,7 @@ namespace GraphyFW.AI
     /// 3.使用一个全局变量，巡逻改变该变量吗？
     /// 4.该状态实际是一个idle状态，是在没有任务的时候
     /// </summary>
-    public class ActionPatrol : ActionBase
+    public class ActionPatrol : StateBase
     {
         //随机巡逻目标点       
 
@@ -83,7 +83,7 @@ namespace GraphyFW.AI
     /// 启用该行为，角色会移动到目标位置
     /// 状态转换应该是自动的。当执行完后应该自动转到另一个状态
     /// </summary>
-    public class ActionMoveTo : ActionBase
+    public class ActionMoveTo : StateBase
     {
         public float speed = 10.0f;   
         private bool _isMove;
@@ -92,7 +92,7 @@ namespace GraphyFW.AI
 
         private Vector3 _direction;
 
-        private ActionBase _nextAction;
+        private StateBase _nextAction;
         public ActionMoveTo(ActorController controller, AIRunData runData) : base(controller, runData)
         {
 
@@ -105,7 +105,7 @@ namespace GraphyFW.AI
             _direction = (_target - _controller.transform.position).normalized;
         }
 
-        public void SetNextState(ActionBase action)
+        public void SetNextState(StateBase action)
         {
             _nextAction = action;
         }
@@ -163,7 +163,7 @@ namespace GraphyFW.AI
     /// 1.攻击处理器会根据收到的消息，根据两边的攻击、防御计算伤害并发送给被攻击者
     /// 2.攻击会触发攻击动画
     /// </summary>
-    public class ActionAttack: ActionBase
+    public class ActionAttack: StateBase
     {
         Animator animator;
         ActionAttack(ActorController controller, AIRunData runData) : base(controller, runData)
@@ -190,7 +190,7 @@ namespace GraphyFW.AI
     /// 调用搜索算法，寻找目标物体或者寻路
     /// 1.寻路算法和移动行为、巡逻行为怎么联动？
     /// </summary>
-    public class ActionSearchMove : ActionBase
+    public class ActionSearchMove : StateBase
     {
 
         public float speed = 10f;
@@ -270,18 +270,19 @@ namespace GraphyFW.AI
     /// <summary>
     /// 以自身位置为中心，搜索目标道具
     /// </summary>
-    public class ActionSearchProp : ActionBase
+    public class ActionSearchProp : StateBase
     {
         
         public float speed = 10f;
 
-        private Vector2 _dir;
+        private Vector2 _dir = Vector2.zero;
 
-        private List<Vector2> _path;
+        private Vector3 _deltaPos = Vector3.zero;
+
+        private List<Vector2> _path = new List<Vector2>();
         public ActionSearchProp(ActorController controller, AIRunData runData):base(controller,runData)
         {
-            _path = new List<Vector2>();
-              _dir = new Vector2();     
+           
         }
 
         /// <summary>
@@ -298,7 +299,8 @@ namespace GraphyFW.AI
              if (_path.Count > 0)
             {
                 _dir = _path[_path.Count-1] - (Vector2)_controller.transform.position;
-                _controller.transform.Translate(_dir.x * Time.deltaTime * speed, _dir.y * Time.deltaTime * speed, _controller.transform.position.z);
+                _deltaPos.Set(_dir.x * Time.deltaTime * speed, _dir.y * Time.deltaTime * speed, 0);
+                _controller.transform.position +=_deltaPos;
                 if (Arrive(_path[_path.Count-1]))
                 {
                     _path.RemoveAt(_path.Count-1);
@@ -329,6 +331,78 @@ namespace GraphyFW.AI
     }
 
     
+    /// <summary>
+    /// 搬运行为，将目标物体搬运到巢穴中去
+    /// 1.当到达
+    /// </summary>
+    public class ActionCarray : StateBase
+    {
+        private Vector2Int _nestPos = new Vector2Int(2,2);
+
+        public ActionCarray(ActorController controller, AIRunData runData):base(controller,runData)
+        {
+
+        }
+
+
+        public override void ActionEnter()
+        {
+            base.ActionEnter();
+        }
+
+
+        public override void ActionUpdate()
+        {
+            base.ActionUpdate();
+        }
+
+        public override void ActionExit()
+        {
+            base.ActionExit();
+        }
+
+        public override bool ActionCompleted()
+        {
+            return base.ActionCompleted();
+        }
+
+
+    }
+
+
+    /// <summary>
+    /// 执行任务状态，会从该目标任务中读取需要几条行为执行任务
+    /// 1.任务必须有开始状态和结束状态，从而能够回到执行任务之前的状态
+    /// </summary>
+    public class ActionTask: StateBase
+    {
+        public ActionTask(ActorController controller, AIRunData runData):base(controller, runData ) 
+        {
+
+        } 
+
+        public override void ActionEnter()
+        {
+            base.ActionEnter();
+        }
+
+       
+        public override void ActionUpdate()
+        {
+            base.ActionUpdate();
+        }
+
+        public override void ActionExit()
+        {
+            base.ActionExit();
+        }
+
+        public override bool ActionCompleted()
+        {
+            return base.ActionCompleted();
+        }
+    
+    }
 
 
     

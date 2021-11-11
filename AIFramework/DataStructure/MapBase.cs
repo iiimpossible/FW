@@ -60,10 +60,10 @@ public class MapBase<T> where T: AIBrickState,new()
     /// </summary>
     /// <value></value>
     public Vector3 mapZero{get;set;}
-
-
-    public float obstacleRate{get;set;}
-    private Dictionary<Vector2Int,T> dicMap = new Dictionary<Vector2Int, T>();
+    public float obstacleRate{get;set;}  //生成障碍物的概率 
+    private Dictionary<Vector2Int,T> dicMap = new Dictionary<Vector2Int, T>();//地图每个格子的状态
+    private Vector3 toWorldPos = Vector3.zero;//转世界坐标临时变狼
+    private Vector2Int toMapPos = Vector2Int.zero;//转地图坐标临时变量
 
     public MapBase(Vector2Int aSize)
     {
@@ -74,7 +74,7 @@ public class MapBase<T> where T: AIBrickState,new()
         gridSize = Vector2.one;
         obstacleRate = 0.4f;
 
-        worldSize = new Vector2(size.x * offset.x * gridSize.x, size.y * offset.y * gridSize.y);        
+        worldSize = new Vector2(size.x * offset.x * gridSize.x, size.y * offset.y * gridSize.y); //计算整个地图的实际长度      
         brickSize = gridSize.x;
     }
 
@@ -103,7 +103,8 @@ public class MapBase<T> where T: AIBrickState,new()
             //listBrickStates.Add(new List<AIBrickState>());
             for (int row = 0; row < this.size.y; row++)
             {
-                worldPos.Set(this.gridSize.x * column + offset.x, this.gridSize.y * row + offset.y, mapZero.z);
+                //因为就算是0列/行，它也加了一个offset 得处理一下，
+                worldPos.Set(this.gridSize.x * column +  offset.x, this.gridSize.y * row + offset.y, mapZero.z);
                 GameObject newGo = GameObject.Instantiate<GameObject>(prefab, worldPos, Quaternion.identity);
                 if (!newGo)
                 {
@@ -169,22 +170,7 @@ public class MapBase<T> where T: AIBrickState,new()
         return new Vector2Int(size.x/2 , size.y/2);
     }
 
-
-    /// <summary>
-    /// 获取一个格子的周围其他8个格子
-    /// </summary>
-    /// <param name="origin"></param>
-    /// <param name="i"></param>
-    /// <returns></returns>
-    public Vector2Int GetAdjacencys(Vector2Int origin, int i)
-    {
-
-
-
-        return Vector2Int.zero;
-    }
-
-
+ 
     /// <summary>
     /// 根据索引获取对应位置的砖块状态
     /// </summary>
@@ -213,7 +199,7 @@ public class MapBase<T> where T: AIBrickState,new()
         T tbrick = this.GetBrickState(pos,EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE);
         if(tbrick == null)
         {
-            Debug.Log("GetSpawnPos Invalid pos--->" + pos);
+            //Debug.Log("GetSpawnPos Invalid pos--->" + pos);
             return pos;
         }
 
@@ -224,7 +210,7 @@ public class MapBase<T> where T: AIBrickState,new()
             if(!IsValidInMap(p))continue;
             GetBrickState(p,EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE).Clear();           
         }  
-        Debug.Log("GetSpawnPOs:--->"+ pos);
+       // Debug.Log("GetSpawnPOs:--->"+ pos);
         return pos;
     }
 
@@ -236,9 +222,11 @@ public class MapBase<T> where T: AIBrickState,new()
     /// <returns></returns>
     public Vector3 MapSpaceToWorldSpace(Vector2Int mapPos)
     {   
-        Debug.Log("Center pos ?0------>" + mapPos);
+        Debug.Log("[MapSpaceToWorldSpace]map pos is----->" + mapPos);
+        toWorldPos.Set(mapZero.x + (mapPos.x  * gridSize.x + offset.x), mapZero.y + (mapPos.y *   gridSize.y + offset.y)  ,0);
+        Debug.Log("[MapSpaceToWorldSpace]world pos is----->" + toWorldPos);
         //Maps属性：size offset girdsize mapZero    
-        return new Vector3(mapZero.x + (mapPos.x * offset.x * gridSize.x), mapZero.y + (mapPos.y * offset.y * gridSize.y)  ,0);
+        return toWorldPos;
     }
 
     /// <summary>
@@ -248,19 +236,18 @@ public class MapBase<T> where T: AIBrickState,new()
     /// <returns></returns>
     public Vector2Int WorldSpaceToMapSpace(Vector3 worldPos)
     {
-        Debug.Log("world pos is---->"+ worldPos);
-        //计算地图的世界坐标范围       
-        Vector2Int res = new Vector2Int();
+        Debug.Log("[WorldSpaceToMapSpace]world pos is---->"+ worldPos);
+        //计算地图的世界坐标范围   
         //1.求w到m的相对距离
         //判断是否在地图范围中
         if (IsValidInMap(worldPos.x - mapZero.x, worldPos.y - mapZero.y))
         {          
             //假设输入相对坐标（16.5，18.5）/（1，1） (16,18) 问题 需要将地图的索引定为1开始？
-            res.Set((int)(worldPos.x / brickSize), (int)(worldPos.y / brickSize));
-            Debug.Log("Map pos is----->" + res);
-            return res;
+            toMapPos.Set((int)(worldPos.x / brickSize), (int)(worldPos.y / brickSize));
+            Debug.Log("[WorldSpaceToMapSpace]Map pos is----->" + toMapPos);
+            return toMapPos;
         }
-        Debug.Log("Worldpos is not valid.");
+        Debug.Log("[WorldSpaceToMapSpace]Worldpos is not valid.");
         //不在地图中，返回中心      
         return this.GetMapCenter();
     }
