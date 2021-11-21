@@ -43,9 +43,10 @@ public class UIPanelManager
         stackPanels.Push(nextPanel);        
 
         //因为面板实际上不是一个能够显示的UI，它必须到UI管理器中使用路径找到UI的Prefab，然后克隆一个UI，注册到UI管理器，并被插入到Canvas中
-        GameObject go_panel = uiManager.GetSingleUI(nextPanel.uiType);
+        GameObject go_panel = uiManager.OpenUI(nextPanel.uiType);
         nextPanel.InitializeUITool(new UITool(go_panel));
 
+        //初始化Ui的脚本
         if(nextPanel.uiType.executeLua)
         {
             nextPanel.InitializeUIBehaviour(new GraphyFW.UIBehavior(nextPanel.uiType.luaCode,nextPanel.uiType.luaName,nextPanel));           

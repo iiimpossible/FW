@@ -103,7 +103,7 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
     {
         if(isAccess) return this;
         this.parentState = parent;
-        this.SetFound();
+        //this.SetFound();
         return this;
     }
 

@@ -7,7 +7,8 @@ public enum EBitMask
     NONE = 0,
     ACSSESS = 1 << 0,
     OBSTACLE = 1 << 1,
-    FOUND = 1 << 2
+    FOUND = 1 << 2,
+    ALL = NONE | ACSSESS | FOUND
 }
 
 //32Î»ÕûÐÍ£¿

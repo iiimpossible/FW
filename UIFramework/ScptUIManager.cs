@@ -16,8 +16,12 @@ namespace GraphyFW
         ///     4.反射获取定义好的UIPanel的类名作为UIType.name初始化值
         ///     5.UI框架和场景管理的交互
         /// @details 该类是一个脚本挂载到一个全局实例上，管理所有与UI相关的逻辑，并提供UI的Update
+        /// 2021.11.20
+        /// 每个场景都有一个根UI，其他所有的UI都是从这个根UI当中打开的。
+        /// 所以，建立一个字典，{场景Id，根UIType}
+        /// 当打开一个新的场景后，就会查询这个字典，打开对应的根UI。
         /// </summary>
-        public class Scpt_PanelController : MonoBehaviour
+        public class ScptUIManager : MonoBehaviour
         {
             private UIPanelManager panelManager;
 
@@ -27,6 +31,7 @@ namespace GraphyFW
             {
                 //实例化UI面板管理器
                 panelManager = new UIPanelManager();
+                DontDestroyOnLoad(gameObject);
             }
 
             

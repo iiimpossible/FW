@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GraphyFW.AI
 {
     public delegate bool AIFunction();
-    public class StateBase
+    public abstract class StateBase
     {
         protected AIRunData _runData{get;set;}
         protected ActorController _controller;
@@ -34,12 +34,12 @@ namespace GraphyFW.AI
         }
         public virtual void ActionExit()
         {
-
+            _isCompleted = false;
         }
 
         public virtual bool ActionCompleted()
         {
-            return true;
+            return _isCompleted;
         }
 
         //TODO:某些行为独立于状态机转换，需要计时以及时调用。即当时间到达时候，立即将状态转换为该状态 再说吧

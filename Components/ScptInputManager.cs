@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class ScptInputManager : MonoBehaviour
 {
-    public UnityAction<Vector2Int> eventMouseInWorldPos;
+    public event UnityAction<Vector2Int> onMouseInWorldPos;
     
     public static ScptInputManager  instance{get;private set;}
 
@@ -29,7 +29,7 @@ public class ScptInputManager : MonoBehaviour
            camPos =  Camera.main.ScreenToWorldPoint(Input.mousePosition);
            tgpos .Set((int)camPos.x,(int)camPos.y);
            Debug.Log("pos: " + tgpos);
-           eventMouseInWorldPos?.Invoke(tgpos);
+           onMouseInWorldPos?.Invoke(tgpos);
         }
     }
 

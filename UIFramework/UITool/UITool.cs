@@ -8,17 +8,14 @@ using UnityEngine;
 /// </summary>
 public class UITool 
 {
-
-
-
     /// <summary>
     /// 当前的活动面板
     /// </summary>
-    public GameObject targetPanel {get; private set;}
+    public GameObject uiGo {get; private set;}
 
     public UITool (GameObject panel)
     {
-        targetPanel = panel;
+        uiGo = panel;
     }
 
     /// <summary>
@@ -26,34 +23,34 @@ public class UITool
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public T GetOrAddComponent<T>() where T: Component
+    public T GetComponent<T>() where T: Component
     { 
-        if (targetPanel.GetComponent<T>() == null)
+        if (uiGo.GetComponent<T>() == null)
         {
-            return targetPanel.AddComponent<T>();
+            return uiGo.AddComponent<T>();
         }
         else
         {
-            return targetPanel.GetComponent<T>();
+            return uiGo.GetComponent<T>();
         }
     }
 
 
-    public GameObject FindChildObjectOfActivePanel(string name)
+    public GameObject FindChild(string name)
     {
-        foreach (Transform trans in targetPanel.GetComponentsInChildren<Transform>())
+        foreach (Transform trans in uiGo.GetComponentsInChildren<Transform>())
         {
             if (trans.name == name)
                 return trans.gameObject;
         }
-        Debug.LogWarning($"There is Not exit a child of {targetPanel.name}. [{name}]");
+        Debug.LogWarning($"There is Not exit a child of {uiGo.name}. [{name}]");
         return null;
     }
 
 
-    public T GetOrAddComponentOfChildOfActivePanel<T>(string name) where T:Component
+    public T GetChildComponent<T>(string name) where T:Component
     {
-        GameObject child = FindChildObjectOfActivePanel(name);
+        GameObject child = FindChild(name);
         if(child)
         {
             if (child.GetComponent<T>() == null)
@@ -65,8 +62,7 @@ public class UITool
                 return child.GetComponent<T>();
             }
         }
-        return null;
-       
+        return null;       
     }
 
 }

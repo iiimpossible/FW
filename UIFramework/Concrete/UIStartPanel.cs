@@ -10,7 +10,7 @@ public class UIStartPanel : UIBasePanel
 
     public override void OnEnter()
     {
-        uiTool.GetOrAddComponentOfChildOfActivePanel<UnityEngine.UI.Button>("").onClick.AddListener(() =>
+        uiTool.GetChildComponent<UnityEngine.UI.Button>("").onClick.AddListener(() =>
         {
 
         });

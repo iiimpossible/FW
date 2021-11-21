@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace GraphyFW.AI
 {
     using GraphyFW.Common;
+    
+
 
     /// <summary>
     /// 【任务】是描述做一件事情所需要的【行为】的集合
@@ -16,9 +19,10 @@ namespace GraphyFW.AI
     /// 任务也是一个状态，于行为兼容
     /// 
     /// </summary>
-    public class TaskBase : StateBase
+    public abstract class TaskBase : StateBase
     {      
-        protected List<StateBase> _actions = new List<StateBase>();//
+
+        protected List<StateBase> _actions = new List<StateBase>();
 
         protected StateBase _currentState = null;
 
@@ -57,6 +61,11 @@ namespace GraphyFW.AI
         {
             _stateIndex = 0;
             _currentState = null;
+            _isCompleted = false;
+            foreach (var item in _actions)
+            {
+                item.ActionExit();
+            }
         }
 
         public sealed override bool ActionCompleted()
@@ -67,6 +76,7 @@ namespace GraphyFW.AI
         protected void SwitchState()
         {    
             if (_currentState == null) return;
+            //Debug.Log("Switch state ~~~~");
             if (_currentState.ActionCompleted())
             {
                 //如果状态完成，检查行为列表还有没有下一个，有就转换状态执行
@@ -78,6 +88,10 @@ namespace GraphyFW.AI
                     _currentState.ActionEnter();
                     _lastState.ActionExit();
                 }  
+                else
+                {
+                    _isCompleted = true;
+                }
             }
         }
 
@@ -92,6 +106,11 @@ namespace GraphyFW.AI
         {
             _actions.Remove(action);
         }
+
+        public virtual bool TaskExecutable()
+        {
+            return false;
+        } 
     }
 
 
@@ -110,16 +129,79 @@ namespace GraphyFW.AI
     /// </summary>
     public class TaskCarry : TaskBase
     {
-        private ActionSearchMove _actinSearchMove;
+        private ActionPathMove _pathMoveGo;
 
+        private ActionPathMove _pathMoveBack;
+        private ActionFindProp _findProp;
+
+        private ActionTakeUp _takeUp;
+
+        private ActionPutDown _putDown;
+
+        private Vector2Int _originPos = Vector2Int.one;
          
         public TaskCarry(ActorController controller, AIRunData runData):base(controller,runData)
         {
-            
+            runData.SetVec2IData("NestPos",Vector2Int.one);
+            _findProp = new ActionFindProp(controller,runData);
+            _pathMoveGo = new ActionPathMove(controller,runData,"PropPos");
+            _pathMoveBack = new ActionPathMove(controller,runData,"NestPos");
+            _takeUp = new ActionTakeUp(controller,runData);
+            _putDown = new ActionPutDown(controller,runData);
+            _actions.Add(_findProp);
+            _actions.Add(_pathMoveGo);
+            _actions.Add(_takeUp);
+            _actions.Add(_pathMoveBack);
+            _actions.Add(_putDown);//
+        
+        }
+
+        public override bool TaskExecutable()
+        {            
+           if( AISystem.instance.GetFoodObject() != null)
+           {  
+               return true;
+           }
+           return false;
         }
     }
 
-    
+    /// <summary>
+    /// AI无事可做瞎逛
+    /// 指令：随机点，MoveTo,从控制器请求事件 或者搜索地图中是否有工作要做
+    /// 如：搬运，等
+    /// 1.随机点指令
+    /// 2.移动指令
+    /// 3.延迟指令
+    /// 4.任务申请指令（待定，应该时状态机直接访问控制器的状态）
+    /// </summary>
+    public class TaskIdle : TaskBase
+    {
+        private ActionPathMove _pathMove;
+        private ActionDelay _delay;
+        private ActionRandomPos _randomPos;
+        private Vector2Int _tgPos = Vector2Int.zero;
+
+        public TaskIdle(ActorController controller, AIRunData runData) : base(controller, runData)
+        {
+            _pathMove = new ActionPathMove(controller, runData, AIRunData.dicKeys[ERunDataKey.TARGET_POS]);
+            _delay = new ActionDelay(controller, runData);
+            _randomPos = new ActionRandomPos(controller,runData);
+
+            this._actions.Add(_randomPos);
+            this._actions.Add(_pathMove);
+            this._actions.Add(_delay);
+        }
+
+        
+        public override bool TaskExecutable()
+        {
+            return base.TaskExecutable();
+        }
+
+    }
+
+
 
 
 }

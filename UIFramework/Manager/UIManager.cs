@@ -24,7 +24,7 @@ public class UIManager
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    public GameObject GetSingleUI(UIType type)
+    public GameObject OpenUI(UIType type)
     {
         GameObject canvas = GameObject.Find("Canvas");
         if (!canvas)
@@ -49,6 +49,7 @@ public class UIManager
         GameObject ui = GameObject.Instantiate(prefab, canvas.transform);
         ui.name = type.uiName;
         dicUIObjects.Add(type, ui);
+        Debug.Log("Load ui--->" + ui.name);
         return ui;
     }
 

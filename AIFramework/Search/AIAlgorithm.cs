@@ -9,6 +9,7 @@ namespace GraphyFW.AI
     {
         static GraphyFW.Common.PriorityQueue<AIBrickState> q = new Common.PriorityQueue<AIBrickState>();
 
+        static List<AIBrickState> accessed = new List<AIBrickState>();
         static Timer timer = new Timer("Search time:");
         /// <summary>
         /// 静态A*算法，根据提供的地图，输出路径
@@ -22,14 +23,30 @@ namespace GraphyFW.AI
             Debug.Log("AStarsearch sourcepos-->" + sourcePos + "targetpos--->" + targetPos);
             DebugTime.StartTimer(timer);
             
-            q.Clear();           
-            q.EnQueueBh(map.GetBrickState(sourcePos));//源节点入队获取状态
+            q.Clear();   
+            AIBrickState b = map.GetBrickState(sourcePos,EBitMask.ACSSESS | EBitMask.FOUND);
+            if(b == null) 
+            {
+                Debug.LogWarning("Path find faild, perhaps SOURCE obstacle.");
+                return ;
+            }
+
+            //检测目的地是否可访问
+            if(map.GetBrickState(targetPos,EBitMask.ACSSESS | EBitMask.FOUND) == null)
+            {
+                Debug.LogWarning("Path find faild, perhaps TARGET obstacle.");
+                return ;
+            }
+
+
+            q.EnQueueBh(b);//源节点入队获取状态
             Vector2Int vpos = new Vector2Int();
-            int max = 200;
+            int max = 20000; //被这个强制退出了。
             while (q.bhCout > 0 && max != 0)
             {
                 AIBrickState u = q.DeQueueBh();
                 u.SetAccess();
+                //accessed.Add(u);
                 AIBrickState v = null;
                 for (int i = 0; i < 8; i++)
                 {
@@ -58,8 +75,12 @@ namespace GraphyFW.AI
                     while(u.parentState != null)
                     {
                         path.Add(map.MapSpaceToWorldSpace(u.pos));
+                        var t = u;
                         u = u.parentState;
+                        t.Clear();
                     }
+                    u?.Clear();
+                    q.Foreach((brick) => {brick.Clear();});
                      DebugTime.EndTimer(timer);
                     return;
                 }
@@ -110,6 +131,46 @@ namespace GraphyFW.AI
                 return false;
             }
             return true;
+        }
+
+
+
+        /// <summary>
+        /// 检测物体是否已经到达特定位置
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool Arrive(Vector2 a, Vector2 b)
+        {
+              if ((a - b).sqrMagnitude < 0.01f)
+                return true;
+            return false;
+        }
+
+
+
+        /// <summary>
+        /// 物体沿路径移动
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="tgPos"></param>
+        public static bool MoveTo(Transform trans, Vector3 tgPos, List<Vector2> path, float speed = 10f)
+        {
+            Vector2 dir = Vector2.zero;
+            Vector3 deltaPos = Vector3.zero;
+             if (path.Count > 0)
+            {
+                dir = path[path.Count-1] - (Vector2)trans.position;
+                deltaPos.Set(dir.x * Time.deltaTime * speed, dir.y * Time.deltaTime * speed, 0);
+                trans.position +=deltaPos;
+                if (Arrive(path[path.Count-1],trans.position))
+                {
+                    path.RemoveAt(path.Count-1);
+                }
+                return true;
+            }
+            return false;
         }
 
     }

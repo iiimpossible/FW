@@ -91,6 +91,7 @@ public class MapBase<T> where T: AIBrickState,new()
      //生成地图
     public void GenMap(GameObject prefab, GameObject container)
     {
+        //初步随机
         if (container == null || prefab == null)
         {
             Debug.LogError("GenMap error, floor is null.");
@@ -120,7 +121,12 @@ public class MapBase<T> where T: AIBrickState,new()
                 InitBricks(newBrick,blackRate);           
             }
         }
-       
+
+        //噪声消除处理
+        NoiseElimination();       
+
+        //巢穴生成
+
     }
 
     /// <summary>
@@ -222,9 +228,9 @@ public class MapBase<T> where T: AIBrickState,new()
     /// <returns></returns>
     public Vector3 MapSpaceToWorldSpace(Vector2Int mapPos)
     {   
-        Debug.Log("[MapSpaceToWorldSpace]  map pos is----->" + mapPos);
+        //Debug.Log("[MapSpaceToWorldSpace]  map pos is----->" + mapPos);
         toWorldPos.Set(mapZero.x + (mapPos.x  * gridSize.x + offset.x), mapZero.y + (mapPos.y *   gridSize.y + offset.y)  ,0);
-        Debug.Log("[MapSpaceToWorldSpace]  world pos is----->" + toWorldPos);
+        //Debug.Log("[MapSpaceToWorldSpace]  world pos is----->" + toWorldPos);
         //Maps属性：size offset girdsize mapZero    
         return toWorldPos;
     }
@@ -236,15 +242,15 @@ public class MapBase<T> where T: AIBrickState,new()
     /// <returns></returns>
     public Vector2Int WorldSpaceToMapSpace(Vector3 worldPos)
     {
-        Debug.Log("[WorldSpaceToMapSpace]  world pos is---->"+ worldPos);
+        //Debug.Log("[WorldSpaceToMapSpace]  world pos is---->"+ worldPos);
         //计算地图的世界坐标范围   
         //1.求w到m的相对距离
         //判断是否在地图范围中
         if (IsValidInMap(worldPos.x - mapZero.x, worldPos.y - mapZero.y))
         {          
             //假设输入相对坐标（16.5，18.5）/（1，1） (16,18) 问题 需要将地图的索引定为1开始？
-            toMapPos.Set((int)(worldPos.x-mapZero.x / brickSize)-1, (int)(worldPos.y-mapZero.y / brickSize)-1);//这里有问题，如果是小数就有舍入误差了，避免的方法是，地图远点不应该有小数，CellSize也不应该为小数
-            Debug.Log("[WorldSpaceToMapSpace]  Map pos is----->" + toMapPos);
+            toMapPos.Set( Mathf.RoundToInt((worldPos.x-mapZero.x / brickSize)) -1,  Mathf.RoundToInt(worldPos.y-mapZero.y / brickSize)-1);//这里有问题，如果是小数就有舍入误差了，避免的方法是，地图远点不应该有小数，CellSize也不应该为小数
+            //Debug.Log("[WorldSpaceToMapSpace]  Map pos is----->" + toMapPos);
             return toMapPos;
         }
         Debug.Log("[WorldSpaceToMapSpace]  Worldpos is not valid.");
@@ -289,6 +295,122 @@ public class MapBase<T> where T: AIBrickState,new()
             return false;   
         }
         return true;
+    }
+
+    /// <summary>
+    /// 获取系统时间，并将时间字符串的哈希码作为随机种子传入（所以Rimworld的种子字符串就是这么来的吧）
+    /// </summary>
+    private void SetRandomSeed()
+    {
+        string seed;
+        seed = System.DateTime.Now.ToString();
+        System.Random pseudoRandom = new System.Random(seed.GetHashCode());
+    }
+
+    private int GetNeighborsObstacleNum(Vector2Int pos)
+    {
+        AIBrickState st = this.GetBrickState(pos,EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE);
+        if(st == null) return 0;
+        int counter = 0;
+        for(int i = 0; i < 8; i++)
+        {
+            var v =  GetBrickState(st.GetNeighborsDiagnol(i),EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE); 
+            if(v == null) continue;
+            if(v.isObstacle == true)
+            {
+                counter++;
+            }
+        }
+        if(st.isObstacle == true) counter ++ ;
+        return counter;
+    }
+
+    /// <summary>
+    /// 消除随机地图噪点（合并孤立点，其实就是重新填充，障碍越集中，那么要它全部填充为障碍，障碍越少的地方，让它没有障碍）
+    /// 1.获取一个点周围的障碍数量
+    /// 2.如果障碍数量大于 value 那么
+    /// 3.应该是一遍合并障碍，
+    /// </summary>
+    public void NoiseElimination()
+    {
+        int count = 0;
+        //第一遍，填充障碍聚集区域
+        ForeachMap((brick) =>
+        {
+            if (brick == null) return;
+            count = GetNeighborsObstacleNum(brick.pos);
+            Debug.Log("Count is--->" + count);
+            if (count > 4)
+            {
+                brick.SetObstacle();
+            }
+             if (brick.isObstacle == true && count < 4)
+            {
+                brick.Clear();                
+            }
+        });
+
+        //第二遍，消除孤立的障碍
+        ForeachMap((brick) =>
+        {
+             if (brick == null) return;
+            count = GetNeighborsObstacleNum(brick.pos);
+            Debug.Log("Count is--->" + count);
+            if (count > 4)
+            {
+                brick.SetObstacle();
+            }
+             if (brick.isObstacle == true && count < 4)
+            {
+                brick.Clear();                
+            }
+           
+        });
+
+
+        // Vector2Int pos = Vector2Int.zero;
+        // for (int k = 0; k < 3; k++)
+        // {
+        //     for (int i = 0; i < this.size.x; i++)
+        //     {
+        //         for (int j = 0; j < this.size.y; j++)
+        //         {
+        //             pos.Set(i, j);
+        //             var brick = GetBrickState(pos, EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE);
+        //             if (brick == null) continue;
+        //             count = GetNeighborsObstacleNum(brick.pos);
+        //             Debug.Log("Count is--->" + count);
+        //             if (brick.isObstacle == false && count > 4)
+        //             {
+        //                 brick.SetObstacle();
+        //                 yield return new WaitForSeconds(0.0001f);
+        //             }
+        //             if (brick.isObstacle == true && count < 3)
+        //             {
+        //                 brick.Clear();
+        //                 yield return new WaitForSeconds(0.001f);
+        //             }
+        //         }
+        //     }
+        // }
+        // yield return 0;
+    }
+
+    /// <summary>
+    /// 遍历整个地图，提供一个回调函数控制砖块的状态
+    /// </summary>
+    /// <param name="action"></param>
+    private void ForeachMap(System.Action<AIBrickState> action)
+    {
+        Vector2Int pos = Vector2Int.zero;
+        for (int i = 0; i < this.size.x; i++)
+        {
+            for (int j = 0; j < this.size.y; j++)
+            {
+                pos.Set(i, j);
+                action.Invoke(GetBrickState(pos, EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE));
+            }
+        }
     }
 
 

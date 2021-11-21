@@ -102,7 +102,7 @@ public abstract class UIBasePanel
     /// </summary>
     public virtual void OnEnter() 
     { 
-        uiTool?.targetPanel?.SetActive(true);
+        uiTool?.uiGo?.SetActive(true);
         
         uIBehavior?.Enter(); 
 
@@ -112,12 +112,12 @@ public abstract class UIBasePanel
     /// UI处于被锁定（休眠）的状态时执行的操作
     /// 如当当打开设置面板，点击某个按钮弹出一个弹窗，设置面板被锁定，应该执行该方法
     /// </summary>
-    public virtual void OnPause() { uiTool.GetOrAddComponent<CanvasGroup>().blocksRaycasts = true; uIBehavior?.Pause(); }
+    public virtual void OnPause() { uiTool.GetComponent<CanvasGroup>().blocksRaycasts = true; uIBehavior?.Pause(); }
 
     /// <summary>
     /// UI重新激活时应该执行的操作
     /// </summary>
-    public virtual void OnResume() { uiTool.GetOrAddComponent<CanvasGroup>().blocksRaycasts = false; uIBehavior?.Resume();}
+    public virtual void OnResume() { uiTool.GetComponent<CanvasGroup>().blocksRaycasts = false; uIBehavior?.Resume();}
 
     /// <summary>
     /// UI退出时执行的操作
