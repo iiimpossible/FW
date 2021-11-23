@@ -20,6 +20,9 @@ namespace GraphyFW.AI
         Nest_Pos = 6,   
 
         PROP_POS = 7,    
+
+        IS_SELECTED = 8,//Actor被选中
+
     }
 
     /// <summary>
@@ -42,6 +45,8 @@ namespace GraphyFW.AI
         {ERunDataKey.Prop, "Prop"},
         {ERunDataKey.Nest_Pos, "NestPos"},
         {ERunDataKey.PROP_POS, "PropPos"},
+        {ERunDataKey.IS_SELECTED,"IsSelected"},
+
     };
 
         Dictionary<string, float> _dicFloatData = null;

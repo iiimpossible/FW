@@ -5,12 +5,12 @@ using UnityEngine.UI;
 public class UIStartPanel : UIBasePanel
 {
     static public readonly string path = "Prefabs/UI/Panels/StartPanel";
-    public UIStartPanel() : base(new UIType(path)) { Debug.Log(uiType.uiName); }
+    public UIStartPanel()  {   }
 
 
     public override void OnEnter()
     {
-        uiTool.GetChildComponent<UnityEngine.UI.Button>("").onClick.AddListener(() =>
+        GetChildComponentAnyway<UnityEngine.UI.Button>("").onClick.AddListener(() =>
         {
 
         });

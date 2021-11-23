@@ -49,7 +49,7 @@ public class RTSCamera : MonoBehaviour
     /// </summary>
     private void MouseMove()
     {
-        if(Input.GetMouseButton(0) && middleKey)
+        if(Input.GetMouseButton(2) && middleKey)
         {
             float x = Input.GetAxis("Mouse X");
             float y = Input.GetAxis("Mouse Y");
@@ -58,7 +58,7 @@ public class RTSCamera : MonoBehaviour
             //Camera.main.ScreenToWorldPosition
             //如果在按下中键的时候鼠标移动，那么视口随鼠标运动对应变化
             //首次移动怎么处理？跳动            
-            transform.Translate(new Vector3(-x * mouseSpeedScale * Time.deltaTime,-y* mouseSpeedScale * Time.deltaTime,0));
+            transform.Translate(new Vector3(-x * mouseSpeedScale * Time.deltaTime * myCamera.orthographicSize* 0.1f,-y* mouseSpeedScale * Time.deltaTime * myCamera.orthographicSize* 0.1f,0));
 
         }
     }

@@ -6,12 +6,13 @@ using UnityEngine;
 /// <summary>
 /// 存储UI信息并可以创建和销毁UI
 /// </summary>
-public class UIManager
+public class UIDisplayTool
 {
+
 
     private Dictionary<UIType, GameObject> dicUIObjects;
 
-    public UIManager()
+    public UIDisplayTool()
     {
         dicUIObjects = new Dictionary<UIType, GameObject>();
     }

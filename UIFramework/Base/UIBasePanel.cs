@@ -5,6 +5,9 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 
  
+ /// <summary>
+ /// 已经废弃
+ /// </summary>
 public class UIType
 {
     public string uiName { get; private set; }
@@ -56,16 +59,7 @@ public abstract class UIBasePanel
 
     public UnityAction<UIBasePanel> OnEnterUI;
 
-
-    /// <summary>
-    /// UI管理工具，保存对应UI对象的引用，并对他进行一些操作
-    /// </summary>
-    public UITool uiTool { get; private set; }
-
-     /// <summary>
-    /// UI类型，包含UI预制体的路径以及该UI预制体的名字，需要在子类中指定
-    /// </summary>
-    public UIType uiType { get; private set; }
+    public GameObject uiGo {get;set;} 
 
     /// <summary>
     /// UI行为，在lua脚本中定义UI的行为,脚本的路径或者直接代码需要在子类中指定
@@ -74,18 +68,7 @@ public abstract class UIBasePanel
 
     /// <summary>
     /// UIBasePanel的构造函数，在子类中调用并赋值UIType(UI实例路径)
-    public UIBasePanel(UIType type)
-    {
-        uiType = type;      
-    }
-
-    /// <summary>
-    /// 初始化UITool，将一个UI实例与UIPanel关联，在PanelManager里边调用
-    /// </summary>
-    public void InitializeUITool(UITool tool)
-    {
-        uiTool = tool;
-    }   
+    public UIBasePanel(){} 
 
     /// <summary>
     /// 初始化UIBehaviour，开启lua执行逻辑，在子类中调用
@@ -97,12 +80,21 @@ public abstract class UIBasePanel
         uIBehavior.SetValue(this);//将自己作为一个uikey注册到脚本表  
     } 
 
+
+    /// <summary>
+    /// 当UI生成而不是激活时执行一次，总共只执行一次，委托注册在这里
+    /// </summary>
+    public virtual void OnCreate()
+    {
+
+    }
+
     /// <summary>
     /// UI激活时执行的操作，执行一次
     /// </summary>
     public virtual void OnEnter() 
     { 
-        uiTool?.uiGo?.SetActive(true);
+        uiGo?.SetActive(true);
         
         uIBehavior?.Enter(); 
 
@@ -112,20 +104,130 @@ public abstract class UIBasePanel
     /// UI处于被锁定（休眠）的状态时执行的操作
     /// 如当当打开设置面板，点击某个按钮弹出一个弹窗，设置面板被锁定，应该执行该方法
     /// </summary>
-    public virtual void OnPause() { uiTool.GetComponent<CanvasGroup>().blocksRaycasts = true; uIBehavior?.Pause(); }
+    public virtual void OnPause() 
+    { 
+        GetComponentAnyway<CanvasGroup>().blocksRaycasts = false; 
+        uIBehavior?.Pause(); 
+    }
 
     /// <summary>
     /// UI重新激活时应该执行的操作
     /// </summary>
-    public virtual void OnResume() { uiTool.GetComponent<CanvasGroup>().blocksRaycasts = false; uIBehavior?.Resume();}
+    public virtual void OnResume() 
+    { 
+        GetComponentAnyway<CanvasGroup>().blocksRaycasts = true; 
+        uiGo?.SetActive(true);
+        uIBehavior?.Resume();
+    }
 
     /// <summary>
     /// UI退出时执行的操作
     /// </summary>
-    public virtual void OnExit() { OnExitUI(this); uIBehavior?.Exit();}
+    public virtual void OnExit() 
+    { 
+        if(OnExitUI != null)
+        {
+            OnExitUI(this); 
+        }        
+        uIBehavior?.Exit();
+    }
 
     public virtual void Update()
     {
         uIBehavior?.Update();
+    }
+
+
+    /// <summary>
+    /// 给绑定的UI面板添加组件或者从该UI面板获得组件
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T GetComponentAnyway<T>() where T: Component
+    { 
+        if (uiGo.GetComponent<T>() == null)
+        {
+            return uiGo.AddComponent<T>();
+        }
+        else
+        {
+            return uiGo.GetComponent<T>();
+        }
+    }
+
+
+    public GameObject FindChild(string childName)
+    {
+        foreach (Transform trans in uiGo.GetComponentsInChildren<Transform>())
+        {
+            if (trans.name == childName)
+                return trans.gameObject;
+        }
+        Debug.LogError($"Can't find child. [{uiGo.name}].[{childName}]");
+        return null;
+      
+    }
+
+    /// <summary>
+    /// 在先找到父物体的情况下，再寻找子物体
+    /// </summary>
+    /// <param name="farther"></param>
+    /// <param name="child"></param>
+    /// <returns></returns>
+    public GameObject FindChild(GameObject farther, string childName)
+    {
+        if(farther == null) return null;
+        foreach (Transform trans in farther.GetComponentsInChildren<Transform>())
+        {
+            if (trans.name == childName)
+                return trans.gameObject;
+        }
+        Debug.LogError($"Can't find child. [{uiGo.name}].[{childName}]");
+        return null;
+    }
+
+
+    public T GetChildComponentAnyway<T>(string name) where T:Component
+    {
+        GameObject child = FindChild(name);
+        if(child)
+        {
+            if (child.GetComponent<T>() == null)
+            {
+                return child.AddComponent<T>();
+            }
+            else
+            {
+                return child.GetComponent<T>();
+            }
+        }      
+        Debug.LogError($"Can't find component. [{uiGo.name}].[{name}]");
+        return null;       
+    }
+
+     public T GetChildComponent<T>(string name) where T:Component
+    {
+        GameObject child = FindChild(name);
+        if(child != null)
+        {
+            var comp = child.GetComponent<T>();
+            if(comp != null) 
+                return comp;               
+        }      
+        Debug.LogError($"Can't find component. [{uiGo.name}].[{name}]");
+        return default(T);       
+    }
+
+    public T GetChildComponent<T>(GameObject farther, string name) where T : Component
+    {
+        GameObject child = FindChild(farther,name);
+        if (child != null)
+        {
+            var comp = child.GetComponent<T>();
+            if (comp != null)
+                return comp;
+        }
+        Debug.LogError($"Can't find component. [{uiGo.name}].[{name}]");
+        return default(T);
     }
 }

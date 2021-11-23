@@ -5,6 +5,8 @@ using GraphyFW.GamePlay;
 
 /// <summary>
 /// ai系统管理场景中的所有AIContorller组件，并生成地图？
+/// 2021.11.23
+/// 以后改为地图管理器
 /// </summary>
 public class AISystem : MonoBehaviour
 {
@@ -34,7 +36,7 @@ public class AISystem : MonoBehaviour
     /// <summary>
     /// 当前激活的所有actor，以供搜索算法查询
     /// </summary>
-    private List<GameObject> listActiveActors;
+    private List<GameObject> listActiveActors = new List<GameObject>();
 
     private List<Food> listFoods = new List<Food>();
 
@@ -42,33 +44,35 @@ public class AISystem : MonoBehaviour
     /// 生成地图
     /// </summary>
     private void Awake()
-    {
-        listActiveActors = new List<GameObject>();
-
-        instance = this;
-        Debug.Log("In AI system: mapsize---->" + mapSize);
-        mainMap = new MapBase<AIBrickState>(mapSize);
-        mainMap.blackRate = this.blackRate;
-        mainMap.offset = gridOffSet;
-        mainMap.mapZero = Vector3.zero;
-        mainMap.GenMap(birck,birckContainer);
-
-        LoadPrefab();
-        SpawnAIObject();
-        SpanwFoodObject();
+    {   
+        instance = this;   
     }
 
     private void Start()
     {
+        mainMap = new MapBase<AIBrickState>(MapManager.instance.mapSize);
+        mainMap.onMapGenerated += this.MapGeneratedCallback;
+        mainMap.blackRate = MapManager.instance.blackRate;
+        mainMap.offset = gridOffSet;
+        mainMap.mapZero = Vector3.zero;
+        mainMap.GenMap(birck, birckContainer);
+        
+
+        LoadPrefab();
+        SpawnAIObject();
+        SpanwFoodObject();
+        //Spawn(typeof(AntNest),new Vector2Int(1,1),"Building");
         ScptInputManager.instance.onMouseInWorldPos += this.SpawnFood;
         //StartCoroutine(mainMap.NoiseElimination());
 
+        //MessageManager.instance.AddListener(EMessageType.OnFrameSelected,SpawnStorageArea);
     }
     private void Update()
     {
 
     }
 
+ 
     public void SpawnAIObject()
     {
         //在地图上选择一个点，
@@ -98,13 +102,26 @@ public class AISystem : MonoBehaviour
 
     public void SpawnFood(Vector2Int pos)
     {      
-        Vector3 p3 = mainMap.MapSpaceToWorldSpace(pos);   
+        Vector3 worldPos = mainMap.MapSpaceToWorldSpace(pos);   
 
-        GameObject f = Resources.Load<GameObject>(Food.prefabPath);    
+        GameObject prefab = Resources.Load<GameObject>(Food.prefabPath);    
          
-        GameObject go = GameObject.Instantiate(f,p3,Quaternion.identity);
+        GameObject go = GameObject.Instantiate(prefab,worldPos,Quaternion.identity);
         go.tag = "Food";
         listFoods.Add(new Food(go));
+    }
+
+    /// <summary>
+    /// 在指定位置生成指定类型的游戏物体
+    /// </summary>
+    /// <param name="pos"></param>
+    public void Spawn(System.Type type,Vector2Int pos, string folder = "Actor")
+    {
+        Vector3 worldPos = mainMap.MapSpaceToWorldSpace(pos); 
+        GameObjectBase goBase = type.Assembly.CreateInstance("GrapyFW.GamePlay." + type.Name) as GameObjectBase;
+        GameObject prefab = Resources.Load<GameObject>("Prefabs/"+folder+ "/" + type.Name);
+        GameObject go = GameObject.Instantiate(prefab, worldPos, Quaternion.identity);
+        goBase.SetGO(go,pos);
     }
 
     /// <summary>
@@ -131,5 +148,29 @@ public class AISystem : MonoBehaviour
          ScptInputManager.instance.onMouseInWorldPos -= this.SpawnFood;
      }
 
+
+     private void MapGeneratedCallback()
+     {
+         MessageManager.instance.Dispatch("OnMapGenerated",EMessageType.OnMapLoaded);
+     }
+
+
+    /// <summary>
+    /// 生成存储区
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    private void SpawnStorageArea(Message message)
+    {        
+        Vector3 worldStart = (Vector3)message.paramsList[0];
+        Vector3 worldEnd = (Vector3)message.paramsList[1];
+        Vector3 center = (Vector3)message.paramsList[2];
+        Vector2 size2D = (Vector2)message.paramsList[3];
+        GameObject prefab = Resources.Load<GameObject>("Prefabs/Building/StorageArea");
+        GameObject go = GameObject.Instantiate<GameObject>(prefab,center,Quaternion.identity);
+        ScptStorageArea comp = go.GetComponent<ScptStorageArea>();
+        comp.SetMesh(worldStart,worldEnd);
+        comp.drawArea = true;
+    }
 
 }

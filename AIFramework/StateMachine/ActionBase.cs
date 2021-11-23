@@ -15,9 +15,7 @@ namespace GraphyFW.AI
         protected MapBase<AIBrickState> _map;
         public StateBase nextAction;
         public StateBase(ActorController controller, AIRunData runData)
-        {
-            if(controller == null) Debug.Log  ("At ActionBase cotroll null~~~~~~~");
-            
+        {   
             this._controller = controller;
             this._runData = runData;
             _isCompleted = true;

@@ -6,7 +6,7 @@ using System;
 
 namespace GraphyFW
 {
-    namespace UIFW
+    namespace UI
     {
         /// <summary>
         /// @TODO
@@ -23,14 +23,17 @@ namespace GraphyFW
         /// </summary>
         public class ScptUIManager : MonoBehaviour
         {
-            private UIPanelManager panelManager;
+            public static ScptUIManager instance{get;private set;}
+
+            public UIPanelManager uiPanelManager{get;private set;}
 
             ///包含所有要实例的UIPanel的类型
             private List<UIBasePanel> basePanels;
             private void Awake()
             {
+                instance = this;
                 //实例化UI面板管理器
-                panelManager = new UIPanelManager();
+                uiPanelManager = new UIPanelManager();
                 DontDestroyOnLoad(gameObject);
             }
 
@@ -38,14 +41,14 @@ namespace GraphyFW
             void Start()
             {
                 //将UI推入栈，并将UI类与UI实例关联
-                panelManager.PushPanel(new UIMainPanel());
+                uiPanelManager.OpenPanel(typeof(UIMainPanel));
             }
 
            
            //每帧更新PanelManager的顶部的面板逻辑
             void Update()
             {
-                panelManager.UpdateTopPanel();
+                uiPanelManager.UpdateTopPanel();
             }
 
             ///将特定的UIPanel类型注册到列表中去

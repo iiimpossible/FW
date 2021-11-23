@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 
-namespace GraphyFW.UIFW
+namespace GraphyFW.UI
 {
     public enum EScene
     {
@@ -36,15 +36,26 @@ namespace GraphyFW.UIFW
             DontDestroyOnLoad(gameObject);
         }
 
-        private void Start() {
-            curScene = SetScene(EScene.START);           
+        private void Start() 
+        {
+           
         }
-        public UISceneStateBase SetScene(EScene scene)
+
+        /// <summary>
+        /// 打开一个场景
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <returns></returns>
+        public UISceneStateBase OpenScene(EScene scene)
         {
             curScene?.OnExit();
             UISceneStateBase us = dicScene[scene];
-            us?.OnEnter();
-            return us;
+            if(us != null)
+            {
+                us.OnEnter();
+                curScene = us;                
+            }
+            return us;    
         }
 
       

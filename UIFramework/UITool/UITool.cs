@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 /// <summary>
 ///  UI管理工具，包括获取某个UI子对象的组件的操作
+/// 已经废弃
 /// </summary>
 public class UITool 
 {
@@ -36,14 +37,32 @@ public class UITool
     }
 
 
-    public GameObject FindChild(string name)
+    public GameObject FindChild(string childName)
     {
         foreach (Transform trans in uiGo.GetComponentsInChildren<Transform>())
         {
-            if (trans.name == name)
+            if (trans.name == childName)
                 return trans.gameObject;
         }
-        Debug.LogWarning($"There is Not exit a child of {uiGo.name}. [{name}]");
+        Debug.LogError($"Can't find child. [{uiGo.name}].[{childName}]");
+        return null;
+      
+    }
+
+    /// <summary>
+    /// 在先找到父物体的情况下，再寻找子物体
+    /// </summary>
+    /// <param name="farther"></param>
+    /// <param name="child"></param>
+    /// <returns></returns>
+    public GameObject FindChild(GameObject farther, string childName)
+    {
+        foreach (Transform trans in farther.GetComponentsInChildren<Transform>())
+        {
+            if (trans.name == childName)
+                return trans.gameObject;
+        }
+        Debug.LogError($"Can't find child. [{uiGo.name}].[{childName}]");
         return null;
     }
 
@@ -61,7 +80,8 @@ public class UITool
             {
                 return child.GetComponent<T>();
             }
-        }
+        }      
+        Debug.LogError($"Can't find component. [{uiGo.name}].[{name}]");
         return null;       
     }
 

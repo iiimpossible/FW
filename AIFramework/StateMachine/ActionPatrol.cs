@@ -500,7 +500,7 @@ namespace GraphyFW.AI
         {
             _pos.Set(Random.Range(0,range),Random.Range(0,range));
             _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.TARGET_POS],_pos);
-            Debug.Log("Random pos is -->" + _pos);
+            //Debug.Log("Random pos is -->" + _pos);
             _isCompleted = true;            
         } 
 

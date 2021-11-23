@@ -5,7 +5,7 @@ using UnityEngine;
 public class UIShowModelPanel :UIBasePanel
 {
     private static readonly string path = "Prefabs/UI/ShowModelPanel";
-    public UIShowModelPanel():base(new UIType(path)){}
+    public UIShowModelPanel() {}
 
     public override void OnEnter()
     {

@@ -21,6 +21,8 @@ public class MapBase<T> where T: AIBrickState,new()
     //地图四个角的点 用于和相机比较，视口是否包括了整个地图
     //地图大小
 
+    public event System.Action onMapGenerated;
+
     public float blackRate{get;set;}
 
     public bool randomTarget{get;set;}
@@ -54,6 +56,12 @@ public class MapBase<T> where T: AIBrickState,new()
     /// </summary>
     /// <value></value>
     public float brickSize{get;private set;}
+
+    /// <summary>
+    /// 随机地图种子
+    /// </summary>
+    /// <value></value>
+    public string mapSeed{get;set;}
 
     /// <summary>
     /// 地图的本地坐标在世界坐标系中的原点
@@ -126,7 +134,7 @@ public class MapBase<T> where T: AIBrickState,new()
         NoiseElimination();       
 
         //巢穴生成
-
+        onMapGenerated?.Invoke();
     }
 
     /// <summary>
@@ -300,11 +308,12 @@ public class MapBase<T> where T: AIBrickState,new()
     /// <summary>
     /// 获取系统时间，并将时间字符串的哈希码作为随机种子传入（所以Rimworld的种子字符串就是这么来的吧）
     /// </summary>
-    private void SetRandomSeed()
+    private System.Random SetRandomSeed()
     {
         string seed;
         seed = System.DateTime.Now.ToString();
         System.Random pseudoRandom = new System.Random(seed.GetHashCode());
+        return pseudoRandom;
     }
 
     private int GetNeighborsObstacleNum(Vector2Int pos)
@@ -339,7 +348,7 @@ public class MapBase<T> where T: AIBrickState,new()
         {
             if (brick == null) return;
             count = GetNeighborsObstacleNum(brick.pos);
-            Debug.Log("Count is--->" + count);
+           // Debug.Log("Count is--->" + count);
             if (count > 4)
             {
                 brick.SetObstacle();
@@ -355,7 +364,7 @@ public class MapBase<T> where T: AIBrickState,new()
         {
              if (brick == null) return;
             count = GetNeighborsObstacleNum(brick.pos);
-            Debug.Log("Count is--->" + count);
+           // Debug.Log("Count is--->" + count);
             if (count > 4)
             {
                 brick.SetObstacle();

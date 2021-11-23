@@ -3,19 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// 输入管理器并不是管理键盘、鼠标输入的，而是和游戏性紧密结合，是于本游戏紧密相关的自定义的一些输入 
+/// 1.玩家控制命令输入等
+/// 
+/// </summary>
 public class ScptInputManager : MonoBehaviour
 {
     public event UnityAction<Vector2Int> onMouseInWorldPos;
     
     public static ScptInputManager  instance{get;private set;}
 
+
+
+
+
     private void Awake() {
         instance = this;
+
     }
-    void Start()
-    {
+
+    private void Start() {
         
     }
+
 
     Vector2Int tgpos = new Vector2Int();
     
@@ -24,14 +35,13 @@ public class ScptInputManager : MonoBehaviour
     void Update()
     {
         if(Input.GetMouseButtonDown(1))
-        {
-            
+        {            
            camPos =  Camera.main.ScreenToWorldPoint(Input.mousePosition);
-           tgpos .Set((int)camPos.x,(int)camPos.y);
-           Debug.Log("pos: " + tgpos);
+           tgpos .Set((int)camPos.x,(int)camPos.y);           
            onMouseInWorldPos?.Invoke(tgpos);
-        }
+           MessageManager.instance.Dispatch("OnMouseInWorldPos",EMessageType.OnMousePosInWorld,tgpos);
+            
+        }  
     }
-
-    //鼠标控制
+    
 }

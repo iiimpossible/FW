@@ -56,12 +56,24 @@ namespace GraphyFW.AI
     /// </summary>
     public class ActorController : MonoBehaviour
     {
-
-        private AIStateMachine machine ;//其实是一棵行为树了。遍历所有的Task，判断是否执行这个状态。
-
-        private AIRunData runData;
-
+        
+         
+        private AIStateMachine machine ;//其实是一棵行为树了。遍历所有的Task，判断是否执行这个状态。        
+        private AIRunData runData;         
         private TaskCarry taskCarry;
+        private TaskCallUp taskCallUp;
+        [SerializeField]
+        private GameObject frame;
+
+        [SerializeField]
+        private bool isSelected; //当一个Actor被选中，那么它就会停止，其他AI行为，转为征召状态，这个状态可以鼠标控制AI的行为
+
+        private void Awake() {
+            frame.SetActive(false);
+            
+           
+        }
+
 
         public void Start()
         {
@@ -75,14 +87,42 @@ namespace GraphyFW.AI
             //searchProp = new ActionSearchProp(this,runData);
             taskCarry = new TaskCarry(this, runData);
 
+            taskCallUp = new TaskCallUp(this, runData);
+
             machine.AddTask(taskCarry);
+
+            machine.AddTask(taskCallUp);
             //move.nextAction = patrol;
             // patrol.nextAction = move;
             // move.condition = () => { if (this.poss.Count == 0) Debug.Log("Poss count is zero"); return true; };
-            //machine.SetStartState(taskCarry);
+            //machine.SetStartState(taskCarry);         
+
+            //注册消息 消息注册必须在MessageMaager生成之后
+            MessageManager.instance.AddListener(EMessageType.OnBoxCastAllCollider,OnBox2DRayCastCallback);
         }
 
-
+        //接收选中消息
+        private void OnBox2DRayCastCallback(Message message)
+        {           
+            RaycastHit2D[] hit2Ds;
+            if (message.paramsList.Count > 0)
+            {
+                hit2Ds = message.paramsList[0] as RaycastHit2D[];
+                foreach (var item in hit2Ds)
+                {
+                    if(item.collider.gameObject.transform == transform)
+                    {
+                        isSelected =  true;
+                        //TODO: 状态机转为征召？不，征召还是不同，这里应该打断其他状态，转为特定状态
+                        Debug.Log($"Recieve message, {item.collider.gameObject.transform.name} be selected.");
+                        machine.SetCurrentTask(taskCallUp);
+                        frame.SetActive(true);
+                    }
+                }
+            }
+           
+        }
+ 
 
         public void Update()
         {
@@ -97,11 +137,7 @@ namespace GraphyFW.AI
         {
             //地图数据
         }
-
-        private void SpawnFood()
-        {
-
-        }      
+    
 
     }
 

@@ -202,6 +202,23 @@ namespace GraphyFW.AI
     }
 
 
+    /// <summary>
+    /// 征召
+    /// </summary>
+    public class TaskCallUp : TaskBase
+    {
+        public TaskCallUp(ActorController controller, AIRunData runData) : base(controller, runData)
+        {
+
+        }
+
+        public override bool TaskExecutable()
+        {
+            return base.TaskExecutable();
+        }
+    }
+
+
 
 
 }
