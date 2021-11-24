@@ -181,10 +181,15 @@ public class AISystem : MonoBehaviour
         // ScptStorageArea comp = go.GetComponent<ScptStorageArea>();
         // comp.SetMesh(worldStart,worldEnd);
         // comp.drawArea = true;
-        Vector2Int i2DSize = new Vector2Int(Mathf.RoundToInt(size2D.x),Mathf.RoundToInt(size2D.y));//四舍六入五取偶
-        Vector2Int i2DCenter = new Vector2Int(Mathf.RoundToInt(center.x),Mathf.RoundToInt(center.y));
 
-        _storageAreas.Add(new MapStorageArea(i2DCenter,i2DSize));
+        var c = mainMap.WorldSpaceToMapSpace(center);
+         var d = mainMap.WorldSpaceToMapSpace(size2D);
+        
+        Vector2Int i2DSize = new Vector2Int(Mathf.RoundToInt(d.x),Mathf.RoundToInt(d.y));//四舍六入五取偶
+        Vector2Int i2DCenter = new Vector2Int(Mathf.RoundToInt(c.x),Mathf.RoundToInt(c.y));
+        Debug.Log($"SpawnStorageArea: size: {i2DSize}, center: {i2DCenter}");
+
+        _storageAreas.Add(new MapStorageArea(i2DCenter,i2DSize ));
 
         //在这个地图管理器上记录存储区
 
@@ -199,6 +204,7 @@ public class AISystem : MonoBehaviour
                 return item;
             }
         }
+        Debug.Log("Can't get StorageArea");
         return null;
     }
 

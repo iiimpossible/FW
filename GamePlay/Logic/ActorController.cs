@@ -89,7 +89,7 @@ namespace GraphyFW.AI
 
             taskCallUp = new TaskCallUp(this, runData);
 
-           // machine.AddTask(taskCarry);
+            machine.AddTask(taskCarry);
 
             machine.AddTask(taskCallUp);
             //move.nextAction = patrol;

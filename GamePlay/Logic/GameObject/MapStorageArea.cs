@@ -18,46 +18,66 @@ namespace GraphyFW.GamePlay
         Vector2Int _center;
 
         //方框左上角
-        Vector2Int _start;
+        Vector2Int _start;//是图形左下角
         //放框右下角
         Vector2Int _end;
 
         //0表示没有，其他数字表示数量
-        private int[,] _arrayState;
+        private Dictionary<Vector2Int, int> _dicState = new Dictionary<Vector2Int, int>();
 
         private int totalCount = 0;
 
+        private bool isFull = false;
         public MapStorageArea(Vector2Int center,Vector2Int size)
         {
+            //从中间向两边遍历 偶数 和奇数怎么处理？
+            //如果size 是偶数4，center.x = 5 那么  x[3,7]
+            //如果size 是奇数3, 
+            //算起点
             _size = size;
-             _arrayState = new int[size.x,size.y];
+            _start = new Vector2Int(center.x - size.x/2, center.y - size.y/2 );
+            for (int i = _start.x; i <= (_start.x +_size.x ); i++)
+            {
+                for (int j = _start.y; j <= (_start.y+ _size.y); j++)
+                {
+                   _dicState.Add(new Vector2Int(i,j),0);
+                }
+            }
+           
         }
 
         public Vector2Int GetEmptyPos()
         {
-            for(int i = 0; i <_size.x;i++ )
+            Debug.Log($"Start: {_start} End: {_end}");
+            Vector2Int pos = Vector2Int.zero;
+            for (int i = _start.x; i <= (_start.x +_size.x ); i++)
             {
-                for(int j = 0; j < _size.y; j++)
+                for (int j = _start.y; j <= (_start.y+ _size.y); j++)
                 {
-                    if(_arrayState[i,j] == 0)
+                    pos.Set(i, j);
+                    Debug.Log(_dicState[pos]);
+                    if (_dicState[pos] == 0)
                     {
-                        totalCount += 1;
-                        return new Vector2Int(i,j);
+                        totalCount++;
+                        _dicState[pos]++; 
+                        return pos;
                     }
                 }
             }
+            Debug.LogError($"Get area pos Faild: area size: {_size} ");
+            //isFull = true;
             return Vector2Int.zero;
         }
 
         public void SetPosEmpty(Vector2Int pos)
         {
             if(!Valid(pos)) return ;
-            _arrayState[pos.x,pos.y] = 0;
+            _dicState[pos] = 0;
         }
 
         public bool Full()
         {
-            return totalCount == _size.x * _size.y? true : false;
+            return totalCount == _dicState.Count ? true : false;
         }
 
         private bool Valid(Vector2Int pos)
