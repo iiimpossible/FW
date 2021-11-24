@@ -69,6 +69,11 @@ namespace GraphyFW.UI
             {
                 Debug.Log("Quit Clicked!");
             });
+
+             GetChildComponentAnyway<Button>("Btn_Test").onClick.AddListener(() =>
+            {
+               ScptSceneManger.instance.OpenScene(EScene.AITEST);
+            });
         }
 
     }

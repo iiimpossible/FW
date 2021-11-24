@@ -8,7 +8,7 @@ public class AIBFSSearch : AISearchBase
     public override IEnumerator Search()
     {        
         Queue<AIBrickState> que_objs = new Queue<AIBrickState>();
-        que_objs.Enqueue(GetBirckStateDic(sourcePos, EBitMask.OBSTACLE | EBitMask.ACSSESS | EBitMask.FOUND));//搜索起点入队    
+        que_objs.Enqueue(map.GetBrickState(sourcePos, EBitMask.OBSTACLE | EBitMask.ACSSESS | EBitMask.FOUND));//搜索起点入队    
         int objNumOfLevel = 1;
         int level = 0;
         Vector2Int tpos = new Vector2Int();
@@ -35,7 +35,7 @@ public class AIBFSSearch : AISearchBase
                 if (IsTarget(cur_pos))
                 {
                     Debug.Log("Search...");
-                    AIBrickState tstate = GetBirckStateDic(targetPos, EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE);
+                    AIBrickState tstate = map.GetBrickState(targetPos, EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE);
                     DrawPath(tstate);
                     Debug.Log("Search over");
                     DebugTime.EndTimer(timeTotal);
@@ -45,7 +45,7 @@ public class AIBFSSearch : AISearchBase
                 {
                     //上
                     tpos.Set(cur_pos.x, cur_pos.y + 1);
-                    AIBrickState up = GetBirckStateDic(tpos);
+                    AIBrickState up = map.GetBrickState(tpos);
                     if (up != null)
                     {
                         up.SetParentState(curState);
@@ -53,7 +53,7 @@ public class AIBFSSearch : AISearchBase
                     }
                     //下
                     tpos.Set(cur_pos.x, cur_pos.y - 1);
-                    AIBrickState down = GetBirckStateDic(tpos);
+                    AIBrickState down = map.GetBrickState(tpos);
                     if (down != null)
                     {
                         down.SetParentState(curState);
@@ -61,7 +61,7 @@ public class AIBFSSearch : AISearchBase
                     }
                     //左     
                     tpos.Set(cur_pos.x - 1, cur_pos.y);
-                    AIBrickState left = GetBirckStateDic(tpos);
+                    AIBrickState left = map.GetBrickState(tpos);
                     if (left != null)
                     {
                         left.SetParentState(curState);
@@ -69,7 +69,7 @@ public class AIBFSSearch : AISearchBase
                     }
                     //右 
                     tpos.Set(cur_pos.x + 1, cur_pos.y);
-                    AIBrickState right = GetBirckStateDic(tpos);
+                    AIBrickState right = map.GetBrickState(tpos);
                     if (right != null)
                     {
                         right.SetParentState(curState);
@@ -84,7 +84,7 @@ public class AIBFSSearch : AISearchBase
             if (que_objs.Count <= 0)
             {
                 Debug.Log("Search...");//目标因为已经被访问所以不能设置父节点？
-                AIBrickState tstate = GetNearestObject(targetPos);
+                AIBrickState tstate = map.GetBrickStateNearestNeighbor(map.GetBrickState(targetPos));
                 DrawPath(tstate);
                 DebugTime.EndTimer(timeTotal);
                 Debug.Log("Search over.");

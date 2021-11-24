@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class UIStartScene : UISceneStateBase
-{
+{ 
+
     private readonly string sceneName = "Sce_Enter";
     public override void OnEnter()
     {
@@ -24,6 +25,6 @@ public class UIStartScene : UISceneStateBase
 
     public override void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log(string.Format("Scene [%s] is loaded.",sceneName));
+        Debug.Log(string.Format($"Scene [{sceneName}] is loaded."));
     }
 }

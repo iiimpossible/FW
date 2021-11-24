@@ -24,13 +24,14 @@ public enum ESearchType
 
 public class Scpt_GenMap : MonoBehaviour
 {
+
+    public static Scpt_GenMap instance;
+
     public ESearchType searchType = ESearchType.DFS;
-    public Vector2 gridSize;
+ 
 
     public Vector2Int gridNum = new Vector2Int(20, 20);
-
-    public Vector2 genOriginPos;
-
+ 
     [Range(0, 10)]
     public float delayTime = 0.2f;
 
@@ -38,8 +39,11 @@ public class Scpt_GenMap : MonoBehaviour
     public float blackRate = 0.8f;
 
     public GameObject brick;
-
-    public Vector2 offset;
+ 
+    [Range(0.1f, 2)]
+    public float toFartherNodeFactor =1.0f;
+    [Range(0.1f, 2)]
+    public float toTargetNodeFactor = 1.0f;
 
     public Vector2Int searchOrigin = new Vector2Int(0, 0);
 
@@ -55,9 +59,24 @@ public class Scpt_GenMap : MonoBehaviour
 
     AIStrategy strategy = new AIStrategy();
 
+    private MapBase<AIBrickState> map;
     private AISearchBase aiSearch;
+
+    private bool isSetSourcePos = false;
+    private bool isSetTargetPos = false;
+
+    private void Awake() {
+        instance = this;
+    }
+
+
     void Start()
     {
+        map = new MapBase<AIBrickState>(gridNum);
+        map.blackRate = blackRate;
+        map.GenMap(brick, GameObject.Find("Floors"));
+    
+
         if(radomTarget)
         {
             targetPos = new Vector2Int(Random.Range(0, gridNum.x - 1), Random.Range(0, gridNum.y - 1));
@@ -82,7 +101,9 @@ public class Scpt_GenMap : MonoBehaviour
                 }
             case ESearchType.AStar:
                 {
-                    aiSearch = new AIAStarSearch(gridNum);
+                    var astar = new AIAStarSearch(gridNum);
+                    astar.SetFactor(toFartherNodeFactor,toTargetNodeFactor);
+                    aiSearch = astar;
                     break;
                 }
             case ESearchType.AStarSort:
@@ -96,42 +117,73 @@ public class Scpt_GenMap : MonoBehaviour
                     break;
             }
         }
-        aiSearch.SetSourcePos(searchOrigin);
-        aiSearch.SetTargetPos(targetPos).SetGridSize(gridSize).blackRate = this.blackRate;
-        aiSearch.GenMap(brick, GameObject.Find("Floors"));
+        aiSearch.map = map;
+        aiSearch.SetSourcePos(searchOrigin);         
+        aiSearch.SetTargetPos(targetPos);       
         aiSearch.levelDelayTime = delayTime;
-        StartCoroutine(aiSearch.Search());
+        //StartCoroutine(aiSearch.Search());
+
+           MessageManager.instance.AddListener(EMessageType.OnMousePosInWorld,SetSource);
+            MessageManager.instance.AddListener(EMessageType.OnMousePosInWorld,SetTarget);
     }
 
 
-    public void SearchBFS()
-    {
+    public void SearchPath()
+    {   ClearPath();
         StartCoroutine(aiSearch.Search());
     }
 
-    public void ClearBFS()
+    public void ClearPath()
     {
         aiSearch.Clear();
         StopAllCoroutines();
-    }
-
-    //随机生成障碍物（黑方块）
-    private void RandomIsObstacle(GameObject go, Dictionary<GameObject, AIBrickState> dic)
-    {
-        int ran = Random.Range(0, 100);
-        AIBrickState state = dic[go];
-        if (ran > 100 * (1 - blackRate))
-            state.SetObstacle();
+        aiSearch.SetSourcePos(searchOrigin);
+        aiSearch.SetTargetPos(targetPos);
     }
 
     /// <summary>
-    /// 输入目标位置，执行寻路算法并返回路径点
+    /// 重置地图
     /// </summary>
-    /// <param name="tgpos"></param>
-    public void GetPath(Vector2Int tgpos)
+    public void ResetMap()
     {
-        //TODO：返回路径点
-        
+        ClearPath();
+        map.RandomMap();
+        aiSearch.SetSourcePos(searchOrigin);
+        aiSearch.SetTargetPos(targetPos);
+    }
+
+    public void SetSource(Message message)
+    {
+        if(isSetSourcePos)
+        {
+             Vector2Int vec = (Vector2Int)message.paramsList[0];
+             Debug.Log(vec);
+            aiSearch.SetSourcePos(vec);
+            searchOrigin = vec;
+            isSetSourcePos  = false;
+        }
+    }
+
+    public void SetTarget(Message message)
+    {
+          if(isSetTargetPos)
+        {
+             Vector2Int vec = (Vector2Int)message.paramsList[0];
+              Debug.Log(vec);
+            aiSearch.SetTargetPos(vec); 
+            targetPos = vec;
+            isSetTargetPos  = false;
+        }
+    }
+
+    public void SetIsSetSourcePos(bool b)
+    {
+        isSetSourcePos = b;
+    }
+
+    public void SetIsSetTargetPos(bool b)
+    {
+        isSetTargetPos = b;
     }
   
 }

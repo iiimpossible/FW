@@ -126,15 +126,15 @@ public class MapBase<T> where T: AIBrickState,new()
                 T newBrick = new T();
                 newBrick.InitBrick(pos,newGo);
                 dicMap.Add(pos,newBrick);   
-                InitBricks(newBrick,blackRate);           
+                InitBricks(newBrick,blackRate);  
             }
-        }
-
-        //噪声消除处理
-        NoiseElimination();       
-
+        }       
+            //噪声消除处理
+        NoiseElimination();  
         //巢穴生成
         onMapGenerated?.Invoke();
+        MessageManager.instance.Dispatch("OnMapLoaded", EMessageType.OnMapLoaded);
+       
     }
 
     /// <summary>
@@ -149,6 +149,31 @@ public class MapBase<T> where T: AIBrickState,new()
         int ran = Random.Range(0, 100);
         if (ran > 100 * (1 - blackRate))
             brick.SetObstacle();
+    }
+
+    /// <summary>
+    /// 还原当前地图的所有数据
+    /// </summary>
+    public void Clear()
+    {      
+        ForeachMap((brick)=>
+        {
+            brick.Clear();
+        });
+    }
+
+    /// <summary>
+    /// 空白地图上生成随机地图
+    /// </summary>
+    public void RandomMap()
+    {
+        Clear();
+        ForeachMap((brick) =>
+        {
+          InitBricks(brick, blackRate);
+        });
+        //噪声消除处理
+        NoiseElimination();
     }
 
 
@@ -199,6 +224,23 @@ public class MapBase<T> where T: AIBrickState,new()
                 return state;
         } 
         return default(T);
+    }
+
+    public T GetBrickStateNearestNeighbor(T brick)
+    {
+        float d = 0;       
+        T b = null;
+        T res = null;
+        for(int i = 0 ;i < 8; i++)
+        {
+            b = GetBrickState(brick.GetNeighborsDiagnol(i));
+            if(b.distance > d)
+            {
+                d = b.distance;
+                res = b;
+            }
+        }
+        return res;
     }
      
 
@@ -409,7 +451,7 @@ public class MapBase<T> where T: AIBrickState,new()
     /// 遍历整个地图，提供一个回调函数控制砖块的状态
     /// </summary>
     /// <param name="action"></param>
-    private void ForeachMap(System.Action<AIBrickState> action)
+    private void ForeachMap(System.Action<T> action)
     {
         Vector2Int pos = Vector2Int.zero;
         for (int i = 0; i < this.size.x; i++)

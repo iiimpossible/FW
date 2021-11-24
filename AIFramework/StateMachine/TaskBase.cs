@@ -141,11 +141,10 @@ namespace GraphyFW.AI
         private Vector2Int _originPos = Vector2Int.one;
          
         public TaskCarry(ActorController controller, AIRunData runData):base(controller,runData)
-        {
-            runData.SetVec2IData("NestPos",Vector2Int.one);
+        {            
             _findProp = new ActionFindProp(controller,runData);
             _pathMoveGo = new ActionPathMove(controller,runData,"PropPos");
-            _pathMoveBack = new ActionPathMove(controller,runData,"NestPos");
+            _pathMoveBack = new ActionPathMove(controller,runData, AIRunData.dicKeys[ERunDataKey.MOVE_TARGET_POS]);
             _takeUp = new ActionTakeUp(controller,runData);
             _putDown = new ActionPutDown(controller,runData);
             _actions.Add(_findProp);
@@ -158,10 +157,10 @@ namespace GraphyFW.AI
 
         public override bool TaskExecutable()
         {            
-           if( AISystem.instance.GetFoodObject() != null)
+           if( AISystem.instance.GetFoodObject() != null && AISystem.instance.GetStorageArea() != null)
            {  
                return true;
-           }
+           }         
            return false;
         }
     }

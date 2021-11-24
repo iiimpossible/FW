@@ -7,6 +7,9 @@ namespace GraphyFW.AI
 {
     using GraphyFW.GamePlay;
 
+    /// <summary>
+    /// 根据某种指令来设置DataKey
+    /// </summary>
     public enum ERunDataKey
     {
         ORIGIN_POS = 1,
@@ -22,6 +25,10 @@ namespace GraphyFW.AI
         PROP_POS = 7,    
 
         IS_SELECTED = 8,//Actor被选中
+
+        STOREAGE_AREA = 9,
+
+        MOVE_TARGET_POS = 10,//移动指令的目标位置
 
     }
 
@@ -46,6 +53,8 @@ namespace GraphyFW.AI
         {ERunDataKey.Nest_Pos, "NestPos"},
         {ERunDataKey.PROP_POS, "PropPos"},
         {ERunDataKey.IS_SELECTED,"IsSelected"},
+        {ERunDataKey.STOREAGE_AREA, "StorageArea"},
+        {ERunDataKey.MOVE_TARGET_POS, "MoveTargetPos"}
 
     };
 
@@ -62,12 +71,19 @@ namespace GraphyFW.AI
 
         Dictionary<string, Prop> _dicPropData = null;
 
+        Dictionary<string, object> _dicObjectData = null;
+
         //List<string> defaultKey ;
         public AIRunData()
         {
             //defaultKey .Add("TargetPos");
         }
 
+        /// <summary>
+        /// float类型数据存取
+        /// </summary>
+        /// <param name="dataName"></param>
+        /// <param name="data"></param>
         public void SetFloatData(string dataName, float data)
         {
             if (_dicFloatData != null)
@@ -95,6 +111,11 @@ namespace GraphyFW.AI
             return default(float);
         }
 
+        /// <summary>
+        /// Int类型数据存取
+        /// </summary>
+        /// <param name="dataName"></param>
+        /// <param name="data"></param>
         public void SetIntData(string dataName, int data)
         {
             if (_dicIntData != null)
@@ -122,7 +143,11 @@ namespace GraphyFW.AI
             return default(int);
         }
 
-
+        /// <summary>
+        /// vec2类型数据存取
+        /// </summary>
+        /// <param name="dataName"></param>
+        /// <param name="data"></param>
         public void SetVec2Data(string dataName, Vector2 data)
         {
             if (_dicVec2Data != null)
@@ -151,7 +176,11 @@ namespace GraphyFW.AI
         }
 
 
-
+        /// <summary>
+        /// Vec2Int 类型数据存取
+        /// </summary>
+        /// <param name="dataName"></param>
+        /// <param name="data"></param>
         public void SetVec2IData(string dataName, Vector2Int data)
         {
             if (_dicVec2IData != null)
@@ -180,7 +209,11 @@ namespace GraphyFW.AI
         }
 
 
-
+        /// <summary>
+        /// vec3类型数据存取
+        /// </summary>
+        /// <param name="dataName"></param>
+        /// <param name="data"></param>
         public void SetVec3Data(string dataName, Vector3 data)
         {
             if (_dicVec3Data != null)
@@ -208,6 +241,11 @@ namespace GraphyFW.AI
             return default(Vector3);
         }
 
+        /// <summary>
+        /// GameObject类型数据存取
+        /// </summary>
+        /// <param name="dataName"></param>
+        /// <param name="data"></param>
         public void SetGoData(string dataName, GameObject data)
         {
             if (_dicGoData != null)
@@ -236,7 +274,11 @@ namespace GraphyFW.AI
         }
 
 
-
+        /// <summary>
+        /// Map类型数据存取
+        /// </summary>
+        /// <param name="dataName"></param>
+        /// <param name="data"></param>
         public void SetMapData(string dataName, MapBase<AIBrickState> data)
         {
             if (_dicBrickData != null)
@@ -266,7 +308,11 @@ namespace GraphyFW.AI
 
 
 
-        
+        /// <summary>
+        /// Prop类型数据存取
+        /// </summary>
+        /// <param name="dataName"></param>
+        /// <param name="data"></param>
         public void SetPropData(string dataName, Prop data)
         {
             if (_dicPropData != null)
@@ -293,6 +339,40 @@ namespace GraphyFW.AI
                 return _dicPropData[dataName];
             return default(Prop);
         }
+
+
+        /// <summary>
+        /// object类型数据存取
+        /// </summary>
+        /// <param name="dataName"></param>
+        /// <param name="data"></param>
+         public void SetObjectData(string dataName, object data)
+        {
+            if (_dicObjectData != null)
+            {
+                if (_dicObjectData.ContainsKey(dataName))
+                {
+                    _dicObjectData[dataName] = data;
+                }
+                else
+                {
+                    _dicObjectData.Add(dataName, data);
+                }
+            }
+            else
+            {
+                _dicObjectData = new Dictionary<string, object>();
+                _dicObjectData.Add(dataName, data);
+            }
+        }
+
+        public object GetObjectData(string dataName)
+        {
+            if (_dicObjectData != null)
+                return _dicObjectData[dataName];
+            return default(object);
+        }
+
 
         
 

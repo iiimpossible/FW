@@ -32,6 +32,11 @@ public enum EMessageType
 
     //尝试框选区域，发送起始点和终点 但是现在这个命令和 射线命令耦合
     OnFrameSelected = 5,
+
+    //当鼠标点击，发送鼠标当前位置
+    OnMouseLeftButtonDown = 6,
+
+
     
 }
 
@@ -54,8 +59,13 @@ public class MessageManager :MonoBehaviour
 
 
     private void Awake() {
-        instance = this;
-        DontDestroyOnLoad(gameObject);
+        instance = this;    
+            
+    }
+
+    private void Start()
+    {
+        GraphyFW.UI.ScptSceneManger.instance.SetDontDestroyObjet(gameObject);
     }
 
     // private void Update()
@@ -111,7 +121,7 @@ public class MessageManager :MonoBehaviour
             item?.Invoke(message);
         }
         if(dicMessage[type].Count == 0)
-            Debug.Log("Dispatch faild, not exist listener.");
+            Debug.Log("Dispatch faild, not exist listener. "+ messageStr);
         Debug.Log("Diapatch message: "+ messageStr);
     }
 

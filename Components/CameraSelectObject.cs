@@ -26,9 +26,13 @@ public class CameraSelectObject : MonoBehaviour
 
     private List<QuadVerts> qversList = new List<QuadVerts>();
 
+    private List<List<Vector2>> lineVertList = new List<List<Vector2>>();
+
     public Color quadColor = new Color(0, 1, 0, 0.1f);
 
     public Color storageAreaColor = new Color(0,1,0,0.3f);
+
+    public Color lineColor = Color.black;
     private void Awake()
     {
         instance = this;
@@ -88,6 +92,11 @@ public class CameraSelectObject : MonoBehaviour
         foreach (var item in qversList)
         {
             DrawRunTimeShape.DrawQuad(item.start, item.end, storageAreaColor, rectMat);
+        }
+
+        foreach (var item in lineVertList)
+        {
+            DrawRunTimeShape.DrawLine(item,lineColor,rectMat);
         }
     }
 
@@ -168,5 +177,15 @@ public class CameraSelectObject : MonoBehaviour
     public void AddQVerts(QuadVerts verts)
     {
         this.qversList.Add(verts);
+    }
+
+    public void AddLineVerts(List<Vector2> verts)
+    {
+        this.lineVertList.Add(verts);
+    }
+
+    public void RemoveLineVerts(List<Vector2> verts)
+    {
+        this.lineVertList.Remove(verts);
     }
 }

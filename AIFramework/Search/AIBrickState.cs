@@ -86,7 +86,8 @@ public class AIBrickState :IGetPriority,IBinaryHeapData<AIBrickState,float>
     {
         if (!isColorVariable) return this;       
         this.color = color;
-        self.GetComponent<SpriteRenderer>().color = color;
+        var comp = self.GetComponent<SpriteRenderer>();
+        if(comp != null) comp.color = color;
         return this;
     }
 

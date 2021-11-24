@@ -9,19 +9,19 @@ public class AIDFSSerch : AISearchBase
 
     private AIBrickState GetNextState(Vector2Int pos)
     {
-         AIBrickState state = GetBirckStateDic(pos,EBitMask.ACSSESS | EBitMask.FOUND);
+         AIBrickState state = map.GetBrickState(pos,EBitMask.ACSSESS | EBitMask.FOUND);
         if (state == null) return null; 
         Vector2Int tpos = new Vector2Int(); 
         AIBrickState[] ss = new AIBrickState[4];
         //遍历四方，选择distance最小的那个,但是不能选择障碍物
         tpos.Set(state.pos.x + 1, state.pos.y);
-        ss[0] = GetBirckStateDic(tpos, EBitMask.FOUND);//可以访问已经被标为被访问的方块
+        ss[0] = map.GetBrickState(tpos, EBitMask.FOUND);//可以访问已经被标为被访问的方块
         tpos.Set(state.pos.x - 1, state.pos.y);
-        ss[1] = GetBirckStateDic(tpos, EBitMask.FOUND);
+        ss[1] = map.GetBrickState(tpos, EBitMask.FOUND);
         tpos.Set(state.pos.x, state.pos.y + 1);
-        ss[2] = GetBirckStateDic(tpos, EBitMask.FOUND);
+        ss[2] = map.GetBrickState(tpos, EBitMask.FOUND);
         tpos.Set(state.pos.x, state.pos.y - 1);
-        ss[3] = GetBirckStateDic(tpos, EBitMask.FOUND);
+        ss[3] = map.GetBrickState(tpos, EBitMask.FOUND);
 
         //  tpos.Set(state.pos.x + 1, state.pos.y + 1);//右上
         // ss[4] = GetBirckStateDic(tpos, EBitMask.ACSSESS | EBitMask.FOUND);
@@ -50,16 +50,16 @@ public class AIDFSSerch : AISearchBase
     {
         if(state == null) return null;
 
-        AIBrickState up = GetBirckStateDic(state.GetUp());
+        AIBrickState up = map.GetBrickState(state.GetUp());
         if(up != null) up.SetFound().SetParentState(state);
 
-        AIBrickState down = GetBirckStateDic(state.GetDown());
+        AIBrickState down = map.GetBrickState(state.GetDown());
         if(down != null) down.SetFound().SetParentState(state);
 
-        AIBrickState left = GetBirckStateDic(state.GetLeft());
+        AIBrickState left = map.GetBrickState(state.GetLeft());
         if(left != null) left.SetFound().SetParentState(state);
 
-        AIBrickState right = GetBirckStateDic(state.GetRight());
+        AIBrickState right = map.GetBrickState(state.GetRight());
         if(right != null) right.SetFound().SetParentState(state);
         return null;
     }
@@ -77,7 +77,8 @@ public class AIDFSSerch : AISearchBase
         {
             //Debug.Log("Object position:---------->" + ts.parentState?.pos);
             ts.SetColor(Color.green);
-            ts = GetNearestObject(ts.pos);
+            ts = map.GetBrickStateNearestNeighbor(ts);
+            
             c--;
         }
 
@@ -98,7 +99,7 @@ public class AIDFSSerch : AISearchBase
         //循环不变式
         Stack<AIBrickState> stackStates = new Stack<AIBrickState>();
 
-        AIBrickState lastState = GetBirckStateDic(sourcePos);
+        AIBrickState lastState = map.GetBrickState(sourcePos);
         AIBrickState nextStaete;       
 
          stackStates.Push(lastState);
@@ -113,7 +114,7 @@ public class AIDFSSerch : AISearchBase
             {
                 if (IsTarget(lastState.pos))
                 {
-                    DrawDFSPath(GetNearestObject(lastState.pos));
+                    DrawDFSPath(map.GetBrickStateNearestNeighbor(lastState));
                     Debug.Log("Search over.");
                     DebugTime.EndTimer(timeTotal);
                     yield break;

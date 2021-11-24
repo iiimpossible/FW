@@ -12,6 +12,8 @@ namespace GraphyFW.UI
         GAME = 2,
         LOAGING = 3,
 
+        AITEST = 4,
+
     }
 
     /// <summary>
@@ -25,14 +27,19 @@ namespace GraphyFW.UI
         {
             {EScene.START, new UIStartScene()},
             {EScene.GAME, new UIGameScene()},
-            {EScene.LOAGING, new UILoadingScene()}
+            {EScene.LOAGING, new UILoadingScene()},
+            {EScene.AITEST,new UIAITestScene()},
         };
 
         private static UISceneStateBase curScene;
 
+        private List<GameObject> dontDestroyObjects = new List<GameObject>();
+
+        private bool isFirstStart =  true;
+
         private void Awake()
         {
-            instance =this;
+            instance = this;          
             DontDestroyOnLoad(gameObject);
         }
 
@@ -46,7 +53,7 @@ namespace GraphyFW.UI
         /// </summary>
         /// <param name="scene"></param>
         /// <returns></returns>
-        public UISceneStateBase OpenScene(EScene scene)
+        public void OpenScene(EScene scene)
         {
             curScene?.OnExit();
             UISceneStateBase us = dicScene[scene];
@@ -55,8 +62,27 @@ namespace GraphyFW.UI
                 us.OnEnter();
                 curScene = us;                
             }
-            return us;    
+
+            if(scene == EScene.START && !isFirstStart)
+            {
+                foreach (var item in dontDestroyObjects)
+                {
+                    Destroy(item);
+                }
+                Destroy(gameObject);
+            }  
+            isFirstStart = false;         
         }
+
+
+        public void  SetDontDestroyObjet(GameObject obj)
+        {
+            this.dontDestroyObjects.Add(obj);
+            DontDestroyOnLoad(obj);
+        }
+
+
+        
 
       
     }

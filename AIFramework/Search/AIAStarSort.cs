@@ -43,7 +43,7 @@ public class AIAstarSort : AISearchBase
         GraphyFW.Common.PriorityQueue<AIBrickState> q = new GraphyFW.Common.PriorityQueue<AIBrickState>();
 
         //源节点入队
-        q.EnQueue(GetBirckStateDic(sourcePos));
+        q.EnQueue(map.GetBrickState(sourcePos));
 
         Vector2Int vpos = new Vector2Int();
         int max = 2000;
@@ -64,7 +64,7 @@ public class AIAstarSort : AISearchBase
                 //这个访问周边节点要入队吗？ 优先级是动态计算还是预计算？总是可以预计算吗？
                 //如果周边访问就入队，和Dijkstra就没啥分别了，就是要用h(v)来防止耗费大的入队
                  
-                v = GetBirckStateDic(vpos) ;
+                v = map.GetBrickState(vpos) ;
                 if(v != null)
                 {
                     v.distance =  this.ManhattanDistance(vpos,u.pos,targetPos);

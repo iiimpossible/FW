@@ -33,63 +33,96 @@ using UnityEngine;
 public class AIAStarSearch : AISearchBase
 {
     GraphyFW.Common.PriorityQueue<AIBrickState> q;
+
+    
     public AIAStarSearch(Vector2Int mapSize):base(mapSize)
     {
         q = new GraphyFW.Common.PriorityQueue<AIBrickState>();
     }
 
-    public override IEnumerator Search()
+    private float toFarthNodeFactor = 1.0f;
+    private float toTargetNodeFactor = 1.0f;
+
+    public void SetFactor(float g, float h)
+    {
+        toFarthNodeFactor = g;
+        toTargetNodeFactor = h;
+    }
+
+    public override IEnumerator Search( )
     {
         //最小优先队列
         q.Clear();
         //源节点入队
-        q.EnQueueBh(GetBirckStateDic(sourcePos));
+        //q.EnQueueBh(map.GetBrickState(sourcePos));
+        q.EnQueue(map.GetBrickState(sourcePos));
 
         Vector2Int vpos = new Vector2Int();        
-        int max = 2000;
+        int max = 20000;
         GraphyFW.Common.DebugTime.StartTimer(timeTotal);
-        while (q.bhCout > 0 && max != 0)
+        while (q.Count > 0 && max != 0)
         {           
-             //AIBrickState u = q.DeQueue();
-             AIBrickState u = q.DeQueueBh();
+             AIBrickState u = q.DeQueue();
+             //AIBrickState u = q.DeQueueBh();
               
              u.SetAccess();
-
+            //Debug.Log("Acess  distances is: " + u.distance);
+            
             //搜索u节点周围的f(v) = g(v) + h(v)最小的节点 g(v)是v（下一个要搜索的点）点到当前点的距离耗费，
             //h(v)是v点到目标点的实际距离的估算（有障碍物，无障碍就是精确值）
+            accessedBricksList.Add(u);
             AIBrickState v = null;            
             for(int i = 0;i < 8; i++)
             {                
                 vpos = u.GetNeighborsDiagnol(i);
                 //这个访问周边节点要入队吗？ 优先级是动态计算还是预计算？总是可以预计算吗？
                 //如果周边访问就入队，和Dijkstra就没啥分别了，就是要用h(v)来防止耗费大的入队                 
-                v = GetBirckStateDic(vpos) ;
+                v = map.GetBrickState(vpos) ;
                 if(v != null)
                 {
-                    v.distance =  this.DiagonalDistance(vpos,u.pos,targetPos);
-                    q.EnQueueBh(v); 
+                    v.distance =  this.DiagonalDistance(vpos,u.pos,targetPos, toFarthNodeFactor, toTargetNodeFactor);
+                    //q.EnQueueBh(v); 
+                    q.EnQueue(v);
                     v.SetFound();          
                     v.SetParent(u);   
                     v.SetText(v.distance.ToString()); 
-                }                 
+                    accessedBricksList.Add(v);
+                }      
+                else
+                {
+                    //Debug.LogWarning("Get obstacle, distance is: " + u.distance);
+                }           
             }
 
              if(u.pos == targetPos)
             {
-                DrawPath(u);
-                 GraphyFW.Common.DebugTime.EndTimer(timeTotal);
+                Vector2Int lastPos = targetPos;
+                while (u.parentState != null)
+                {
+                    if (!PosInLine(lastPos, u.pos, u.parentState.pos))
+                        u.SetColor(Color.green);
+                    else
+                    {
+                        u.SetColor(Color.cyan);
+                    }
+
+                    lastPos = u.pos;
+                    u = u.parentState;
+                }
+                u.SetColor(Color.green);
+                GraphyFW.Common.DebugTime.EndTimer(timeTotal);
                 yield break;
             }
-            max --;
-             yield return new WaitForSeconds(levelDelayTime);
-             
+            max--;
+            yield return new WaitForSeconds(levelDelayTime);
+
         }       
     }
 
-    public override void SearchPath(List<Vector2Int> nodes)
-    {
-        q.Clear();
-    }
+    // public override void SearchPath(List<Vector2Int> nodes)
+    // {
+    //     q.Clear();
+    // }
 
     
     
@@ -116,11 +149,41 @@ public class AIAStarSearch : AISearchBase
     /// <summary>
     /// 求两点对角距离
     /// d = sqrt((x-x)^2 + (y-y)^2)
+    /// 1.距离父节点越近，权重因子越高，优先级越低，即于权重因子 父节点距离成反比
+    /// 2.距离终点越近，权重因子越低，优先级越高。即权重因子 与终点距离成正比
     /// </summary>
+    /// <param name="v">当前节点</param>
+    /// <param name="u">父节点</param>
+    /// <param name="s">终点</param>
     /// <returns></returns>
-    public float DiagonalDistance(Vector2Int v, Vector2Int u,Vector2Int s)
-    {       
-        return  Mathf.Round(Mathf.Sqrt(Mathf.Pow((v.x - s.x), 2) + Mathf.Pow(v.y - s.y, 2)));
+    public float DiagonalDistance(Vector2Int v, Vector2Int u, Vector2Int s, float gFactor = 1.0f, float hFactor = 1.0f)
+    {
+        // float hv = (v - s).sqrMagnitude;
+        // float gv = (v - u).sqrMagnitude;
+        // float fc;
+        // if(gv == 0)
+        // {
+        //     fc = hv /1f;
+        // }
+        // else
+        // {
+        //     fc = hv / gv;
+        // }
+        
+
+        //return hv / hv + gv * gv; 神奇的直线搜索
+        return (v - s).sqrMagnitude + (v - u).sqrMagnitude  ;
+        //           h(v)从当前节点到终点距离                    g(v)从当前节点到父节点距离
+
+    }
+
+
+    public bool PosInLine(Vector2Int start, Vector2Int end, Vector2Int cur)
+    {
+        //判断方向是否改变
+        if( ( end - start) == (cur - end))
+            return true;
+        return false;
     }
 
 

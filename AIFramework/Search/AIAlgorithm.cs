@@ -37,16 +37,14 @@ namespace GraphyFW.AI
                 Debug.LogWarning("Path find faild, perhaps TARGET obstacle.");
                 return ;
             }
-
-
-            q.EnQueueBh(b);//源节点入队获取状态
+            q.EnQueue(b);//源节点入队获取状态
+            accessed.Add(b);
             Vector2Int vpos = new Vector2Int();
             int max = 20000; //被这个强制退出了。
-            while (q.bhCout > 0 && max != 0)
+            while (q.Count > 0 && max != 0)
             {
-                AIBrickState u = q.DeQueueBh();
-                u.SetAccess();
-                //accessed.Add(u);
+                AIBrickState u = q.DeQueue();
+                u.SetAccess();             
                 AIBrickState v = null;
                 for (int i = 0; i < 8; i++)
                 {
@@ -62,8 +60,9 @@ namespace GraphyFW.AI
                     {
                         v.distance = DiagonalDistance(vpos, u.pos, targetPos);
                         
-                        q.EnQueueBh(v);
-                        //v.SetFound();
+                        q.EnQueue(v);
+                        accessed.Add(v);
+                        v.SetFound();
                         v.SetParent(u);
                         v.SetText(v.distance.ToString());
                     }
@@ -72,19 +71,36 @@ namespace GraphyFW.AI
                 // Debug.Log("Cur priority queue count is--->" + q.Count);
                 if (u.pos == targetPos)
                 {
-                    while(u.parentState != null)
+                    Vector2Int lastPos = targetPos;
+                    while (u.parentState != null)
                     {
-                        path.Add(map.MapSpaceToWorldSpace(u.pos));
-                        var t = u;
+                        if (!PosInLine(lastPos, u.pos, u.parentState.pos))
+                        {
+                            path.Add(map.MapSpaceToWorldSpace(u.pos));                        
+                            
+                        }
+                        lastPos = u.pos;
                         u = u.parentState;
-                        t.Clear();
                     }
-                    u?.Clear();
-                    q.Foreach((brick) => {brick.Clear();});
-                     DebugTime.EndTimer(timer);
+
+                    ClearAccsessTag();
+                    DebugTime.EndTimer(timer);
                     return;
                 }
                 max--;
+            }
+            ClearAccsessTag();
+            DebugTime.EndTimer(timer);
+        }
+
+        /// <summary>
+        /// 清除所有的砖块访问标记
+        /// </summary>
+        private static void ClearAccsessTag()
+        {
+            foreach (var item in accessed)
+            {
+                item.Clear();
             }
         }
 
@@ -107,9 +123,9 @@ namespace GraphyFW.AI
         /// d = sqrt((x-x)^2 + (y-y)^2)
         /// </summary>
         /// <returns></returns>
-        public static float DiagonalDistance(Vector2Int v, Vector2Int u, Vector2Int s)
+        public static float DiagonalDistance(Vector2Int v, Vector2Int u, Vector2Int s, float gFactor = 1.0f, float hFactor = 1.0f)
         {
-            return Mathf.Round(Mathf.Sqrt(Mathf.Pow((v.x - s.x), 2) + Mathf.Pow(v.y - s.y, 2)));
+            return  (v-s).sqrMagnitude + (v- u).sqrMagnitude ;
         }
 
         /// <summary>
@@ -172,6 +188,17 @@ namespace GraphyFW.AI
             }
             return false;
         }
+
+
+        public static bool PosInLine(Vector2Int start, Vector2Int end, Vector2Int cur)
+        {
+            //判断方向是否改变
+            if ((end - start) == (cur - end))
+                return true;
+            return false;
+        }
+
+
 
     }
 

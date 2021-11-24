@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace GraphyFW.AI
 {
@@ -281,16 +279,16 @@ namespace GraphyFW.AI
 
         public override void ActionEnter()
         {
+            //从地图管理器获取可以搬运的道具
             Food fd = AISystem.instance.GetFoodObject();
-            if(fd == null) 
-            {
-                Debug.LogError("Food object is null.");
-            }
-            else{
-                Debug.LogWarning("FOod neme is  " + fd.propGo.name + "Food  pos is ----->" + fd.propGo.transform.position);
-            }
-           _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.PROP_POS],_map.WorldSpaceToMapSpace( fd.propGo.transform.position));
-           _runData.SetPropData(AIRunData.dicKeys[ERunDataKey.Prop],fd);
+            //从地图管理器获取可以存储的存储区
+            MapStorageArea area = AISystem.instance.GetStorageArea();
+            //设置道具位置    
+            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.PROP_POS], _map.WorldSpaceToMapSpace(fd.propGo.transform.position));
+            //设置道具引用
+            _runData.SetPropData(AIRunData.dicKeys[ERunDataKey.Prop], fd);
+            //设置存储区引用
+            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.MOVE_TARGET_POS], area.GetEmptyPos());
         }
 
         public override bool ActionCompleted()
@@ -305,7 +303,7 @@ namespace GraphyFW.AI
     public class ActionPathMove : StateBase
     {
 
-        public float speed = 10f;
+        public float speed = 2f;
         private Vector2 _dir = Vector2.zero;
         private Vector3 _deltaPos = Vector3.zero;
 
@@ -324,13 +322,16 @@ namespace GraphyFW.AI
             AIAlgorithm.AstarSearch(_map, _map.WorldSpaceToMapSpace(_controller.transform.position),
                   _runData.GetVec2IData(_valueKey), _path);
             this._isCompleted = false;
+            CameraSelectObject.instance.AddLineVerts(_path);
         }
 
         public override void ActionUpdate()
         {
             if (_path.Count > 0)
             {
-                _dir = _path[_path.Count - 1] - (Vector2)_controller.transform.position;
+                
+                _dir = (_path[_path.Count - 1] - (Vector2)_controller.transform.position).normalized;
+                _controller.transform.up = new Vector3(_dir.x, _dir.y,0);
                 _deltaPos.Set(_dir.x * Time.deltaTime * speed, _dir.y * Time.deltaTime * speed, 0);
                 _controller.transform.position += _deltaPos;
                 if (AIAlgorithm.Arrive(_path[_path.Count - 1], _controller.transform.position))
@@ -344,6 +345,7 @@ namespace GraphyFW.AI
                 _deltaPos.Set(Mathf.Round(_controller.transform.position.x),Mathf.Round(_controller.transform.position.y) ,0);
                 _controller.transform.position = _deltaPos;
                 _isCompleted = true;
+                CameraSelectObject.instance.RemoveLineVerts(_path);
             }
         }
 

@@ -31,15 +31,16 @@ namespace GraphyFW
             private List<UIBasePanel> basePanels;
             private void Awake()
             {
-                instance = this;
+                instance = this;             
                 //实例化UI面板管理器
                 uiPanelManager = new UIPanelManager();
-                DontDestroyOnLoad(gameObject);
+               
             }
 
             
             void Start()
             {
+                 GraphyFW.UI.ScptSceneManger.instance.SetDontDestroyObjet(gameObject);         
                 //将UI推入栈，并将UI类与UI实例关联
                 uiPanelManager.OpenPanel(typeof(UIMainPanel));
             }

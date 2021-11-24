@@ -66,7 +66,7 @@ public class AIDijkstraSearch : AISearchBase
        PriorityQueue<AIBrickState> pque = new PriorityQueue<AIBrickState>();
        List<AIBrickState> list = new List<AIBrickState>();
 
-        var s = GetBirckStateDic(sourcePos,EBitMask.OBSTACLE | EBitMask.ACSSESS | EBitMask.FOUND);
+        var s = map.GetBrickState(sourcePos,EBitMask.OBSTACLE | EBitMask.ACSSESS | EBitMask.FOUND);
         pque.EnQueue(s);
 
         Vector2Int pos = new Vector2Int();
@@ -78,7 +78,7 @@ public class AIDijkstraSearch : AISearchBase
             for(int j = 0 ; j < mapSize.y; j++)
             {
                 pos.Set(i,j);
-                AIBrickState tstate = GetBirckStateDic(pos);
+                AIBrickState tstate = map.GetBrickState(pos);
                 if(tstate == null) continue;                     
                 tstate.distance = 1e10f;
                 if(pos == sourcePos)tstate.distance = 0;                 
@@ -86,7 +86,7 @@ public class AIDijkstraSearch : AISearchBase
         }
         //pque.Watch();
 
-        pque.EnQueue(GetBirckStateDic(sourcePos));
+        pque.EnQueue(map.GetBrickState(sourcePos));
 
         AIBrickState u;
         
@@ -100,7 +100,7 @@ public class AIDijkstraSearch : AISearchBase
             for(int i = 0;i<4;i++)
             {
 
-                v = GetBirckStateDic(u.GetNeighbors(i)) ;
+                v = map.GetBrickState(u.GetNeighbors(i)) ;
                 if(v != null)
                 {
                     pque.EnQueue(v);

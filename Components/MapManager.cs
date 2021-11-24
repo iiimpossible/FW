@@ -23,12 +23,13 @@ public class MapManager : MonoBehaviour
     void Awake() 
     {
         instance = this;
-        DontDestroyOnLoad(gameObject);
+         
     }
     void Start()
     {
         blackRate = 0.4f;
-        mapSize = new Vector2Int(100,100);
+        mapSize = new Vector2Int(30,30);
+          GraphyFW.UI.ScptSceneManger.instance.SetDontDestroyObjet(gameObject);     
     }
 
     /// <summary>

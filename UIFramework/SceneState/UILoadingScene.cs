@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 public class UILoadingScene : UISceneStateBase
-{
+{ 
     public override void OnEnter()
     {
 
