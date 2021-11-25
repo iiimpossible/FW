@@ -9,7 +9,7 @@ namespace GraphyFW.UI
     { 
         public override void OnEnter()
         {
-            MessageManager.instance.AddListener(EMessageType.OnMapLoaded, OnMapLoaded);
+            MessageManager.instance.AddListener(EMessageType.OnMapLoaded, OnMapLoaded_Listener);
             SceneManager.sceneLoaded += this.OnSceneLoaded;
             //TODO: 找到UiManger,打开根UI
             SceneManager.LoadScene("Sce_Game");
@@ -30,9 +30,9 @@ namespace GraphyFW.UI
 
         }
 
-        private void OnMapLoaded(Message message)
+        private void OnMapLoaded_Listener(Message message)
         {
-            Debug.Log("Map loaded.");
+            Debug.LogError("Map loaded.");
             ScptUIManager.instance.uiPanelManager.ClosePanel();
             ScptUIManager.instance.uiPanelManager.OpenPanel(typeof(UIGamePanel));
         }

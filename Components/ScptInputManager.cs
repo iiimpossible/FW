@@ -39,9 +39,14 @@ public class ScptInputManager : MonoBehaviour
            camPos =  Camera.main.ScreenToWorldPoint(Input.mousePosition);
            tgpos .Set((int)camPos.x,(int)camPos.y);           
            onMouseInWorldPos?.Invoke(tgpos);
-           MessageManager.instance.Dispatch("OnMouseInWorldPos",EMessageType.OnMousePosInWorld,tgpos);
+           MessageManager.instance.Dispatch("OnMouseInWorldPos",EMessageType.OnMouseDown_MousePosInWorld_1,false,tgpos);
             
         }  
+
+        if(Input.GetMouseButtonDown(0))
+        {
+            MessageManager.instance.Dispatch(EMessageType.OnMouseButtonDown_0.ToString(),EMessageType.OnMouseButtonDown_0);
+        }
     }
     
 }

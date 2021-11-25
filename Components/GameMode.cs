@@ -4,6 +4,7 @@ using UnityEngine;
 using GraphyFW.GamePlay;
 
 /// <summary>
+/// RunTimeMapManager
 /// ai系统管理场景中的所有AIContorller组件，并生成地图？
 /// 2021.11.23
 /// 以后改为地图管理器
@@ -14,7 +15,7 @@ using GraphyFW.GamePlay;
 /// 3.地图信息（地块、地形、树木等）
 /// 4.额外信息（存储区等）
 /// </summary>
-public class AISystem : MonoBehaviour
+public class GameMode : MonoBehaviour
 {
 
     [Range(0,1)]
@@ -25,7 +26,7 @@ public class AISystem : MonoBehaviour
     public Vector3 mapOrigin;
 
     public Vector2Int gridOffSet;
-    public static AISystem instance{get;private set;}
+    public static GameMode instance{get;private set;}
 
     public GameObject birck;
 
@@ -59,7 +60,7 @@ public class AISystem : MonoBehaviour
     private void Start()
     {
         mainMap = new MapBase<AIBrickState>(MapManager.instance.mapSize);
-        mainMap.onMapGenerated += this.MapGeneratedCallback;
+        
         mainMap.blackRate = MapManager.instance.blackRate;
         mainMap.offset = gridOffSet;
         mainMap.mapZero = Vector3.zero;
@@ -157,10 +158,6 @@ public class AISystem : MonoBehaviour
      }
 
 
-     private void MapGeneratedCallback()
-     {
-         MessageManager.instance.Dispatch("OnMapGenerated",EMessageType.OnMapLoaded);
-     }
 
 
     /// <summary>
@@ -195,6 +192,11 @@ public class AISystem : MonoBehaviour
 
     }
 
+
+    /// <summary>
+    /// 获取一个不为满的存储区
+    /// </summary>
+    /// <returns></returns>
     public MapStorageArea GetStorageArea()
     {
         foreach (var item in _storageAreas)
@@ -206,6 +208,44 @@ public class AISystem : MonoBehaviour
         }
         Debug.Log("Can't get StorageArea");
         return null;
+    }
+
+    /// <summary>
+    /// 取消游戏物体选中观察者
+    /// </summary>
+    /// <param name="message"></param>
+    private void SetActorNotSelected_Listenter(Message message)
+    {
+        foreach (var item in selctedGameObjectList)
+        {
+            item.GetComponent<GraphyFW.AI.ActorController>().SetSelected(false);
+        }
+    }
+
+    /// <summary>
+    /// 被选中的所有游戏物体
+    /// </summary>
+    /// <typeparam name="GameObject"></typeparam>
+    /// <returns></returns>
+    private List<GameObject> selctedGameObjectList = new List<GameObject>();
+    
+    /// <summary>
+    /// 接收物体选中观察者
+    /// </summary>
+    /// <param name="message"></param>
+    private void OnBox2DRayCast_Listener(Message message)
+    {
+        RaycastHit2D[] hit2Ds;
+        if (message.paramsList.Count > 0)
+        {
+            hit2Ds = message.paramsList[0] as RaycastHit2D[];
+            foreach (var item in hit2Ds)
+            {
+               item.collider.GetComponent<GraphyFW.AI.ActorController>().SetSelected(false);
+               selctedGameObjectList.Add(item.collider.gameObject);
+            }
+        }
+
     }
 
 }

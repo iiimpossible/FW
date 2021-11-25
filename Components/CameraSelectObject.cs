@@ -164,8 +164,8 @@ public class CameraSelectObject : MonoBehaviour
 
         RaycastHit2D[] hits = Physics2D.BoxCastAll(center, box2DSize, 0, Vector3.forward);
         Debug.Log($"BoxCast worldStart: {worldstart}, worldEnd: {wordlEnd} center: {center}, size: {box2DSize}, derection: {Vector3.forward}");
-        MessageManager.instance.Dispatch("OnBoxCastAllCollider", EMessageType.OnBoxCastAllCollider, hits);
-        MessageManager.instance.Dispatch("OnFrameSelect", EMessageType.OnFrameSelected, worldstart, wordlEnd, center, box2DSize);
+        MessageManager.instance.Dispatch("OnBoxCastAllCollider", EMessageType.OnBoxCastAllCollider,hits);
+        MessageManager.instance.Dispatch("OnFrameSelect", EMessageType.OnFrameSelected,worldstart, wordlEnd, center, box2DSize);
 
         QuadVerts verts = new QuadVerts();
         verts.start = worldstart;

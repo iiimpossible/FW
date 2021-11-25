@@ -280,9 +280,9 @@ namespace GraphyFW.AI
         public override void ActionEnter()
         {
             //从地图管理器获取可以搬运的道具
-            Food fd = AISystem.instance.GetFoodObject();
+            Food fd = GameMode.instance.GetFoodObject();
             //从地图管理器获取可以存储的存储区
-            MapStorageArea area = AISystem.instance.GetStorageArea();
+            MapStorageArea area = GameMode.instance.GetStorageArea();
             //设置道具位置    
             _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.PROP_POS], _map.WorldSpaceToMapSpace(fd.propGo.transform.position));
             //设置道具引用

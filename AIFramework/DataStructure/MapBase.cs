@@ -20,8 +20,7 @@ public class MapBase<T> where T: AIBrickState,new()
     //地图中心点
     //地图四个角的点 用于和相机比较，视口是否包括了整个地图
     //地图大小
-
-    public event System.Action onMapGenerated;
+ 
 
     public float blackRate{get;set;}
 
@@ -75,7 +74,7 @@ public class MapBase<T> where T: AIBrickState,new()
 
     public MapBase(Vector2Int aSize)
     {
-        Debug.Log("isize is--->" + aSize);
+        Debug.Log("Map isze is--->" + aSize);
         this.size = aSize;
         offset = Vector2.one;       
         mapZero = Vector3.zero;
@@ -130,9 +129,8 @@ public class MapBase<T> where T: AIBrickState,new()
             }
         }       
             //噪声消除处理
-        NoiseElimination();  
-        //巢穴生成
-        onMapGenerated?.Invoke();
+        NoiseElimination();          
+        
         MessageManager.instance.Dispatch("OnMapLoaded", EMessageType.OnMapLoaded);
        
     }

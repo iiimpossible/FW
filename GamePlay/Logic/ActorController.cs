@@ -80,7 +80,7 @@ namespace GraphyFW.AI
 
             //ScptInputManager.instance.eventMouseInWorldPos += AddPos;
             runData = new AIRunData();
-            this.runData.SetMapData("MainMap", AISystem.instance.mainMap);
+            this.runData.SetMapData("MainMap", GameMode.instance.mainMap);
             machine = new AIStateMachine(this, runData);
 
             //searchMove = new ActionSearchMove(this, runData);
@@ -100,6 +100,22 @@ namespace GraphyFW.AI
             //注册消息 消息注册必须在MessageMaager生成之后
             MessageManager.instance.AddListener(EMessageType.OnBoxCastAllCollider,OnBox2DRayCastCallback);
         }
+
+        public void SetSelected(bool isSected)
+        {
+
+            frame.SetActive(isSected);
+            if(isSected)
+            {
+                 machine.SetCurrentTask(taskCallUp);
+            }
+            else
+            {
+                machine.SetCurrentTask(null);
+            }
+           
+        }
+
 
         //接收选中消息
         private void OnBox2DRayCastCallback(Message message)

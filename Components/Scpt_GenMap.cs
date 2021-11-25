@@ -123,8 +123,8 @@ public class Scpt_GenMap : MonoBehaviour
         aiSearch.levelDelayTime = delayTime;
         //StartCoroutine(aiSearch.Search());
 
-           MessageManager.instance.AddListener(EMessageType.OnMousePosInWorld,SetSource);
-            MessageManager.instance.AddListener(EMessageType.OnMousePosInWorld,SetTarget);
+           MessageManager.instance.AddListener(EMessageType.OnMouseDown_MousePosInWorld_1,SetSource);
+            MessageManager.instance.AddListener(EMessageType.OnMouseDown_MousePosInWorld_1,SetTarget);
     }
 
 

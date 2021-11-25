@@ -22,7 +22,11 @@ public  class Message
 
 public enum EMessageType
 {
-    OnMousePosInWorld = 1,
+    //右键按下，发送鼠标世界位置
+    OnMouseDown_MousePosInWorld_1 = 1,
+
+    //左键按下，发送鼠标世界位置
+    OnMouseDown_MousePOsInWorld_0 = 2,
     OnMapLoaded = 2,
     //发射射线 检测到一个 GameObjectBase
     OnRayCastGameObjectBase = 3,
@@ -33,8 +37,20 @@ public enum EMessageType
     //尝试框选区域，发送起始点和终点 但是现在这个命令和 射线命令耦合
     OnFrameSelected = 5,
 
-    //当鼠标点击，发送鼠标当前位置
-    OnMouseLeftButtonDown = 6,
+    //鼠标左键按下
+    OnMouseButtonDown_0 = 6,
+
+    //鼠标右键按下
+    OnMouseButtonDown_1 = 7,
+
+    //鼠标中键按下
+    OnMouseButttonDown_2 = 8,
+
+    //鼠标左键按下，发送鼠标屏幕位置
+    OnMouseButtonDown_MousePos_0 = 9,
+
+    //鼠标右键按下，发送鼠标屏幕位置
+    OnMouseButtonDown_MousePos_1 = 10,
 
 
     
@@ -58,9 +74,10 @@ public class MessageManager :MonoBehaviour
     private Dictionary<EMessageType,List<UnityAction<Message>>> dicMessage = new Dictionary<EMessageType, List<UnityAction<Message>>>();
 
 
-    private void Awake() {
-        instance = this;    
-            
+    private void Awake()
+    {
+        instance = this;
+
     }
 
     private void Start()
@@ -95,10 +112,10 @@ public class MessageManager :MonoBehaviour
     /// </summary>
     /// <param name="type"></param>
     /// <param name="action"></param>
-    public void RemoveListener(EMessageType type,  UnityAction<Message> action)
+    public void RemoveListener(EMessageType type, UnityAction<Message> action)
     {
         var list = dicMessage[type];
-        list.Remove(action);        
+        list.Remove(action);
     }
 
     /// <summary>
@@ -108,21 +125,36 @@ public class MessageManager :MonoBehaviour
     /// <param name="message"></param>
     public void Dispatch(string messageStr, EMessageType type, params object[] datas)
     {
+#if UNITY_EDITOR
+        string log = "";
+#endif
         if (!dicMessage.ContainsKey(type))
             dicMessage.Add(type, new List<UnityAction<Message>>());
         foreach (var item in dicMessage[type])
         {
-            Message message = new Message();
-            message.messageType = messageStr;
-            foreach (var data in datas)
+            if (datas.Length > 0)
             {
-                message.paramsList.Add(data);
+                Message message = new Message();
+                message.messageType = messageStr;
+#if UNITY_EDITOR
+                log += item.GetType() + "\n";
+#endif
+                foreach (var data in datas)
+                {
+                    message.paramsList.Add(data);
+                }
+                item?.Invoke(message);
             }
-            item?.Invoke(message);
+            else
+            {
+                item?.Invoke(null);
+            }
         }
-        if(dicMessage[type].Count == 0)
-            Debug.Log("Dispatch faild, not exist listener. "+ messageStr);
-        Debug.Log("Diapatch message: "+ messageStr);
+#if UNITY_EDITOR
+        if (dicMessage[type].Count == 0)
+            Debug.Log("Dispatch faild, not exist listener. " + messageStr);
+        Debug.Log("Diapatch message: " + messageStr + " ListenderCount: " + dicMessage[type].Count + " Log: " + log);
+#endif
     }
 
     /// <summary>

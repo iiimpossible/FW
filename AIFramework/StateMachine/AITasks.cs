@@ -157,7 +157,7 @@ namespace GraphyFW.AI
 
         public override bool TaskExecutable()
         {            
-           if( AISystem.instance.GetFoodObject() != null && AISystem.instance.GetStorageArea() != null)
+           if( GameMode.instance.GetFoodObject() != null && GameMode.instance.GetStorageArea() != null)
            {  
                return true;
            }         

@@ -222,7 +222,7 @@ namespace GraphyFW
                         {
                             if (stata.isObstacle) return null;
                             return ogo;
-                            break;
+                           
                         }
                     //可访问被发现的物体
                     case EBitMask.FOUND:

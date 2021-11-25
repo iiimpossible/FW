@@ -63,6 +63,7 @@ namespace GraphyFW.UI
                 curScene = us;                
             }
 
+            ///当从GameScene返回到StartScene, 被指定为不销毁的物体就会复制一份，所以在这里销毁
             if(scene == EScene.START && !isFirstStart)
             {
                 foreach (var item in dontDestroyObjects)
