@@ -99,7 +99,7 @@ public class GameMode : MonoBehaviour
     private void OnDestroy()
     {
         MessageManager.instance?.RemoveListener(EMessageType.OnFrameSelected, SpawnStorageArea);
-        MessageManager.instance?.RemoveListener(EMessageType.OnMouseDown_MousePosInWorld_0, SpawnFood);
+        MessageManager.instance?.RemoveListener(EMessageType.OnMouseDown_MousePosInWorld_Vec2Int_0, SpawnFood);
         MessageManager.instance?.RemoveListener(EMessageType.OnMouseButtonDown_1, OnCancelCommand_Listener);
         MessageManager.instance?.RemoveListener(EMessageType.OnBoxCastAllCollider, this.OnBox2DRayCast_Listener);
     }
@@ -152,8 +152,9 @@ public class GameMode : MonoBehaviour
     public void SpawnFood(Message message)
     {
         if(this.playerCommand != EPlayCommands.CREATE_FOOD) return;
-        Vector2Int pos = (Vector2Int)message.paramsList[0];
-        Vector3 worldPos = mainMap.MapSpaceToWorldSpace(pos);
+        Vector3 pos = (Vector3)message.paramsList[0];
+        Vector2Int map_pos = mainMap.WorldSpaceToMapSpace(pos);
+        Vector3 worldPos = mainMap.MapSpaceToWorldSpace(map_pos);
 
         GameObject prefab = Resources.Load<GameObject>(Food.prefabPath);
 
@@ -186,10 +187,8 @@ public class GameMode : MonoBehaviour
             if (!f.isStored && !f.isOccupied)
             {              
                  return f;
-            }
-               
-        }
-        Debug.LogWarning($"Food object num is: {listFoods.Count}");
+            }               
+        }       
         return default(Food);
     }
 
@@ -199,12 +198,6 @@ public class GameMode : MonoBehaviour
         food = Resources.Load<GameObject>("Prefabs/Food");
 
     }
-
-
-
-
-
-
 
 
     /// <summary>
@@ -227,8 +220,8 @@ public class GameMode : MonoBehaviour
         GameObject go = GameObject.Instantiate<GameObject>(prefab,center,Quaternion.identity);
         ScptStorageArea comp = go.GetComponent<ScptStorageArea>();         
 
-        var c = mainMap.WorldSpaceToMapSpace(center);
-         var d = mainMap.WorldSpaceToMapSpace(size2D);
+        Vector2Int c = mainMap.WorldSpaceToMapSpace(center);
+         Vector2Int d = mainMap.WorldSpaceToMapSpace(size2D);
         
         // Vector2Int i2DSize = new Vector2Int(Mathf.RoundToInt(d.x),Mathf.RoundToInt(d.y));//四舍六入五取偶
         // Vector2Int i2DCenter = new Vector2Int(Mathf.RoundToInt(c.x),Mathf.RoundToInt(c.y));
@@ -255,24 +248,17 @@ public class GameMode : MonoBehaviour
     /// 获取一个不为满的存储区
     /// </summary>
     /// <returns></returns>
-    public Vector2Int GetStorageArea(out bool isGot)
+    public ScptStorageArea GetStorageArea()
     {
         foreach (var item in _storageAreas)
         {
             if(!item.Full())
-            {
-                isGot = true;
-                return item.GetEmptyPos();
+            { 
+                return item;
             }
         }
-        isGot = false;
-        return Vector2Int.zero;
+        return default(ScptStorageArea);
     }
-
- 
-
-
- 
 
     
     /// <summary>
@@ -347,14 +333,14 @@ public class GameMode : MonoBehaviour
         return this.playerCommand;
     }
 
-    /// <summary>
-    /// 当玩家命令面板按下按钮，改变当前的命令
-    /// </summary>
-    /// <param name="message"></param>
-    private void OnPlayCommandChange_Listener(Message message)
-    {
-        playerCommand = (EPlayCommands)message.paramsList[0];
-    }
+    // /// <summary>
+    // /// 当玩家命令面板按下按钮，改变当前的命令
+    // /// </summary>
+    // /// <param name="message"></param>
+    // private void OnPlayCommandChange_Listener(Message message)
+    // {
+    //     playerCommand = (EPlayCommands)message.paramsList[0];
+    // }
 
     /// <summary>
     /// 按下右键取消当前的命令，回到Normal（Select Object）

@@ -18,7 +18,7 @@ namespace GraphyFW.AI
         /// </summary>
         /// <param name="map"></param>
         /// <param name="path"></param>
-        public static void AstarSearch(MapBase<AIBrickState> map, Vector2Int sourcePos, Vector2Int targetPos, List<Vector2> path)
+        public static bool AstarSearch(MapBase<AIBrickState> map, Vector2Int sourcePos, Vector2Int targetPos, List<Vector2> path)
         {           
             //Debug.Log("AStarsearch sourcepos-->" + sourcePos + "targetpos--->" + targetPos);
             DebugTime.StartTimer(timer);
@@ -28,14 +28,14 @@ namespace GraphyFW.AI
             if(b == null) 
             {
                 Debug.LogWarning("Path find faild, perhaps SOURCE obstacle.");
-                return ;
+                return false;
             }
 
             //检测目的地是否可访问
             if(map.GetBrickState(targetPos,EBitMask.ACSSESS | EBitMask.FOUND) == null)
             {
                 Debug.LogWarning("Path find faild, perhaps TARGET obstacle.");
-                return ;
+                return false;
             }
             q.EnQueue(b);//源节点入队获取状态
             accessed.Add(b);
@@ -85,11 +85,12 @@ namespace GraphyFW.AI
 
                     ClearAccsessTag();
                     //DebugTime.EndTimer(timer);
-                    return;
+                    return true;
                 }
                 max--;
             }
             ClearAccsessTag();
+            return false;
             //DebugTime.EndTimer(timer);
         }
 

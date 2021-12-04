@@ -25,8 +25,9 @@ public  class Message
 public enum EMessageType
 {
     //左键按下，发送鼠标世界位置
-    OnMouseDown_MousePosInWorld_0 = 1,
+    OnMouseDown_MousePosInWorld_Vec2Int_0 = 1,
 
+    OnMouseDown_MousePosInWorld_0 = 8,
     //右键按下，发送鼠标世界位置
     OnMouseDown_MousePosInWorld_1 = 2,
     OnMapLoaded = 3,

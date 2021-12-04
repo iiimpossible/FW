@@ -52,11 +52,11 @@ namespace GraphyFW.AI
             _actions.Add(_putDown);//
         
         }
+        
 
         public override bool TaskExecutable()
-        {            
-            GameMode.instance.GetStorageArea(out _isGO ) ;
-           if( GameMode.instance.GetFoodObject() != null && _isGO )
+        {   
+           if( GameMode.instance.GetFoodObject() != null && GameMode.instance.GetStorageArea()!= null )
            {  
                return true;
            }         
@@ -138,6 +138,37 @@ namespace GraphyFW.AI
         }
 
        
+    }
+
+    public class TaskManualCarry : TaskBase
+    {
+           private ActionPathMove _pathMoveGo;
+        private ActionPathMove _pathMoveBack;
+ 
+
+        private ActionTakeUp _takeUp;
+
+        private ActionPutDown _putDown;
+          public TaskManualCarry(ActorController controller, AIRunData runData) :base(controller, runData)
+        {
+           
+          
+            _pathMoveGo = new ActionPathMove(controller,runData,AIRunData.dicKeys[ERunDataKey.PROP_POS]);
+            _pathMoveBack = new ActionPathMove(controller,runData, AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS]);
+            _takeUp = new ActionTakeUp(controller,runData);
+            _putDown = new ActionPutDown(controller,runData);
+           
+            _actions.Add(_pathMoveGo);
+            _actions.Add(_takeUp);
+            _actions.Add(_pathMoveBack);
+            _actions.Add(_putDown);//
+        }
+
+        public void SetTargetProp(Prop prop)
+        {
+
+        }
+
     }
 
  

@@ -52,7 +52,13 @@ namespace GraphyFW.UI
 
         GameObject lastWidget = null;
 
+        //ActorWidget的工具按钮
         GameObject actorWidgetToolBtns;
+        //ActorWidget 的信息按钮
+        GameObject actorWidgetInfoBtns;
+        //ActorWidget 上边的NeedWidget
+        GameObject actorWidget_NeedWidget;
+
 
         private Vector3 commandTipOffset = Vector3.zero;
         private bool updateCommandTip = false;
@@ -75,6 +81,8 @@ namespace GraphyFW.UI
             commandWidget.SetActive(false);
             rightButtonMenuWidget.SetActive(false);
             commandTipWidget.SetActive(false);
+
+             actorWidget_NeedWidget.SetActive(false);
             // foreach (var item in FindChildren(rightButtonMenuWidget.transform))
             // {
             //     item.gameObject.SetActive(false);
@@ -112,8 +120,10 @@ namespace GraphyFW.UI
             commandWidget = FindChild("CommandWidget");
             rightButtonMenuWidget = FindChild("RightButtonMenuWidget");
             commandTipWidget = FindChild("CommandTipWidget");
-            actorWidgetToolBtns = GetChildComponent<RectTransform>(actorWidget, "ToolBtns").transform.gameObject;
 
+            actorWidgetToolBtns = GetChildComponent<RectTransform>(actorWidget, "ToolBtns").transform.gameObject;
+            actorWidgetInfoBtns = GetChildComponent<RectTransform>(actorWidget, "InfoBtns").transform.gameObject;
+            actorWidget_NeedWidget = GetChildComponent<RectTransform>(actorWidget, "NeedsWidget").transform.gameObject;
 
 
             nestListContent = FindChild(nestWidget, "Content");
@@ -269,14 +279,32 @@ namespace GraphyFW.UI
                 OpenCommandTip("敌人",true);
             });
 
+
+
+
             //Actor widget
-
-            //GetChildComponent<Button>()            
-
             GetChildComponent<Button>(actorWidgetToolBtns,"Btn_CallUp").onClick.AddListener(()=>
             {
                 GraphyFW.AI.MultiActorController.instance.ActorsCallUp();
             });
+
+            GetChildComponent<Button>(actorWidgetInfoBtns,"Btn_Need").onClick.AddListener(()=>
+            {
+                actorWidget_NeedWidget.SetActive(true);
+            });
+
+            GetChildComponent<Button>(actorWidgetInfoBtns, "Btn_Property").onClick.AddListener(() =>
+            {
+
+            });
+
+            GetChildComponent<Button>(actorWidget_NeedWidget, "Btn_AW_Close").onClick.AddListener(() =>
+            {
+                actorWidget_NeedWidget.SetActive(false);
+            });
+
+
+
 
 
             //右键菜单

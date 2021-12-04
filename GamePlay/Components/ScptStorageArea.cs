@@ -43,14 +43,30 @@ public class ScptStorageArea : MonoBehaviour
     [Tooltip("Center in map space")]
     private Vector2Int _mapSize = Vector2Int.zero;
 
-    Vector2Int _start;//是图形左下角
+    [SerializeField]
+    [Tooltip("区域左上角")]
+    /// <summary>
+    /// 区域左上角（遍历起始点）
+    /// </summary>
+    private Vector2Int areaStart = Vector2Int.zero;
 
-    //放框右下角
-    Vector2Int _end;
+    [SerializeField]
+    [Tooltip("区域右下角")]
+    /// <summary>
+    /// 区域右下角（遍历终点）
+    /// </summary>
+    private Vector2Int areaEnd = Vector2Int.zero;
 
-    Vector3 worldStart;
+    [SerializeField]
+    [Tooltip("区域的大小")]
+    /// <summary>
+    /// 区域大小
+    /// </summary>
+    private Vector2Int areaSize = Vector2Int.zero;
 
-    Vector3 wroldEnd;
+    private Vector3 worldStart;
+
+    private Vector3 wroldEnd;
 
     //0表示没有，其他数字表示数量
     private Dictionary<Vector2Int, int> _dicState = new Dictionary<Vector2Int, int>();
@@ -63,8 +79,8 @@ public class ScptStorageArea : MonoBehaviour
     private bool isInited = false;
     private void OnRenderObject()
     {
-        if(!isInited) return;
-        DrawRunTimeShape.DrawQuad(worldStart,wroldEnd,color,material);
+        if (!isInited) return;
+        DrawRunTimeShape.DrawQuad(worldStart, wroldEnd, color, material);
     }
 
     /// <summary>
@@ -74,28 +90,27 @@ public class ScptStorageArea : MonoBehaviour
     /// <param name="size"></param>
     public void InitArea(Vector2Int center, Vector2Int size)
     {
-        Debug.Log($"Cener: {center} size: {size}");
-        color = new Color(0,1,0,0.1f);
-        _mapCenter.Set(Mathf.RoundToInt(center.x), Mathf.RoundToInt(center.y));
-        _mapSize.Set(Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y));
+        //Debug.Log($"Cener: {center} size: {size}");
+        color = new Color(0, 1, 0, 0.1f);
+        // _mapCenter.Set(Mathf.RoundToInt(center.x), Mathf.RoundToInt(center.y));
+        // _mapSize.Set(Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y));
 
-        _start = new Vector2Int(_mapCenter.x - _mapSize.x / 2, _mapCenter.y - _mapSize.y / 2);//这个是左下角
+        // _start = new Vector2Int(_mapCenter.x - _mapSize.x / 2, _mapCenter.y - _mapSize.y / 2);//这个是左下角
 
         //需要获得 从地图坐标转为世界坐标的 左上角（start）坐标
         //需要获得 从地图坐标转为世界坐标的 右下角（end）坐标
 
-        Vector2Int mapStart = new Vector2Int(center.x - size.x /2, center.y + size.y/2);
-        Vector2Int mapEnd = new Vector2Int(center.x + size.x/2, center.y - size.y/2);
+        areaStart = new Vector2Int(center.x - size.x / 2, center.y + size.y / 2);
+        areaEnd = new Vector2Int(center.x + size.x / 2, center.y - size.y / 2);
+        areaSize.Set(Mathf.Abs(areaEnd.x - areaStart.x + 1), Mathf.Abs(areaStart.y - areaEnd.y + 1));//是封闭区间，应该加1   
 
-        worldStart = new Vector3(_mapCenter.x - _mapSize.x / 2, _mapCenter.y + _mapSize.y / 2,0);//这个是左上角
-        wroldEnd = new Vector2();//这个是右下角
+        worldStart = GameMode.instance.GetMap().MapSpaceToWorldSpace(areaStart) + new Vector3(-0.5f, 0.5f, 0);
+        wroldEnd = GameMode.instance.GetMap().MapSpaceToWorldSpace(areaEnd) + new Vector3(0.5f, -0.5f, 0);
+        Debug.LogWarning($"mapStart: {areaStart}, mapEnd: {areaEnd} ------ worldStart: {worldStart}, worldEnd: {wroldEnd}");
 
-        worldStart = GameMode.instance.GetMap().MapSpaceToWorldSpace(mapStart);
-        wroldEnd = GameMode.instance.GetMap().MapSpaceToWorldSpace(mapEnd);
-
-        for (int i = _start.x; i <= (_start.x + _mapSize.x); i++)
+         for (int i = areaStart.x; i <= areaEnd.x; i++)
         {
-            for (int j = _start.y; j <= (_start.y + _mapSize.y); j++)
+            for (int j = areaStart.y; j >= areaEnd.y; j--)
             {
                 _dicState.Add(new Vector2Int(i, j), 0);
             }
@@ -103,13 +118,17 @@ public class ScptStorageArea : MonoBehaviour
         isInited = true;
     }
 
+    /// <summary>
+    /// 从该区域获取一个空余位置
+    /// </summary>
+    /// <returns></returns>
     public Vector2Int GetEmptyPos()
     {
-        Debug.Log($"Start: {_start} End: {_end}");
+        Debug.Log($"Start: {areaStart} End: {areaEnd}");
         Vector2Int pos = Vector2Int.zero;
-        for (int i = _start.x; i <= (_start.x + _mapSize.x); i++)
+        for (int i = areaStart.x; i <= areaEnd.x; i++)
         {
-            for (int j = _start.y; j <= (_start.y + _mapSize.y); j++)
+            for (int j = areaStart.y; j >= areaEnd.y; j--)
             {
                 pos.Set(i, j);
                 //Debug.Log(_dicState[pos]);
@@ -126,15 +145,38 @@ public class ScptStorageArea : MonoBehaviour
         return Vector2Int.zero;
     }
 
+    /// <summary>
+    /// 当从区域搬走东西的时候，应该将该位置设置为空
+    /// </summary>
+    /// <param name="pos"></param>
     public void SetPosEmpty(Vector2Int pos)
     {
         if (!Valid(pos)) return;
         _dicState[pos] = 0;
     }
 
+    /// <summary>
+    /// 检测该区域是否被填满
+    /// TODO：不应该直接遍历，应该使用一个Int 值记录该区域是否被填满
+    /// </summary>
+    /// <returns></returns>
     public bool Full()
     {
-        return totalCount == _dicState.Count ? true : false;
+        Vector2Int pos = Vector2Int.zero;
+       for (int i = areaStart.x; i <= areaEnd.x; i++)
+        {
+            for (int j = areaStart.y; j >= areaEnd.y; j--)
+            {
+                pos.Set(i, j);
+                if (_dicState[pos] == 0)
+                {
+                    return false;
+                }
+            }
+        }
+        Debug.Log("Storage area is full.");
+        return true;
+
     }
 
     private bool Valid(Vector2Int pos)

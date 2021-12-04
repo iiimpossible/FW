@@ -10,7 +10,7 @@ using UnityEngine;
 /// 4.在地图中的位置
 /// 
 /// </summary>
-public class Prop 
+public class Prop //: MonoBehaviour
 {
     public bool isOccupied{get;set;}
     public bool isStored{get;set;}

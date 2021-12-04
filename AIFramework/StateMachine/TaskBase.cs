@@ -60,14 +60,29 @@ namespace GraphyFW.AI
                 _isCompleted = false;
             }
             if (_currentState == null) return;
-            _currentState.ActionEnter();
-            if(_currentState.isExecuteError) _isCompleted = true;
+                _currentState.ActionEnter();
+
+             //如果执行错误，直接退出该任务
+            if (_currentState.isExecuteError)
+            {
+                _isCompleted = true;
+                 Debug.LogWarning("TaskBase: Action run error. Current action is: " + _currentState.GetType());
+                return;
+            }
+
         }
 
         public sealed override void ActionUpdate()
         {
+
             if (_currentState == null) return;
             _currentState.ActionUpdate();
+            //如果执行错误，直接退出该任务
+            if (_currentState.isExecuteError)
+            {
+                _isCompleted = true;
+                return;
+            }
             SwitchState();
         }
 

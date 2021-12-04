@@ -281,19 +281,21 @@ namespace GraphyFW.AI
         public override void ActionEnter()
         {
             //从地图管理器获取可以搬运的道具
-            Food fd = GameMode.instance.GetFoodObject();           
+            Food fd = GameMode.instance.GetFoodObject();   
+            fd.isOccupied = true;        
             if(fd == null)
             {
                 Debug.LogError("Food is null");
-                this.isExecuteError = true;  
-                return;              
-            } 
+                this.isExecuteError = true;
+                return;
+            }
+            ScptStorageArea area = GameMode.instance.GetStorageArea();
             //设置道具位置    
             _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.PROP_POS], _map.WorldSpaceToMapSpace(fd.propGo.transform.position));
             //设置道具引用
             _runData.SetPropData(AIRunData.dicKeys[ERunDataKey.Prop], fd);
             //设置存储区空位
-            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS],GameMode.instance.GetStorageArea(out _isGot));
+            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS],area.GetEmptyPos());
             Debug.LogWarning("Find prop enter.");
         }
 
@@ -325,8 +327,15 @@ namespace GraphyFW.AI
 
         public override void ActionEnter()
         {
-            AIAlgorithm.AstarSearch(_map, _map.WorldSpaceToMapSpace(_controller.transform.position),
+           bool is_searched  = AIAlgorithm.AstarSearch(_map, _map.WorldSpaceToMapSpace(_controller.transform.position),
                   _runData.GetVec2IData(_valueKey), _path);
+            if(is_searched == false)
+            {
+                this.isExecuteError = true;
+                this.ActionExit();
+               
+                return;
+            }
             this._isCompleted = false;
             CameraSelectObject.instance.AddLineVerts(_path);
         }
@@ -443,6 +452,7 @@ namespace GraphyFW.AI
                 return;
             }
             prop.propGo.transform.parent = null;
+            prop.propGo.transform.eulerAngles = Vector3.zero;
             _runData.SetPropData(AIRunData.dicKeys[ERunDataKey.Prop], null);
             prop.isOccupied = false;
 
