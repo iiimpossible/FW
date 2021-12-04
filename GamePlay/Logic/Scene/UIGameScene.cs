@@ -32,7 +32,7 @@ namespace GraphyFW.UI
 
         private void OnMapLoaded_Listener(Message message)
         {
-            Debug.LogError("Map loaded.");
+            //Debug.LogError("Map loaded.");
             ScptUIManager.instance.uiPanelManager.ClosePanel();
             ScptUIManager.instance.uiPanelManager.OpenPanel(typeof(UIGamePanel));
         }

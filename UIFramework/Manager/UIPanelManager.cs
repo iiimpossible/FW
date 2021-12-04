@@ -115,7 +115,7 @@ namespace GraphyFW.UI
         {
             if (stackPanels.Count > 0)
             {
-                stackPanels.Peek().Update();
+                stackPanels.Peek().OnUpdate();
             }
         }
 
@@ -199,6 +199,7 @@ namespace GraphyFW.UI
             if (dicUIPanel.ContainsKey(type))
             {
                 GameObject.Destroy(dicUIPanel[type].uiGo);
+                dicUIPanel[type].OnDestroy();//调用销毁UI类型的销毁方法
                 dicUIPanel.Remove(type);
             }
         }

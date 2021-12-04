@@ -20,7 +20,7 @@ namespace GraphyFW.AI
         /// <param name="path"></param>
         public static void AstarSearch(MapBase<AIBrickState> map, Vector2Int sourcePos, Vector2Int targetPos, List<Vector2> path)
         {           
-            Debug.Log("AStarsearch sourcepos-->" + sourcePos + "targetpos--->" + targetPos);
+            //Debug.Log("AStarsearch sourcepos-->" + sourcePos + "targetpos--->" + targetPos);
             DebugTime.StartTimer(timer);
             
             q.Clear();   
@@ -84,13 +84,13 @@ namespace GraphyFW.AI
                     }
 
                     ClearAccsessTag();
-                    DebugTime.EndTimer(timer);
+                    //DebugTime.EndTimer(timer);
                     return;
                 }
                 max--;
             }
             ClearAccsessTag();
-            DebugTime.EndTimer(timer);
+            //DebugTime.EndTimer(timer);
         }
 
         /// <summary>

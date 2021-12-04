@@ -6,6 +6,7 @@ using GraphyFW.AI;
 
 namespace GraphyFW.AI
 {
+    using GraphyFW.GamePlay;
     /// <summary>
     /// 工作类型枚举
     /// 1.搬运
@@ -15,6 +16,10 @@ namespace GraphyFW.AI
     /// 5.采集（叶子）
     /// 6.种植（真菌）
     /// 7.放牧（蚜虫，介壳虫）
+    /// 
+    /// 2021.12.04
+    /// 干脆两个状态机，一个自动管理，一个手动管理
+    /// 当需要直接操作Actor的时候，切换状态机
     /// </summary>
     public enum EAIWorkType
     {
@@ -62,6 +67,11 @@ namespace GraphyFW.AI
         private AIRunData runData;         
         private TaskCarry taskCarry;
         private TaskCallUp taskCallUp;
+
+        private TaskMoveTo taskMoveTo;
+
+        public bool isCallUp {get;private set;}
+
         [SerializeField]
         private GameObject frame;
 
@@ -70,7 +80,7 @@ namespace GraphyFW.AI
 
         private void Awake() {
             frame.SetActive(false);
-            
+            isCallUp = false;
            
         }
 
@@ -87,58 +97,52 @@ namespace GraphyFW.AI
             //searchProp = new ActionSearchProp(this,runData);
             taskCarry = new TaskCarry(this, runData);
 
-            taskCallUp = new TaskCallUp(this, runData);
+            taskCallUp = new TaskCallUp(this, runData); machine.callUp = taskCallUp;
+
+            taskMoveTo = new TaskMoveTo(this, runData);
 
             machine.AddTask(taskCarry);
 
             machine.AddTask(taskCallUp);
+
+            machine.AddTask(taskMoveTo);
             //move.nextAction = patrol;
             // patrol.nextAction = move;
             // move.condition = () => { if (this.poss.Count == 0) Debug.Log("Poss count is zero"); return true; };
             //machine.SetStartState(taskCarry);         
 
             //注册消息 消息注册必须在MessageMaager生成之后
-            MessageManager.instance.AddListener(EMessageType.OnBoxCastAllCollider,OnBox2DRayCastCallback);
-        }
+            //MessageManager.instance.AddListener(EMessageType.OnBoxCastAllCollider,OnBox2DRayCastCallback);
 
-        public void SetSelected(bool isSected)
-        {
-
-            frame.SetActive(isSected);
-            if(isSected)
-            {
-                 machine.SetCurrentTask(taskCallUp);
-            }
-            else
-            {
-                machine.SetCurrentTask(null);
-            }
-           
+             
         }
 
 
-        //接收选中消息
-        private void OnBox2DRayCastCallback(Message message)
-        {           
-            RaycastHit2D[] hit2Ds;
-            if (message.paramsList.Count > 0)
-            {
-                hit2Ds = message.paramsList[0] as RaycastHit2D[];
-                foreach (var item in hit2Ds)
-                {
-                    if(item.collider.gameObject.transform == transform)
-                    {
-                        isSelected =  true;
-                        //TODO: 状态机转为征召？不，征召还是不同，这里应该打断其他状态，转为特定状态
-                        Debug.Log($"Recieve message, {item.collider.gameObject.transform.name} be selected.");
-                        machine.SetCurrentTask(taskCallUp);
-                        frame.SetActive(true);
-                    }
-                }
-            }
-           
-        }
- 
+        // //接收选中消息
+        // /// <summary>
+        // /// 废弃中
+        // /// </summary>
+        // /// <param name="message"></param>
+        // private void OnBox2DRayCast_Listener(Message message)
+        // {           
+        //     RaycastHit2D[] hit2Ds;
+        //     if (message.paramsList.Count > 0)
+        //     {
+        //         hit2Ds = message.paramsList[0] as RaycastHit2D[];
+        //         foreach (var item in hit2Ds)
+        //         {
+        //             if(item.collider.gameObject.transform == transform)
+        //             {
+        //                 isSelected =  true;
+        //                 //TODO: 状态机转为征召？不，征召还是不同，这里应该打断其他状态，转为特定状态                       
+        //                 //machine.SetCurrentTask(taskCallUp);
+        //                 frame.SetActive(true);
+        //             }
+        //         }
+        //     }
+
+        // }
+
 
         public void Update()
         {
@@ -146,14 +150,68 @@ namespace GraphyFW.AI
             //Move();
         }
 
+
+
+        #region  单独命令
+
         /// <summary>
-        /// 初始化运行数据
+        /// 单位被选中，但不冻结状态机，显示选中的标记
         /// </summary>
-        private void InitRunData()
+        /// <param name="selected"></param>
+        public void Selected(bool selected)
         {
-            //地图数据
+            frame.SetActive(selected);
         }
-    
+
+
+        /// <summary>
+        /// 这个是 状态机有两种状态，一种自动执行，一种手动执行。手动执行会根据封装的方法，转为目标状态。
+        /// State基类应该给出方法支持手动输入
+        /// </summary>
+        public void CallUp()
+        {
+            if (machine.isFrozen == false)
+            {
+                machine.SetMachineMode(EStateMachineMode.MANUAL_MODE, taskCallUp);
+            }
+            else if (machine.isFrozen == true)
+            {
+                machine.SetMachineMode(EStateMachineMode.AUTO_MODE);
+                Selected(false);
+            }
+            isCallUp = ! isCallUp;
+
+        }
+
+        /// <summary>
+        /// 移动到某处
+        /// </summary>
+        /// <param name="pos"></param>
+        public void MoveTo(Vector2Int pos)
+        {
+            if (isCallUp == false) return;
+            taskMoveTo.SetMoveTarget(pos);
+            machine.SetMachineMode(EStateMachineMode.MANUAL_MODE, taskMoveTo);
+            Debug.Log("Move to： " + pos);
+        }
+
+
+        public void Attack(GameObject target)
+        {
+
+        }
+
+
+        public void Eat(Food target)
+        {
+
+        }
+
+        #endregion
+
+        private void OnDestroy() {
+           
+        }
 
     }
 

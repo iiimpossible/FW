@@ -296,8 +296,8 @@ public class MapBase<T> where T: AIBrickState,new()
         //判断是否在地图范围中
         if (IsValidInMap(worldPos.x - mapZero.x, worldPos.y - mapZero.y))
         {          
-            //假设输入相对坐标（16.5，18.5）/（1，1） (16,18) 问题 需要将地图的索引定为1开始？
-            toMapPos.Set( Mathf.RoundToInt((worldPos.x-mapZero.x / brickSize)) -1,  Mathf.RoundToInt(worldPos.y-mapZero.y / brickSize)-1);//这里有问题，如果是小数就有舍入误差了，避免的方法是，地图远点不应该有小数，CellSize也不应该为小数
+            //假设输入相对坐标（16.5，18.5）/（1，1） (16,18) 问题 需要将地图的索引定为1开始？ 使用四舍六入五取偶后不要减去1了
+            toMapPos.Set( Mathf.RoundToInt((worldPos.x-mapZero.x / brickSize)),  Mathf.RoundToInt(worldPos.y-mapZero.y / brickSize));//这里有问题，如果是小数就有舍入误差了，避免的方法是，地图远点不应该有小数，CellSize也不应该为小数
             //Debug.Log("[WorldSpaceToMapSpace]  Map pos is----->" + toMapPos);
             return toMapPos;
         }
@@ -414,35 +414,7 @@ public class MapBase<T> where T: AIBrickState,new()
                 brick.Clear();                
             }
            
-        });
-
-
-        // Vector2Int pos = Vector2Int.zero;
-        // for (int k = 0; k < 3; k++)
-        // {
-        //     for (int i = 0; i < this.size.x; i++)
-        //     {
-        //         for (int j = 0; j < this.size.y; j++)
-        //         {
-        //             pos.Set(i, j);
-        //             var brick = GetBrickState(pos, EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE);
-        //             if (brick == null) continue;
-        //             count = GetNeighborsObstacleNum(brick.pos);
-        //             Debug.Log("Count is--->" + count);
-        //             if (brick.isObstacle == false && count > 4)
-        //             {
-        //                 brick.SetObstacle();
-        //                 yield return new WaitForSeconds(0.0001f);
-        //             }
-        //             if (brick.isObstacle == true && count < 3)
-        //             {
-        //                 brick.Clear();
-        //                 yield return new WaitForSeconds(0.001f);
-        //             }
-        //         }
-        //     }
-        // }
-        // yield return 0;
+        });        
     }
 
     /// <summary>
@@ -460,6 +432,33 @@ public class MapBase<T> where T: AIBrickState,new()
                 action.Invoke(GetBrickState(pos, EBitMask.ACSSESS | EBitMask.FOUND | EBitMask.OBSTACLE));
             }
         }
+    }
+
+    
+
+    /// <summary>
+    /// 从提供的位置寻找一个在地图范围内的，无障碍的位置
+    /// </summary>
+    /// <param name="center">随机中心点</param>
+    /// <param name="radius">随机半径</param>
+    /// <param name="time">随机次数</param>
+    public Vector2Int RandomPos(Vector2Int center, int radius, int time = 5)
+    {
+        
+        System.Random random = new System.Random(System.DateTime.Now.GetHashCode());           
+        
+        int rad = 0;
+        Vector2Int pos = Vector2Int.zero;
+        for (int i = 0; i < time; i++)
+        {
+            rad = random.Next(-radius,radius);
+            pos.Set(center.x + rad, center.y + rad);
+            if (GetBrickState(pos)!= null)
+            {
+                return pos;
+            }
+       }
+       return pos;
     }
 
 

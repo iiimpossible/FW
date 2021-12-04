@@ -49,7 +49,7 @@ public class RTSCamera : MonoBehaviour
     /// </summary>
     private void MouseMove()
     {
-        if(Input.GetMouseButton(2) && middleKey)
+        if(Input.GetMouseButton(2) && middleKey && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {
             float x = Input.GetAxis("Mouse X");
             float y = Input.GetAxis("Mouse Y");

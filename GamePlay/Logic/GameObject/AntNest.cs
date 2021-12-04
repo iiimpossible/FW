@@ -9,7 +9,7 @@ namespace GraphyFW.GamePlay
     /// <summary>
     /// 蚂蚁的巢穴类
     /// </summary>
-    public class AntNest : GameObjectBase
+    public class AntNest : Actor
     {
         public AntNest( )  
         {

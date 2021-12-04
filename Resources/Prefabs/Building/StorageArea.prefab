@@ -44,14 +44,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b535acf17597a534dbb43a9c3d5bed7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _drawArea: 1
-  _material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  _size: {x: 0, y: 0}
-  _center: {x: 0, y: 0}
-  _color: {r: 0, g: 1, b: 0, a: 1}
+  drawArea: 0
+  material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  size: {x: 0, y: 0}
+  center: {x: 0, y: 0}
+  color: {r: 0, g: 1, b: 0, a: 1}
   _mapCenter: {x: 0, y: 0}
   _mapSize: {x: 0, y: 0}
-  quadMesh: {fileID: 0}
 --- !u!61 &8737745442922451913
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -59,7 +58,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1548372082961233522}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 1

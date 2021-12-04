@@ -9,110 +9,7 @@ namespace GraphyFW.AI
     
 
 
-    /// <summary>
-    /// 【任务】是描述做一件事情所需要的【行为】的集合
-    /// 1.保存现场，数据，状态
-    /// 2.执行指令（行为）
-    /// 3.恢复现场，
-    /// 4.对于一个AI，常态就是 闲逛（idel）状态（行为），执行完任务后就该回到Idel状态，然后每隔一定的时间，会去搜索场景，
-    /// 将任务添加到任务队列中。任务队列需要根据权重排序，或者优先队列
-    /// 任务也是一个状态，于行为兼容
-    /// 
-    /// </summary>
-    public abstract class TaskBase : StateBase
-    {      
-
-        protected List<StateBase> _actions = new List<StateBase>();
-
-        protected StateBase _currentState = null;
-
-        protected StateBase _lastState = null;
-
-        private int _stateIndex = 0;
-
-        public TaskBase(ActorController controller, AIRunData runData):base(controller,runData)
-        {
-          
-        }
-
-        /// <summary>
-        /// 当进入时 要刷新装填
-        /// </summary>
-        public sealed override void ActionEnter()
-        {
-            _stateIndex = 0;
-            if (_actions.Count > 0)
-            {
-                _currentState = _actions[_stateIndex];
-                _isCompleted = false;
-            }
-            if (_currentState == null) return;
-            _currentState.ActionEnter();
-        }
-
-        public sealed override void ActionUpdate()
-        {
-            if(_currentState == null) return;
-            _currentState.ActionUpdate();
-            SwitchState();           
-        }
-
-        public sealed override void ActionExit()
-        {
-            _stateIndex = 0;
-            _currentState = null;
-            _isCompleted = false;
-            foreach (var item in _actions)
-            {
-                item.ActionExit();
-            }
-        }
-
-        public sealed override bool ActionCompleted()
-        {
-            return _isCompleted;        
-        } 
-
-        protected void SwitchState()
-        {    
-            if (_currentState == null) return;
-            //Debug.Log("Switch state ~~~~");
-            if (_currentState.ActionCompleted())
-            {
-                //如果状态完成，检查行为列表还有没有下一个，有就转换状态执行
-                _stateIndex += 1;
-                if(_actions.Count > _stateIndex)
-                {
-                    _lastState = _currentState;
-                    _currentState = _actions[_stateIndex];
-                    _currentState.ActionEnter();
-                    _lastState.ActionExit();
-                }  
-                else
-                {
-                    _isCompleted = true;
-                }
-            }
-        }
-
-
-        public void AddAction(StateBase action)
-        {
-            _actions.Add(action);
-        }
-
-
-        public void RemoveAction(StateBase action)
-        {
-            _actions.Remove(action);
-        }
-
-        public virtual bool TaskExecutable()
-        {
-            return false;
-        } 
-    }
-
+   
 
 
     /// <summary>
@@ -140,11 +37,12 @@ namespace GraphyFW.AI
 
         private Vector2Int _originPos = Vector2Int.one;
          
+         private bool _isGO = false;
         public TaskCarry(ActorController controller, AIRunData runData):base(controller,runData)
         {            
             _findProp = new ActionFindProp(controller,runData);
-            _pathMoveGo = new ActionPathMove(controller,runData,"PropPos");
-            _pathMoveBack = new ActionPathMove(controller,runData, AIRunData.dicKeys[ERunDataKey.MOVE_TARGET_POS]);
+            _pathMoveGo = new ActionPathMove(controller,runData,AIRunData.dicKeys[ERunDataKey.PROP_POS]);
+            _pathMoveBack = new ActionPathMove(controller,runData, AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS]);
             _takeUp = new ActionTakeUp(controller,runData);
             _putDown = new ActionPutDown(controller,runData);
             _actions.Add(_findProp);
@@ -157,7 +55,8 @@ namespace GraphyFW.AI
 
         public override bool TaskExecutable()
         {            
-           if( GameMode.instance.GetFoodObject() != null && GameMode.instance.GetStorageArea() != null)
+            GameMode.instance.GetStorageArea(out _isGO ) ;
+           if( GameMode.instance.GetFoodObject() != null && _isGO )
            {  
                return true;
            }         
@@ -183,7 +82,7 @@ namespace GraphyFW.AI
 
         public TaskIdle(ActorController controller, AIRunData runData) : base(controller, runData)
         {
-            _pathMove = new ActionPathMove(controller, runData, AIRunData.dicKeys[ERunDataKey.TARGET_POS]);
+            _pathMove = new ActionPathMove(controller, runData, AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS]);
             _delay = new ActionDelay(controller, runData);
             _randomPos = new ActionRandomPos(controller,runData);
 
@@ -217,6 +116,31 @@ namespace GraphyFW.AI
         }
     }
 
+    /// <summary>
+    /// 对于一个专门管理移动的状态，应该有多重模式。
+    /// 1.随机移动模式（巡逻）
+    /// 2.手动指定目标模式
+    /// </summary>
+    public class TaskMoveTo:TaskBase
+    {
+        ActionPathMove _pathMove;
+        public TaskMoveTo(ActorController controller, AIRunData runData) :base(controller, runData)
+        {
+            _pathMove = new ActionPathMove(controller, runData, AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS]);
+            this.isStatic = true;
+            this.AddAction(_pathMove);
+        }
+
+        public void SetMoveTarget(Vector2Int target)
+        {
+            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS],target);
+            Debug.Log("Set pos is: "+ target);
+        }
+
+       
+    }
+
+ 
 
 
 

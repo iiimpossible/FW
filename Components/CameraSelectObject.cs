@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 [System.Serializable]
 public struct QuadVerts
@@ -59,24 +60,25 @@ public class CameraSelectObject : MonoBehaviour
 
         rectMat.shader.hideFlags = HideFlags.HideAndDontSave;//不显示在hierarchy面板中的组合，
         //不保存到场景并且卸载Resources.UnloadUnusedAssets不卸载的对象。
+        //MessageManager.instance.AddListener(EMessageType.OnMouseButtonDown_0,OnMouseLeftButtonDownStart_Listener);
+        //MessageManager.instance.AddListener(EMessageType.OnMouseButtonUp_0,OnMouseLeftButtonDownEnd_Listener);
+
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {
             //Debug.Log("IsSelected");
             isSelected = true;
             pressPos = Input.mousePosition;
         }
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0)&& !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {
             //Debug.Log("Not selected");
             isSelected = false;
 
-            ChooseObjects(pressPos, Input.mousePosition);
-
-         
+            ChooseObjects(pressPos, Input.mousePosition);        
 
         }
         
@@ -98,6 +100,20 @@ public class CameraSelectObject : MonoBehaviour
         {
             DrawRunTimeShape.DrawLine(item,lineColor,rectMat);
         }
+    }
+
+
+    private void OnMouseLeftButtonDownStart_Listener(Message message)
+    {
+        isSelected = true;
+        pressPos = Input.mousePosition;
+    }
+
+    private void OnMouseLeftButtonDownEnd_Listener(Message message)
+    {
+        isSelected = false;
+
+        ChooseObjects(pressPos, Input.mousePosition);
     }
 
 
@@ -150,12 +166,13 @@ public class CameraSelectObject : MonoBehaviour
 
 
     /// <summary>
-    /// 
+    /// TODO:将这个逻辑移动到GameMode 里边去，这里只负责绘制选择框， 发送start和end
     /// </summary>
     /// <param name="start">屏幕空间的坐标（鼠标）Quad起点</param>
     /// <param name="end">屏幕空间的坐标（鼠标）Quad终点</param>
     public void ChooseObjects(Vector3 start, Vector3 end)
     {
+        if( (end - start).magnitude <1) return;
         var worldstart = Camera.main.ScreenToWorldPoint(start);
         var wordlEnd = Camera.main.ScreenToWorldPoint(end);
 
@@ -164,13 +181,13 @@ public class CameraSelectObject : MonoBehaviour
 
         RaycastHit2D[] hits = Physics2D.BoxCastAll(center, box2DSize, 0, Vector3.forward);
         Debug.Log($"BoxCast worldStart: {worldstart}, worldEnd: {wordlEnd} center: {center}, size: {box2DSize}, derection: {Vector3.forward}");
-        MessageManager.instance.Dispatch("OnBoxCastAllCollider", EMessageType.OnBoxCastAllCollider,hits);
-        MessageManager.instance.Dispatch("OnFrameSelect", EMessageType.OnFrameSelected,worldstart, wordlEnd, center, box2DSize);
+        if(GameMode.instance.GetPlayerCommad() == GameMode.EPlayCommands.NORMAL)  MessageManager.instance.Dispatch("OnBoxCastAllCollider", EMessageType.OnBoxCastAllCollider,hits);
+        if(GameMode.instance.GetPlayerCommad() == GameMode.EPlayCommands.CREATE_STORAGE_AREA) MessageManager.instance.Dispatch("OnFrameSelect", EMessageType.OnFrameSelected,worldstart, wordlEnd, center, box2DSize);
 
-        QuadVerts verts = new QuadVerts();
-        verts.start = worldstart;
-        verts.end = wordlEnd;
-        AddQVerts(verts);
+        // QuadVerts verts = new QuadVerts();
+        // verts.start = worldstart;
+        // verts.end = wordlEnd;
+        // AddQVerts(verts);
     }
 
 

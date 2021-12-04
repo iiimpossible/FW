@@ -6,6 +6,12 @@ using UnityEngine.Events;
 namespace GraphyFW.AI
 { 
 
+    public enum EStateMachineMode
+    {
+        AUTO_MODE = 0,
+        MANUAL_MODE = 1,
+    }
+
     /// <summary>
     /// AI的状态机
     /// 1.状态机含有许多状态（或者说行为）
@@ -30,13 +36,15 @@ namespace GraphyFW.AI
     /// </summary>
     public class AIStateMachine
     {
-        private StateBase lastAction;
+        private TaskBase lastAction;
 
         //private StateBase globalAction;
 
-        private StateBase curAction;
+        private TaskBase curAction;
 
         private TaskIdle rootTask;
+
+        public TaskCallUp callUp;
 
         private List<TaskBase> tasks = new List<TaskBase>();
 
@@ -44,16 +52,30 @@ namespace GraphyFW.AI
         /// 是否冻结状态机，如果冻结就不自动进行状态转换
         /// </summary>
         private bool _isFrozen = false;
+
+        public EStateMachineMode mode {get;protected set;}
         
-        public bool isFrozen {get {return _isFrozen;}set{_isFrozen = value;}}
+        public bool isFrozen {get {return _isFrozen;}}
 
         public AIStateMachine(ActorController controller, AIRunData runData)
         {
             //dicActions = new dicrootTask
+            mode = EStateMachineMode.AUTO_MODE;
             rootTask =  new TaskIdle(controller,runData);
             tasks.Add(rootTask);
             curAction = rootTask;
             curAction.ActionEnter();
+        }
+
+        /// <summary>
+        /// 设置状态机的模式，手动或者自动
+        /// </summary>
+        /// <param name="aMode"></param>
+        /// <param name="state"></param>
+        public void SetMachineMode(EStateMachineMode aMode, TaskBase state = null)
+        {            
+            SetCurrentTask(state);  
+            this.mode = aMode;
         }
 
 
@@ -61,30 +83,33 @@ namespace GraphyFW.AI
         /// 循环执行状态
         /// </summary>
         public void Update()
-        {            
-            if(curAction == null) return;
-            curAction.ActionUpdate();
-            ForeachTask();       
-        }
-
-        /// <summary>
-        /// 当curAction完成的时候，转换状态
-        /// </summary>
-        public void SwicthState()
         {
             if (curAction == null) return;
-            if (curAction.ActionCompleted())
+
+            switch (mode)
             {
-                lastAction = curAction;
-                if (curAction.nextAction != null)
-                {
-                    //Debug.Log("Switch state.~~~~~~~~");
-                    curAction = curAction.nextAction;
-                    curAction.ActionEnter();
-                    lastAction.ActionExit();
-                }
+                case EStateMachineMode.AUTO_MODE:
+                    {
+                        curAction.ActionUpdate();
+                        ForeachTask();
+                        break;
+                    }
+                case EStateMachineMode.MANUAL_MODE:
+                    {
+                        curAction.ActionUpdate();
+                        ///如果完成当前任务，应该待命，可以轮询一些可以在不移动位置的情况下的任务，如原地攻击等
+                        if (curAction.ActionCompleted())
+                        {
+                            curAction.ActionExit();
+                            curAction = callUp;
+                            curAction.ActionEnter();
+                        }
+                        break;
+                    }
             }
+
         }
+
 
         public void SwitchState(int index)
         {
@@ -93,12 +118,6 @@ namespace GraphyFW.AI
              //Debug.Log("State ma switch 22");
             curAction.ActionExit();
             curAction = tasks[index];
-            curAction.ActionEnter();
-        }
-
-        public void SetStartState(StateBase action)
-        {
-            curAction = action;
             curAction.ActionEnter();
         }
 
@@ -111,8 +130,9 @@ namespace GraphyFW.AI
         /// </summary>
         public void ForeachTask()
         {
-            if(_isFrozen) return;
+            if(_isFrozen) return;            
             if (curAction == null) return;
+            if(curAction.isStatic == true) return;//当Task为静态（手动操控），不进行轮询
             if (curAction.ActionCompleted())
             {
                 //Debug.Log("curAction is complete! seach next task");               
@@ -141,14 +161,19 @@ namespace GraphyFW.AI
         /// NOTE: task必须是已经在状态机中注册过了的状态
         /// </summary>
         /// <param name="task"></param>
-        public void SetCurrentTask(TaskBase task)
-        {
-            if(_isFrozen == false) _isFrozen = true;
-            if(task == null) SwitchState(0);
-            if(tasks.Contains(task))
+        private void SetCurrentTask(TaskBase task)
+        {           
+            if(task == null)//转为自动模式
             {
-                //SwitchState(task)
+                _isFrozen = false;
+                SwitchState(0);
+                Debug.Log("Auto  mode");
+            } 
+            else if(tasks.Contains(task))//转为手动模式
+            {
+                _isFrozen = true;                
                 SwitchState(tasks.IndexOf(task));
+                Debug.Log("Manual mode, currrent task is: "+ task.GetType());
             }
         }
 

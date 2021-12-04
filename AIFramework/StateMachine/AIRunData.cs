@@ -13,11 +13,11 @@ namespace GraphyFW.AI
     public enum ERunDataKey
     {
         ORIGIN_POS = 1,
-        TARGET_POS = 2,
+        Vec2I_TARGET_POS = 2,
 
         MAIN_MAP = 3,
 
-        PLAYER_POS = 4,
+        Vec2I_PLAYER_POS = 4,
         Prop = 5 ,
 
         Nest_Pos = 6,   
@@ -26,9 +26,9 @@ namespace GraphyFW.AI
 
         IS_SELECTED = 8,//Actor被选中
 
-        STOREAGE_AREA = 9,
+        STORAGE_AREA = 9,
 
-        MOVE_TARGET_POS = 10,//移动指令的目标位置
+        STORAGE_VACANCY_POS = 10,//移动指令的目标位置
 
     }
 
@@ -38,23 +38,23 @@ namespace GraphyFW.AI
     /// </summary>
     public class AIRunData
     {
-        /*
-            需求：定义一些ai运行数据的关键字，能够输入枚举关键字，输出对应的关键字的数据
-
-        */
-
+       
+        /// <summary>
+        /// 数据关键字定义
+        /// </summary>
+        /// <value></value>
         public static Dictionary<ERunDataKey, string> dicKeys = new Dictionary<ERunDataKey, string>
     {
-        {ERunDataKey.TARGET_POS,"TargetPos"},
-        {ERunDataKey.MAIN_MAP, "MainMap"},
-        {ERunDataKey.ORIGIN_POS,"OriginPos"},
-        {ERunDataKey.PLAYER_POS,"PlayerPos"},
-        {ERunDataKey.Prop, "Prop"},
-        {ERunDataKey.Nest_Pos, "NestPos"},
-        {ERunDataKey.PROP_POS, "PropPos"},
-        {ERunDataKey.IS_SELECTED,"IsSelected"},
-        {ERunDataKey.STOREAGE_AREA, "StorageArea"},
-        {ERunDataKey.MOVE_TARGET_POS, "MoveTargetPos"}
+        {ERunDataKey.Vec2I_TARGET_POS,"TargetPos"},//寻路时的目标位置，vec2i
+        {ERunDataKey.ORIGIN_POS,"OriginPos"},//寻路时的起始位置，vec2i
+        {ERunDataKey.MAIN_MAP, "MainMap"},//当前的游戏地图
+        {ERunDataKey.Vec2I_PLAYER_POS,"PlayerPos"},//玩家在地图上的位置，vec2i
+        {ERunDataKey.Prop, "Prop"},//临时获得的道具引用，搬运时存储，Prop
+        {ERunDataKey.Nest_Pos, "NestPos"},//巢穴位置
+        {ERunDataKey.PROP_POS, "PropPos"},//临时获取的道具的位置，用于搬运，vec2i
+        {ERunDataKey.IS_SELECTED,"IsSelected"},//当前Actor是否被选中，bool
+        {ERunDataKey.STORAGE_AREA, "StorageArea"},//当前获得的存储区引用
+        {ERunDataKey.STORAGE_VACANCY_POS, "StorageVacancyPos"},//从存储区获取的空位，vec2i
 
     };
 
@@ -204,7 +204,14 @@ namespace GraphyFW.AI
         public Vector2Int GetVec2IData(string dataName)
         {
             if (_dicVec2IData != null)
+
+            {
+                if(_dicVec2IData.ContainsKey(dataName )== false)
+                {
+                    Debug.LogError($"Key not exist: [{dataName}]");
+                }
                 return _dicVec2IData[dataName];
+            }
             return default(Vector2Int);
         }
 

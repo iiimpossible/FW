@@ -12,6 +12,8 @@ using System;
 
 /// <summary>
 /// 消息基类
+/// 2021.12.04
+/// TODO：需要提供回调函数重复加入检测
 /// </summary>
 public  class Message
 {
@@ -22,38 +24,45 @@ public  class Message
 
 public enum EMessageType
 {
-    //右键按下，发送鼠标世界位置
-    OnMouseDown_MousePosInWorld_1 = 1,
-
     //左键按下，发送鼠标世界位置
-    OnMouseDown_MousePOsInWorld_0 = 2,
-    OnMapLoaded = 2,
+    OnMouseDown_MousePosInWorld_0 = 1,
+
+    //右键按下，发送鼠标世界位置
+    OnMouseDown_MousePosInWorld_1 = 2,
+    OnMapLoaded = 3,
     //发射射线 检测到一个 GameObjectBase
-    OnRayCastGameObjectBase = 3,
+    OnRayCastGameObjectBase = 4,
 
     //
-    OnBoxCastAllCollider = 4,
+    OnBoxCastAllCollider = 5,
 
     //尝试框选区域，发送起始点和终点 但是现在这个命令和 射线命令耦合
-    OnFrameSelected = 5,
+    OnFrameSelected = 6,
 
+    //框选中的Actor
+    OnBoxCast_Actors  = 7,
+
+//-------------------------------------------------------
     //鼠标左键按下
-    OnMouseButtonDown_0 = 6,
+    OnMouseButtonDown_0 = 20,
 
     //鼠标右键按下
-    OnMouseButtonDown_1 = 7,
+    OnMouseButtonDown_1 = 21,
 
     //鼠标中键按下
-    OnMouseButttonDown_2 = 8,
+    OnMouseButtonDown_2 = 22,
 
     //鼠标左键按下，发送鼠标屏幕位置
-    OnMouseButtonDown_MousePos_0 = 9,
+    OnMouseButtonDown_MousePos_0 = 23,
 
     //鼠标右键按下，发送鼠标屏幕位置
-    OnMouseButtonDown_MousePos_1 = 10,
+    OnMouseButtonDown_MousePos_1 = 24,
 
+    OnMouseButtonUp_0 = 25,
 
-    
+    OnMouseButtonUp_1 = 26,
+
+    OnMouseButtonUp_2 = 27,    
 }
 
 /// <summary>
@@ -102,7 +111,7 @@ public class MessageManager :MonoBehaviour
             dicMessage.Add(type, new List<UnityAction<Message>>());
         //检测是否已经添加过这个监听者
         if (dicMessage[type].Contains(action)) return;
-        dicMessage[type].Add(action);
+            dicMessage[type].Add(action);
         //Debug.Log("Add listner: "+type );
     }
 
@@ -114,8 +123,15 @@ public class MessageManager :MonoBehaviour
     /// <param name="action"></param>
     public void RemoveListener(EMessageType type, UnityAction<Message> action)
     {
-        var list = dicMessage[type];
-        list.Remove(action);
+        if (dicMessage.ContainsKey(type))
+        {
+            var list = dicMessage[type];
+            if (list.Contains(action))
+                list.Remove(action);
+        }
+        else{
+            Debug.LogWarning($"MessageManager: Listener not exist. type: {type}, actor: {action}");
+        }
     }
 
     /// <summary>
@@ -125,14 +141,26 @@ public class MessageManager :MonoBehaviour
     /// <param name="message"></param>
     public void Dispatch(string messageStr, EMessageType type, params object[] datas)
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR     
         string log = "";
 #endif
         if (!dicMessage.ContainsKey(type))
-            dicMessage.Add(type, new List<UnityAction<Message>>());
+        {
+             dicMessage.Add(type, new List<UnityAction<Message>>());
+             return;
+        }
+        else
+        {
+            if(dicMessage[type].Count == 0)
+            {
+                 //Debug.LogWarning("Dispatch faild, not exist listener. " + messageStr);
+                return;
+            }
+        }
+           
         foreach (var item in dicMessage[type])
         {
-            if (datas.Length > 0)
+            if (datas.Length > 0)//当消息参数列表不为空，生成消息
             {
                 Message message = new Message();
                 message.messageType = messageStr;
@@ -143,18 +171,19 @@ public class MessageManager :MonoBehaviour
                 {
                     message.paramsList.Add(data);
                 }
+#if UNITY_EDITOR
+                Debug.Log("Diapatch message: " + messageStr + " ListenderCount: " + dicMessage[type].Count + " Log: " + log);
+#endif
                 item?.Invoke(message);
             }
-            else
+            else//当消息参数列表为空
             {
+#if UNITY_EDITOR
+                Debug.Log("Diapatch message: " + messageStr + " ListenderCount: " + dicMessage[type].Count + " Log: " + log);
+#endif
                 item?.Invoke(null);
             }
         }
-#if UNITY_EDITOR
-        if (dicMessage[type].Count == 0)
-            Debug.Log("Dispatch faild, not exist listener. " + messageStr);
-        Debug.Log("Diapatch message: " + messageStr + " ListenderCount: " + dicMessage[type].Count + " Log: " + log);
-#endif
     }
 
     /// <summary>

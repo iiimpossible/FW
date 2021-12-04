@@ -90,6 +90,14 @@ public abstract class UIBasePanel
     }
 
     /// <summary>
+    /// 当该UI被销毁的时候调用一次
+    /// </summary>
+    public virtual void OnDestroy()
+    {
+
+    }
+
+    /// <summary>
     /// UI激活时执行的操作，执行一次
     /// </summary>
     public virtual void OnEnter() 
@@ -132,7 +140,7 @@ public abstract class UIBasePanel
         uIBehavior?.Exit();
     }
 
-    public virtual void Update()
+    public virtual void OnUpdate()
     {
         uIBehavior?.Update();
     }
@@ -156,9 +164,9 @@ public abstract class UIBasePanel
     }
 
 
-    public GameObject FindChild(string childName)
+    public GameObject FindChild(string childName, bool includeInactive = true)
     {
-        foreach (Transform trans in uiGo.GetComponentsInChildren<Transform>())
+        foreach (Transform trans in uiGo.GetComponentsInChildren<Transform>(includeInactive))
         {
             if (trans.name == childName)
                 return trans.gameObject;
@@ -174,16 +182,36 @@ public abstract class UIBasePanel
     /// <param name="farther"></param>
     /// <param name="child"></param>
     /// <returns></returns>
-    public GameObject FindChild(GameObject farther, string childName)
+    public GameObject FindChild(GameObject farther, string childName, bool includeInactive = true)
     {
         if(farther == null) return null;
-        foreach (Transform trans in farther.GetComponentsInChildren<Transform>())
+        foreach (Transform trans in farther.GetComponentsInChildren<Transform>(includeInactive))
         {
             if (trans.name == childName)
                 return trans.gameObject;
         }
         Debug.LogError($"Can't find child. [{uiGo.name}].[{childName}]");
         return null;
+    }
+
+    public List<Transform> FindChildren(Transform farther, bool includeInactive = true)
+    {
+        if(farther == null) return null;
+        //广度优先
+        Queue<Transform> transforms_queue = new Queue<Transform>();
+        List<Transform> transforms_list = new List<Transform>();
+        transforms_queue.Enqueue(farther);
+        Transform top;
+        while(transforms_queue.Count > 0)
+        {
+            top  = transforms_queue.Dequeue();
+            for(int i = 0; i <top.childCount;i++ )
+            {
+                transforms_queue.Enqueue(top.GetChild(i));
+                transforms_list.Add(top.GetChild(i));
+            }
+        }
+        return transforms_list;
     }
 
 

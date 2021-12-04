@@ -14,10 +14,13 @@ namespace GraphyFW.AI
 
         protected MapBase<AIBrickState> _map;
         public StateBase nextAction;
+
+        public bool isExecuteError{get;protected set;}
         public StateBase(ActorController controller, AIRunData runData)
         {   
             this._controller = controller;
             this._runData = runData;
+            this.isExecuteError = false;
             _isCompleted = true;
             _map = _runData.GetMapData("MainMap");
         }
@@ -33,6 +36,7 @@ namespace GraphyFW.AI
         public virtual void ActionExit()
         {
             _isCompleted = false;
+            isExecuteError = false;
         }
 
         public virtual bool ActionCompleted()

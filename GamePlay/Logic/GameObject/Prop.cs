@@ -19,5 +19,7 @@ public class Prop
     public Prop(GameObject go)
     {
         this.propGo = go;
+        isOccupied = false;
+        isStored = false;
     }
 }

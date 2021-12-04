@@ -272,6 +272,7 @@ namespace GraphyFW.AI
     /// </summary>
     public class ActionFindProp:StateBase
     {
+        bool _isGot = true;
         public ActionFindProp(ActorController controller, AIRunData runData):base (controller,runData)
         {
 
@@ -280,15 +281,20 @@ namespace GraphyFW.AI
         public override void ActionEnter()
         {
             //从地图管理器获取可以搬运的道具
-            Food fd = GameMode.instance.GetFoodObject();
-            //从地图管理器获取可以存储的存储区
-            MapStorageArea area = GameMode.instance.GetStorageArea();
+            Food fd = GameMode.instance.GetFoodObject();           
+            if(fd == null)
+            {
+                Debug.LogError("Food is null");
+                this.isExecuteError = true;  
+                return;              
+            } 
             //设置道具位置    
             _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.PROP_POS], _map.WorldSpaceToMapSpace(fd.propGo.transform.position));
             //设置道具引用
             _runData.SetPropData(AIRunData.dicKeys[ERunDataKey.Prop], fd);
-            //设置存储区引用
-            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.MOVE_TARGET_POS], area.GetEmptyPos());
+            //设置存储区空位
+            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS],GameMode.instance.GetStorageArea(out _isGot));
+            Debug.LogWarning("Find prop enter.");
         }
 
         public override bool ActionCompleted()
@@ -474,7 +480,7 @@ namespace GraphyFW.AI
 
         public override void ActionExit()
         {             
-            Debug.Log("Exit delay ----->");
+            //Debug.Log("Exit delay ----->");
             _curTime = 0;
             _isCompleted = false;
             delayTime = 1.5f;
@@ -493,6 +499,8 @@ namespace GraphyFW.AI
     {
         public int range = 10;
         private Vector2Int _pos = Vector2Int.zero;
+
+        private Vector2Int _actorPos = Vector2Int.zero;
         public ActionRandomPos(ActorController controller, AIRunData runData) : base(controller, runData)
         {
 
@@ -500,8 +508,10 @@ namespace GraphyFW.AI
 
         public override void ActionEnter()
         {
-            _pos.Set(Random.Range(0,range),Random.Range(0,range));
-            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.TARGET_POS],_pos);
+           
+            _actorPos = _map.WorldSpaceToMapSpace(_controller.transform.position);
+            _pos = _map.RandomPos(_actorPos,10);            
+            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS],_pos);
             //Debug.Log("Random pos is -->" + _pos);
             _isCompleted = true;            
         } 
