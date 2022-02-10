@@ -41,6 +41,12 @@ public class PermissionMask
         return flag &= ~(int)mask;
     }
 
+    /// <summary>
+    /// 获取两个数的位交集，然后再判断是否与flag相等
+    /// </summary>
+    /// <param name="mask"></param>
+    /// <param name="flag"></param>
+    /// <returns></returns>
     public static bool ISAllow(int mask, int flag)
     {
         // mask = 001 falg = 011  mask & falg = 001

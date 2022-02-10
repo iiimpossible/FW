@@ -13,7 +13,7 @@ namespace GraphyFW.UI
         //底部按钮列表部件
         GameObject buttomWidget;
         //巢穴部件
-        GameObject nestWidget;
+        NestWidget nestWidget;
 
         //仓库信息部件
         GameObject storageWidget;
@@ -29,12 +29,12 @@ namespace GraphyFW.UI
         //contents
 
         //巢穴Scroll VIew 的Content
-        GameObject nestListContent;
+        //GameObject nestListContent;
         //仓库的滚动列表Content
         GameObject storageListContent;
 
         //角色信息，当选中Actor时触发。以后要支持选中道具触发
-        GameObject actorWidget;
+        ActorWidget actorWidget;
 
         GameObject commandWidget;
 
@@ -52,14 +52,10 @@ namespace GraphyFW.UI
 
         GameObject lastWidget = null;
 
-        //ActorWidget的工具按钮
-        GameObject actorWidgetToolBtns;
-        //ActorWidget 的信息按钮
-        GameObject actorWidgetInfoBtns;
-        //ActorWidget 上边的NeedWidget
-        GameObject actorWidget_NeedWidget;
 
+        GameObject food;
 
+ 
         private Vector3 commandTipOffset = Vector3.zero;
         private bool updateCommandTip = false;
         public override void OnCreate()
@@ -74,15 +70,14 @@ namespace GraphyFW.UI
 
         public override void OnEnter()
         {
-            nestWidget.SetActive(false);
+            //nestWidget.SetActive(false);
             optionWidget.SetActive(false);
             storageWidget.SetActive(false);
-            actorWidget.SetActive(false);
+            
             commandWidget.SetActive(false);
             rightButtonMenuWidget.SetActive(false);
             commandTipWidget.SetActive(false);
-
-             actorWidget_NeedWidget.SetActive(false);
+           
             // foreach (var item in FindChildren(rightButtonMenuWidget.transform))
             // {
             //     item.gameObject.SetActive(false);
@@ -113,20 +108,19 @@ namespace GraphyFW.UI
         public void InitClicks()
         {
             buttomWidget = FindChild("ButtomMenuWidget");
-            nestWidget = FindChild("NestWidget");
             optionWidget = FindChild("OptionWidget");
             storageWidget = FindChild("StorageWidget");
-            actorWidget = FindChild("ActorWidget");
             commandWidget = FindChild("CommandWidget");
             rightButtonMenuWidget = FindChild("RightButtonMenuWidget");
             commandTipWidget = FindChild("CommandTipWidget");
 
-            actorWidgetToolBtns = GetChildComponent<RectTransform>(actorWidget, "ToolBtns").transform.gameObject;
-            actorWidgetInfoBtns = GetChildComponent<RectTransform>(actorWidget, "InfoBtns").transform.gameObject;
-            actorWidget_NeedWidget = GetChildComponent<RectTransform>(actorWidget, "NeedsWidget").transform.gameObject;
+            nestWidget =  BindWidget<NestWidget>(typeof(NestWidget));
+            actorWidget = BindWidget<ActorWidget>(typeof(ActorWidget));
+            CloseWidget(actorWidget);
+            CloseWidget(nestWidget);
 
 
-            nestListContent = FindChild(nestWidget, "Content");
+            
             toolBtns = FindChild(commandWidget, "ToolBtns");
             commandTipText = GetChildComponent<Text>(commandTipWidget,"Txt_CommandTip");
             commandTipWidgetRecttrans = commandTipWidget.GetComponent<RectTransform>();
@@ -136,7 +130,7 @@ namespace GraphyFW.UI
             //buttomBtns widget
             GetChildComponent<Button>(buttomWidget, "Btn_Nest")?.onClick.AddListener(() =>
              {
-                 SwitchWidget(nestWidget);
+                 SwitchWidget(nestWidget.widgetGo);
              });
 
             GetChildComponent<Button>(buttomWidget, "Btn_Storage")?.onClick.AddListener(() =>
@@ -169,11 +163,11 @@ namespace GraphyFW.UI
 
 
             //nestWidget clicks
-            GetChildComponent<Button>(nestWidget, "Btn_NW_Close")?.onClick.AddListener(() =>
-             {
-                 Debug.Log("Btn_NW_Close Clicked.");
-                 SwitchWidget(null);
-             });
+            // GetChildComponent<Button>(nestWidget, "Btn_NW_Close")?.onClick.AddListener(() =>
+            //  {
+            //      Debug.Log("Btn_NW_Close Clicked.");
+            //      SwitchWidget(null);
+            //  });
 
 
 
@@ -269,7 +263,8 @@ namespace GraphyFW.UI
 
             GetChildComponent<Button>(commandWidget, "Btn_CreateAnt").onClick.AddListener(()=>
             {
-                GameMode.instance.SpawnAIObject();
+                GameObject ant = GameMode.instance.SpawnAIObject();
+                nestWidget.AddItem(ant);
                 OpenCommandTip("工蚁",true);
             });
 
@@ -282,28 +277,9 @@ namespace GraphyFW.UI
 
 
 
-            //Actor widget
-            GetChildComponent<Button>(actorWidgetToolBtns,"Btn_CallUp").onClick.AddListener(()=>
-            {
-                GraphyFW.AI.MultiActorController.instance.ActorsCallUp();
-            });
+         
 
-            GetChildComponent<Button>(actorWidgetInfoBtns,"Btn_Need").onClick.AddListener(()=>
-            {
-                actorWidget_NeedWidget.SetActive(true);
-            });
-
-            GetChildComponent<Button>(actorWidgetInfoBtns, "Btn_Property").onClick.AddListener(() =>
-            {
-
-            });
-
-            GetChildComponent<Button>(actorWidget_NeedWidget, "Btn_AW_Close").onClick.AddListener(() =>
-            {
-                actorWidget_NeedWidget.SetActive(false);
-            });
-
-
+     
 
 
 
@@ -321,17 +297,27 @@ namespace GraphyFW.UI
 
             GetChildComponent<Button>(rightButtonMenuWidget, "Btn_RBM_Eat").onClick.AddListener(() =>
             {
+                GraphyFW.AI.MultiActorController.instance.ActorsEat(this.food);
                 SwitchWidget(null);
             });
 
         }
 
-        private void SwitchWidget(GameObject nextWidget)
+        public void SwitchWidget(GameObject nextWidget)
         {
             //lastWidget?.SetActive(false);
             if (lastWidget != null) lastWidget.SetActive(false);
             //nestWidget?.SetActive(true);
             if (nextWidget != null) nextWidget.SetActive(true);
+            //临时使用这种方法，以后有时间，转换参数是UIWidgetBase, 而不是GameObjct
+            if (lastWidget != null)
+            {
+                if (lastWidget.name == "ActorWidget")
+                {
+                    this.CloseWidget(actorWidget);
+                }
+
+            }
             lastWidget = nextWidget;
         }
 
@@ -343,12 +329,12 @@ namespace GraphyFW.UI
         {
             if (actors.Count == 1)
             {
-                GetChildComponent<Text>(actorWidget, "Txt_ActorName").text = actors[0].name;
+                GetChildComponent<Text>(actorWidget.widgetGo, "Txt_ActorName").text = actors[0].name;
             }
             else if (actors.Count > 1)
             {
-                GetChildComponent<Text>(actorWidget, "Txt_ActorName").text = "Actors x" + actors.Count;
-                GetChildComponent<Text>(actorWidget, "Txt_Decription").text = "";
+                GetChildComponent<Text>(actorWidget.widgetGo, "Txt_ActorName").text = "Actors x" + actors.Count;
+                GetChildComponent<Text>(actorWidget.widgetGo, "Txt_Decription").text = "";
             }
 
         }
@@ -373,6 +359,7 @@ namespace GraphyFW.UI
                     }
                 case "Food":
                     {
+                        this.food = hit.gameObject;
                         SwitchWidget(rightButtonMenuWidget);
                         rightButtonMenuWidget.GetComponent<RectTransform>().position = Input.mousePosition;
                         FindChild(rightButtonMenuWidget, "Btn_RBM_Eat").SetActive(true);
@@ -401,6 +388,7 @@ namespace GraphyFW.UI
         private void LeftButtonDown_Listener(Message message)
         {
             SwitchWidget(null);           
+            GraphyFW.AI.MultiActorController.instance.UnCheckObjects();    
         }
 
         /// <summary>
@@ -410,7 +398,7 @@ namespace GraphyFW.UI
         private void RightButtonDown_Listener(Message message)
         {
             OpenCommandTip("",false);
-            SwitchWidget(null);         
+            SwitchWidget(null);     
         }
 
         /// <summary>
@@ -438,7 +426,7 @@ namespace GraphyFW.UI
             {
                 item.GetComponent<GraphyFW.AI.ActorController>().Selected(true);             
             }
-            SwitchWidget(actorWidget);
+            SwitchWidget(actorWidget.widgetGo);
             SetActorWidget(GameMode.instance.selctedGameObjectList);
         }
 

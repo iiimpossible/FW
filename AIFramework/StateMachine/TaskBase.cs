@@ -22,12 +22,12 @@ namespace GraphyFW.AI
         /// </summary>
         /// <typeparam name="StateBase"></typeparam>
         /// <returns></returns>
-        protected List<StateBase> _actions = new List<StateBase>();
+        protected List<StateBase> m_actions = new List<StateBase>();
 
         /// <summary>
         /// 当前被执行的指令
         /// </summary>
-        protected StateBase _currentState = null;
+        protected StateBase m_currentState = null;
 
         /// <summary>
         /// 上一个被执行的指令
@@ -35,7 +35,7 @@ namespace GraphyFW.AI
         protected StateBase _lastState = null; 
 
         //指令索引
-        private int _stateIndex = 0;
+        private int m_stateIndex = 0;
 
         /// <summary>
         /// 该Task是否是静态的（仅仅手动控制，不进行轮询判断激活）
@@ -53,20 +53,20 @@ namespace GraphyFW.AI
         /// </summary>
         public sealed override void ActionEnter()
         {
-            _stateIndex = 0;
-            if (_actions.Count > 0)
+            m_stateIndex = 0;
+            if (m_actions.Count > 0)
             {
-                _currentState = _actions[_stateIndex];
-                _isCompleted = false;
+                m_currentState = m_actions[m_stateIndex];
+                m_isCompleted = false;
             }
-            if (_currentState == null) return;
-                _currentState.ActionEnter();
+            if (m_currentState == null) return;
+                m_currentState.ActionEnter();
 
              //如果执行错误，直接退出该任务
-            if (_currentState.isExecuteError)
+            if (m_currentState.isExecuteError)
             {
-                _isCompleted = true;
-                 Debug.LogWarning("TaskBase: Action run error. Current action is: " + _currentState.GetType());
+                m_isCompleted = true;
+                 Debug.LogWarning("TaskBase: Action run error. Current action is: " + m_currentState.GetType());
                 return;
             }
 
@@ -75,12 +75,12 @@ namespace GraphyFW.AI
         public sealed override void ActionUpdate()
         {
 
-            if (_currentState == null) return;
-            _currentState.ActionUpdate();
+            if (m_currentState == null) return;
+            m_currentState.ActionUpdate();
             //如果执行错误，直接退出该任务
-            if (_currentState.isExecuteError)
+            if (m_currentState.isExecuteError)
             {
-                _isCompleted = true;
+                m_isCompleted = true;
                 return;
             }
             SwitchState();
@@ -88,10 +88,10 @@ namespace GraphyFW.AI
 
         public sealed override void ActionExit()
         {
-            _stateIndex = 0;
-            _currentState = null;
-            _isCompleted = false;
-            foreach (var item in _actions)
+            m_stateIndex = 0;
+            m_currentState = null;
+            m_isCompleted = false;
+            foreach (var item in m_actions)
             {
                 item.ActionExit();
             }
@@ -99,7 +99,7 @@ namespace GraphyFW.AI
 
         public sealed override bool ActionCompleted()
         {
-            return _isCompleted;
+            return m_isCompleted;
         }
 
         /// <summary>
@@ -115,22 +115,22 @@ namespace GraphyFW.AI
         /// </summary>
         protected void SwitchState()
         {
-            if (_currentState == null) return;
+            if (m_currentState == null) return;
             //Debug.Log("Switch state ~~~~");
-            if (_currentState.ActionCompleted())
+            if (m_currentState.ActionCompleted())
             {
                 //如果状态完成，检查行为列表还有没有下一个，有就转换状态执行
-                _stateIndex += 1;
-                if (_actions.Count > _stateIndex)
+                m_stateIndex += 1;
+                if (m_actions.Count > m_stateIndex)
                 {
-                    _lastState = _currentState;
-                    _currentState = _actions[_stateIndex];
-                    _currentState.ActionEnter();
+                    _lastState = m_currentState;
+                    m_currentState = m_actions[m_stateIndex];
+                    m_currentState.ActionEnter();
                     _lastState.ActionExit();
                 }
                 else
                 {
-                    _isCompleted = true;
+                    m_isCompleted = true;
                 }
             }
         }
@@ -141,7 +141,7 @@ namespace GraphyFW.AI
         /// <param name="action"></param>
         public void AddAction(StateBase action)
         {
-            _actions.Add(action);
+            m_actions.Add(action);
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace GraphyFW.AI
         /// <param name="action"></param>
         public void RemoveAction(StateBase action)
         {
-            _actions.Remove(action);
+            m_actions.Remove(action);
         }
 
         /// <summary>

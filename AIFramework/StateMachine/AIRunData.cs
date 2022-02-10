@@ -30,6 +30,8 @@ namespace GraphyFW.AI
 
         STORAGE_VACANCY_POS = 10,//移动指令的目标位置
 
+        FOOD = 11,
+
     }
 
     /// <summary>
@@ -55,6 +57,7 @@ namespace GraphyFW.AI
         {ERunDataKey.IS_SELECTED,"IsSelected"},//当前Actor是否被选中，bool
         {ERunDataKey.STORAGE_AREA, "StorageArea"},//当前获得的存储区引用
         {ERunDataKey.STORAGE_VACANCY_POS, "StorageVacancyPos"},//从存储区获取的空位，vec2i
+        {ERunDataKey.FOOD, "Food"},//每种道具都一个枚举吧，此为食物道具
 
     };
 

@@ -32,33 +32,32 @@ public class GameMode : MonoBehaviour
     public GameObject birckContainer;
 
     public GameObject aiActor;
-
-    private GameObject food;
+ 
  
 
     public MapBase<AIBrickState> mainMap;
 
-    private List<ScptStorageArea> _storageAreas = new List<ScptStorageArea>();
+    private List<ScptStorageArea> m_storageAreas = new List<ScptStorageArea>();
 
     /// <summary>
     /// 当前激活的所有actor，以供搜索算法查询
     /// </summary>
     private List<GameObject> listActiveActors = new List<GameObject>();
     
-    private List<GameObject> _listSelectedObjects = new List<GameObject>();
+    private List<GameObject> m_listSelectedObjects = new List<GameObject>();
     /// <summary>
     /// 被选中的所有游戏物体
     /// </summary>
     /// <typeparam name="GameObject"></typeparam>
     /// <returns></returns>
-    public List<GameObject> selctedGameObjectList {get{return _listSelectedObjects;}}
+    public List<GameObject> selctedGameObjectList {get{return m_listSelectedObjects;}}
 
     /// <summary>
     /// 生成的所有的食物
     /// </summary>
     /// <typeparam name="Food"></typeparam>
     /// <returns></returns>
-    private List<Food> listFoods = new List<Food>();
+    private List<GameObject> listFoods = new List<GameObject>();
 
     /// <summary>
     /// 生成地图
@@ -76,17 +75,15 @@ public class GameMode : MonoBehaviour
         mainMap.offset = gridOffSet;
         mainMap.mapZero = Vector3.zero;
         mainMap.GenMap(birck, birckContainer);
-
-
-        LoadPrefab();
-        SpawnAIObject();
-        SpanwFoodObject();
+        
+        //SpawnAIObject();
+   
         //Spawn(typeof(AntNest),new Vector2Int(1,1),"Building");
        
         //StartCoroutine(mainMap.NoiseElimination());
 
         MessageManager.instance.AddListener(EMessageType.OnFrameSelected, SpawnStorageArea);
-        MessageManager.instance.AddListener(EMessageType.OnMouseDown_MousePosInWorld_0,SpawnFood);
+        MessageManager.instance.AddListener(EMessageType.OnMouseDown_MousePosInWorld_0,OnMouseDown0_SpawnFood_Listener);
         MessageManager.instance.AddListener(EMessageType.OnMouseButtonDown_1,OnCancelCommand_Listener);
         MessageManager.instance.AddListener(EMessageType.OnBoxCastAllCollider, this.OnBox2DRayCast_Listener);
     }
@@ -99,7 +96,7 @@ public class GameMode : MonoBehaviour
     private void OnDestroy()
     {
         MessageManager.instance?.RemoveListener(EMessageType.OnFrameSelected, SpawnStorageArea);
-        MessageManager.instance?.RemoveListener(EMessageType.OnMouseDown_MousePosInWorld_Vec2Int_0, SpawnFood);
+        MessageManager.instance?.RemoveListener(EMessageType.OnMouseDown_MousePosInWorld_Vec2Int_0, OnMouseDown0_SpawnFood_Listener);
         MessageManager.instance?.RemoveListener(EMessageType.OnMouseButtonDown_1, OnCancelCommand_Listener);
         MessageManager.instance?.RemoveListener(EMessageType.OnBoxCastAllCollider, this.OnBox2DRayCast_Listener);
     }
@@ -117,7 +114,10 @@ public class GameMode : MonoBehaviour
 
 #region  游戏物体实例方法
 
-    public void SpawnAIObject()
+    /// <summary>
+    /// 这个在UI里边，点击按钮会生成
+    /// </summary>
+    public GameObject SpawnAIObject()
     {
         //在地图上选择一个点，
         //采样点
@@ -129,6 +129,7 @@ public class GameMode : MonoBehaviour
         GameObject a = GameObject.Instantiate(aiActor, p3, Quaternion.identity);
         a.tag = "Ant";
         listActiveActors.Add(a);
+        return a;
     }
 
     public void SpanwEnemy()
@@ -136,69 +137,80 @@ public class GameMode : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// 这个是按键控制的生成食物，将要废弃
+    /// </summary>
     public void SpanwFoodObject()
     {
         Vector2Int pos = mainMap.GetSpawnPos(mainMap.GetMapCorner(0));
         Vector3 p3 = mainMap.MapSpaceToWorldSpace(pos);
 
-        GameObject f = Resources.Load<GameObject>(Food.prefabPath);
+        GameObject f = PrefabManager.instance.LoadPrefab(Food.prefabPath);
 
         GameObject go = GameObject.Instantiate(f, p3, Quaternion.identity);
         go.tag = "Food";
-        listFoods.Add(new Food(go));
+        listFoods.Add(go);
         // Debug.Log("activeactor num-->" + activeActors.Count);
     }
 
-    public void SpawnFood(Message message)
+    /// <summary>
+    /// 当玩家命令为创建Food，且左键按下，生成一个Food
+    /// </summary>
+    /// <param name="message"></param>
+    public void OnMouseDown0_SpawnFood_Listener(Message message)
     {
         if(this.playerCommand != EPlayCommands.CREATE_FOOD) return;
         Vector3 pos = (Vector3)message.paramsList[0];
         Vector2Int map_pos = mainMap.WorldSpaceToMapSpace(pos);
         Vector3 worldPos = mainMap.MapSpaceToWorldSpace(map_pos);
 
-        GameObject prefab = Resources.Load<GameObject>(Food.prefabPath);
+        GameObject prefab = PrefabManager.instance.LoadPrefab(Food.prefabPath);
 
         GameObject go = GameObject.Instantiate(prefab, worldPos, Quaternion.identity);
+        go.GetComponent<Food>().mapPos = map_pos;
         go.tag = "Food";
-        listFoods.Add(new Food(go));
+        listFoods.Add(go);
         Debug.LogWarning($"Food object num is: {listFoods.Count}");
     }
 
-    /// <summary>
-    /// 在指定位置生成指定类型的游戏物体
-    /// </summary>
-    /// <param name="pos"></param>
-    public void Spawn(System.Type type, Vector2Int pos, string folder = "Actor")
-    {
-        Vector3 worldPos = mainMap.MapSpaceToWorldSpace(pos);
-        Actor goBase = type.Assembly.CreateInstance("GrapyFW.GamePlay." + type.Name) as Actor;
-        GameObject prefab = Resources.Load<GameObject>("Prefabs/" + folder + "/" + type.Name);
-        GameObject go = GameObject.Instantiate(prefab, worldPos, Quaternion.identity);
-        goBase.SetGO(go, pos);
-    }
+    // /// <summary>
+    // /// 在指定位置生成指定类型的游戏物体
+    // /// </summary>
+    // /// <param name="pos"></param>
+    // public void Spawn(System.Type type, Vector2Int pos, string folder = "Actor")
+    // {
+    //     Vector3 worldPos = mainMap.MapSpaceToWorldSpace(pos);
+    //     Actor goBase = type.Assembly.CreateInstance("GrapyFW.GamePlay." + type.Name) as Actor;
+    //     GameObject prefab = Resources.Load<GameObject>("Prefabs/" + folder + "/" + type.Name);
+    //     GameObject go = GameObject.Instantiate(prefab, worldPos, Quaternion.identity);
+    //     goBase.SetGO(go, pos);
+    // }
 
     /// <summary>
     /// 从容器中查询离输入位置最近的一个Food
     /// </summary>
-    public Food GetFoodObject()
+    public GameObject GetFoodObject()
     {
         foreach (var f in listFoods)
         {
-            if (!f.isStored && !f.isOccupied)
+            Prop comp = f.GetComponent<Prop>();
+            if (!comp.isStored && !comp.isOccupied)
             {              
                  return f;
             }               
         }       
-        return default(Food);
+        return default(GameObject);
     }
 
-
-    public void LoadPrefab()
+    public void DestroyFood(GameObject food)
     {
-        food = Resources.Load<GameObject>("Prefabs/Food");
-
+        if(listFoods.Contains(food))
+        {
+            Destroy(food);
+            listFoods.Remove(food);
+        }
     }
-
+ 
 
     /// <summary>
     /// 生成存储区
@@ -229,7 +241,7 @@ public class GameMode : MonoBehaviour
 
         comp.InitArea(c,d);
 
-        _storageAreas.Add(comp);
+        m_storageAreas.Add(comp);
 
         //在这个地图管理器上记录存储区
 
@@ -250,7 +262,7 @@ public class GameMode : MonoBehaviour
     /// <returns></returns>
     public ScptStorageArea GetStorageArea()
     {
-        foreach (var item in _storageAreas)
+        foreach (var item in m_storageAreas)
         {
             if(!item.Full())
             { 
@@ -267,7 +279,7 @@ public class GameMode : MonoBehaviour
     /// <param name="message"></param>
     private void OnBox2DRayCast_Listener(Message message)
     {
-        _listSelectedObjects.Clear();
+        m_listSelectedObjects.Clear();
         RaycastHit2D[] hit2Ds;
         if (message.paramsList.Count > 0)
         {
@@ -278,7 +290,7 @@ public class GameMode : MonoBehaviour
                
                if(item.collider.tag == "Ant")
                {
-                   _listSelectedObjects.Add(item.collider.gameObject);
+                   m_listSelectedObjects.Add(item.collider.gameObject);
 
                }
                //1.是Actor
@@ -286,7 +298,7 @@ public class GameMode : MonoBehaviour
                //3.是
             }
 
-            if(_listSelectedObjects.Count > 0)
+            if(m_listSelectedObjects.Count > 0)
             {
                 //
                 MessageManager.instance.Dispatch(EMessageType.OnBoxCast_Actors.ToString(),EMessageType.OnBoxCast_Actors);

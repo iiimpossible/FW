@@ -70,6 +70,8 @@ namespace GraphyFW.AI
 
         private TaskMoveTo taskMoveTo;
 
+        private TaskManualEat taskManualEat;
+
         public bool isCallUp {get;private set;}
 
         [SerializeField]
@@ -101,11 +103,15 @@ namespace GraphyFW.AI
 
             taskMoveTo = new TaskMoveTo(this, runData);
 
+            taskManualEat = new TaskManualEat(this,runData);
+
             machine.AddTask(taskCarry);
 
             machine.AddTask(taskCallUp);
 
             machine.AddTask(taskMoveTo);
+
+            machine.AddTask(taskManualEat);
             //move.nextAction = patrol;
             // patrol.nextAction = move;
             // move.condition = () => { if (this.poss.Count == 0) Debug.Log("Poss count is zero"); return true; };
@@ -201,10 +207,15 @@ namespace GraphyFW.AI
 
         }
 
-
-        public void Eat(Food target)
+        /// <summary>
+        /// 吃东西
+        /// </summary>
+        /// <param name="target"></param>
+        public void Eat(GameObject target)
         {
-
+            if (isCallUp == false) return;
+            taskManualEat.SetTargetProp(target);
+            machine.SetMachineMode(EStateMachineMode.MANUAL_MODE, taskManualEat);
         }
 
         #endregion

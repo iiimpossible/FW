@@ -164,7 +164,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1187870112
 GameObject:
@@ -236,14 +236,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   searchType: 2
-  gridNum: {x: 100, y: 100}
+  gridNum: {x: 50, y: 50}
   delayTime: 0
   blackRate: 0.4
   brick: {fileID: 3519934824948091808, guid: 28e5a255c2a30ae4289b95461275d6ad, type: 3}
   toFartherNodeFactor: 2
   toTargetNodeFactor: 1.07
   searchOrigin: {x: 0, y: 0}
-  targetPos: {x: 80, y: 80}
+  targetPos: {x: 30, y: 30}
   palyOld: 0
   radomTarget: 0
 --- !u!4 &1654881653
@@ -281,7 +281,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1807484053}
-  - component: {fileID: 1807484052}
   m_Layer: 0
   m_Name: AISystem
   m_TagString: Untagged
@@ -289,25 +288,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1807484052
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1807484051}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 503cbcdd85b478142b1e6b55cd9da9ef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  blackRate: 0.412
-  mapSize: {x: 100, y: 100}
-  mapOrigin: {x: 0, y: 0, z: 0}
-  gridOffSet: {x: 1, y: 1}
-  birck: {fileID: 3519934824948091808, guid: 28e5a255c2a30ae4289b95461275d6ad, type: 3}
-  birckContainer: {fileID: 1187870112}
-  aiActor: {fileID: 6498245468845997073, guid: 25b4caf0394635742becbe7b9214aabf, type: 3}
 --- !u!4 &1807484053
 Transform:
   m_ObjectHideFlags: 0
@@ -320,7 +300,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1846228776
 GameObject:

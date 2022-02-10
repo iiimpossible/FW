@@ -33,13 +33,13 @@ namespace GraphyFW.AI
         {
            // runData.SetVec3Data()
            _patrolRadius = 10.0f;
-           _originPos = _controller.transform.position;
+           _originPos = m_controller.transform.position;
         }
 
 
         public override void ActionEnter()
         {
-           _isCompleted = false;
+           m_isCompleted = false;
         }
 
         /// <summary>
@@ -54,26 +54,26 @@ namespace GraphyFW.AI
                 //if(_isCompleted == true) return;
                 _timeCounter = 0.0f;
                 RandowmTarget();
-                _runData.SetVec3Data("TargetPos", _RandomPos);
-                Debug.Log("Target date----->"+ _runData.GetVec3Data("TargetPos"));
-                _isCompleted = true;
+                m_runData.SetVec3Data("TargetPos", _RandomPos);
+                Debug.Log("Target date----->"+ m_runData.GetVec3Data("TargetPos"));
+                m_isCompleted = true;
             }
         }
 
         public override void ActionExit()
         {
-             _isCompleted = false;
+             m_isCompleted = false;
         }
 
 
         public override bool ActionCompleted()
         {
-            return _isCompleted;
+            return m_isCompleted;
         }
 
         private void RandowmTarget()
         {
-            _RandomPos.Set(Random.Range(_originPos.x, _patrolRadius),Random.Range(_originPos.y, _patrolRadius),_controller.transform.position.z);           
+            _RandomPos.Set(Random.Range(_originPos.x, _patrolRadius),Random.Range(_originPos.y, _patrolRadius),m_controller.transform.position.z);           
         }
     }
 
@@ -101,7 +101,7 @@ namespace GraphyFW.AI
         {
             _target = target;
             _isMove = true;
-            _direction = (_target - _controller.transform.position).normalized;
+            _direction = (_target - m_controller.transform.position).normalized;
         }
 
         public void SetNextState(StateBase action)
@@ -112,10 +112,10 @@ namespace GraphyFW.AI
         public override void ActionEnter()
         {
             if(_isMove == true)return;
-            _target = _runData.GetVec3Data("TargetPos");
+            _target = m_runData.GetVec3Data("TargetPos");
             Debug.Log("Enter actioin MoveTO"+ _target);
             _isMove = true;
-            _direction = (_target - _controller.transform.position).normalized;
+            _direction = (_target - m_controller.transform.position).normalized;
         }
 
         public override void ActionExit()
@@ -128,7 +128,7 @@ namespace GraphyFW.AI
         {
             Debug.Log("Action MoveTo Called.~~~~~");
             if(_isMove)
-                _controller.transform.position+= _direction * speed * Time.deltaTime;
+                m_controller.transform.position+= _direction * speed * Time.deltaTime;
             if(Arrive())
                 _isMove = false;            
         }
@@ -151,7 +151,7 @@ namespace GraphyFW.AI
         /// <returns></returns>
         private bool Arrive()
         {            
-            if((_target - _controller.transform.position).sqrMagnitude < 0.01f)
+            if((_target - m_controller.transform.position).sqrMagnitude < 0.01f)
                 return true;
             return false;
         }
@@ -204,7 +204,7 @@ namespace GraphyFW.AI
         /// <returns></returns>
         public ActionSearchMove(ActorController controller, AIRunData runData): base(controller, runData)
         {            
-            _runData.SetVec2IData("TargetPos",  _map.GetMapCorner(1));
+            m_runData.SetVec2IData("TargetPos",  m_map.GetMapCorner(1));
             _path = new List<Vector2>();
             _dir = new Vector2();            
         }
@@ -216,17 +216,17 @@ namespace GraphyFW.AI
         public override void ActionEnter()
         {
             //Debug.Log("Action search move ActionEnter.");
-            _isCompleted = false;   
+            m_isCompleted = false;   
             //这个actor在地图中的位置，应该找到对应的状态类？
-            AIAlgorithm.AstarSearch(_map,_map.WorldSpaceToMapSpace(_controller.transform.position),_runData.GetVec2IData("TargetPos"),_path);
+            AIAlgorithm.AstarSearch(m_map,m_map.WorldSpaceToMapSpace(m_controller.transform.position),m_runData.GetVec2IData("TargetPos"),_path);
         }
 
         public override void ActionUpdate()
         {            
             if (_path.Count > 0)
             {
-                _dir = _path[_path.Count-1] - (Vector2)_controller.transform.position;
-                _controller.transform.Translate(_dir.x * Time.deltaTime * speed, _dir.y * Time.deltaTime * speed, _controller.transform.position.z);
+                _dir = _path[_path.Count-1] - (Vector2)m_controller.transform.position;
+                m_controller.transform.Translate(_dir.x * Time.deltaTime * speed, _dir.y * Time.deltaTime * speed, m_controller.transform.position.z);
                 if (Arrive(_path[_path.Count-1]))
                 {
                     _path.RemoveAt(_path.Count-1);
@@ -234,7 +234,7 @@ namespace GraphyFW.AI
             }
             else
             {
-                _isCompleted = true;
+                m_isCompleted = true;
             }
         }
 
@@ -252,13 +252,13 @@ namespace GraphyFW.AI
         public override bool ActionCompleted()
         {
              //Debug.Log("Action search move ActionCompleted.");
-            return _isCompleted;
+            return m_isCompleted;
         }
 
 
         public bool Arrive(Vector3 pos)
         {
-            if ((pos - _controller.transform.position).sqrMagnitude < 0.01f)
+            if ((pos - m_controller.transform.position).sqrMagnitude < 0.01f)
                 return true;
             return false;
         }
@@ -272,7 +272,7 @@ namespace GraphyFW.AI
     /// </summary>
     public class ActionFindProp:StateBase
     {
-        bool _isGot = true;
+        bool m_isGot = true;
         public ActionFindProp(ActorController controller, AIRunData runData):base (controller,runData)
         {
 
@@ -281,7 +281,7 @@ namespace GraphyFW.AI
         public override void ActionEnter()
         {
             //从地图管理器获取可以搬运的道具
-            Food fd = GameMode.instance.GetFoodObject();   
+            Food fd = GameMode.instance.GetFoodObject().GetComponent<Food>();   
             fd.isOccupied = true;        
             if(fd == null)
             {
@@ -291,11 +291,11 @@ namespace GraphyFW.AI
             }
             ScptStorageArea area = GameMode.instance.GetStorageArea();
             //设置道具位置    
-            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.PROP_POS], _map.WorldSpaceToMapSpace(fd.propGo.transform.position));
+            m_runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.PROP_POS], m_map.WorldSpaceToMapSpace(fd.transform.position));
             //设置道具引用
-            _runData.SetPropData(AIRunData.dicKeys[ERunDataKey.Prop], fd);
+            m_runData.SetPropData(AIRunData.dicKeys[ERunDataKey.Prop], fd);
             //设置存储区空位
-            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS],area.GetEmptyPos());
+            m_runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS],area.GetEmptyPos());
             Debug.LogWarning("Find prop enter.");
         }
 
@@ -312,23 +312,23 @@ namespace GraphyFW.AI
     {
 
         public float speed = 2f;
-        private Vector2 _dir = Vector2.zero;
-        private Vector3 _deltaPos = Vector3.zero;
+        private Vector2 m_dir = Vector2.zero;
+        private Vector3 m_deltaPos = Vector3.zero;
 
 
-        private string _valueKey;
+        private string m_valueKey;
 
-        List<Vector2> _path = new List<Vector2>();
+        List<Vector2> m_path = new List<Vector2>();
         public ActionPathMove(ActorController controller, AIRunData runData, string valueKey) : base(controller, runData)
         {
-            _valueKey = valueKey;
+            m_valueKey = valueKey;
         }
 
 
         public override void ActionEnter()
         {
-           bool is_searched  = AIAlgorithm.AstarSearch(_map, _map.WorldSpaceToMapSpace(_controller.transform.position),
-                  _runData.GetVec2IData(_valueKey), _path);
+           bool is_searched  = AIAlgorithm.AstarSearch(m_map, m_map.WorldSpaceToMapSpace(m_controller.transform.position),
+                  m_runData.GetVec2IData(m_valueKey), m_path);
             if(is_searched == false)
             {
                 this.isExecuteError = true;
@@ -336,45 +336,45 @@ namespace GraphyFW.AI
                
                 return;
             }
-            this._isCompleted = false;
-            CameraSelectObject.instance.AddLineVerts(_path);
+            this.m_isCompleted = false;
+            CameraSelectObject.instance.AddLineVerts(m_path);//将路径点传给MainCamera绘制
         }
 
         public override void ActionUpdate()
         {
-            if (_path.Count > 0)
+            if (m_path.Count > 0)
             {
                 
-                _dir = (_path[_path.Count - 1] - (Vector2)_controller.transform.position).normalized;
-                _controller.transform.up = new Vector3(_dir.x, _dir.y,0);
-                _deltaPos.Set(_dir.x * Time.deltaTime * speed, _dir.y * Time.deltaTime * speed, 0);
-                _controller.transform.position += _deltaPos;
-                if (AIAlgorithm.Arrive(_path[_path.Count - 1], _controller.transform.position))
+                m_dir = (m_path[m_path.Count - 1] - (Vector2)m_controller.transform.position).normalized;//计算方向
+                m_controller.transform.up = new Vector3(m_dir.x, m_dir.y,0);//修改actor的up方向
+                m_deltaPos.Set(m_dir.x * Time.deltaTime * speed, m_dir.y * Time.deltaTime * speed, 0);
+                m_controller.transform.position += m_deltaPos;
+                if (AIAlgorithm.Arrive(m_path[m_path.Count - 1], m_controller.transform.position))
                 {
-                    _path.RemoveAt(_path.Count - 1);
+                    m_path.RemoveAt(m_path.Count - 1);
                 }
             }
             else
             {
                 //重定位，抵消舍入误差
-                _deltaPos.Set(Mathf.Round(_controller.transform.position.x),Mathf.Round(_controller.transform.position.y) ,0);
-                _controller.transform.position = _deltaPos;
-                _isCompleted = true;
-                CameraSelectObject.instance.RemoveLineVerts(_path);
+                m_deltaPos.Set(Mathf.Round(m_controller.transform.position.x),Mathf.Round(m_controller.transform.position.y) ,0);
+                m_controller.transform.position = m_deltaPos;
+                m_isCompleted = true;
+                CameraSelectObject.instance.RemoveLineVerts(m_path);
             }
         }
 
         public override void ActionExit()
         {
 
-            _path.Clear();
+            m_path.Clear();
             base.ActionExit();
-            _isCompleted = false;
+            m_isCompleted = false;
         }
 
         public override bool ActionCompleted()
         {
-            return _isCompleted;
+            return m_isCompleted;
         }
     }
 
@@ -396,8 +396,8 @@ namespace GraphyFW.AI
 
         public override void ActionEnter()
         {
-            prop = _runData.GetPropData(AIRunData.dicKeys[ERunDataKey.Prop]);
-            prop.propGo.transform.SetParent(_controller.transform);
+            prop = m_runData.GetPropData(AIRunData.dicKeys[ERunDataKey.Prop]);
+            prop.transform.SetParent(m_controller.transform);
             Debug.Log("Take up a prop." + prop.GetType());
             prop.isOccupied = true;
         }
@@ -445,15 +445,15 @@ namespace GraphyFW.AI
 
         private void PutDown()
         {
-            prop = _runData.GetPropData(AIRunData.dicKeys[ERunDataKey.Prop]);
+            prop = m_runData.GetPropData(AIRunData.dicKeys[ERunDataKey.Prop]);
             if (prop == null)
             {
                 Debug.Log("Cant get prop from run data, go is null");
                 return;
             }
-            prop.propGo.transform.parent = null;
-            prop.propGo.transform.eulerAngles = Vector3.zero;
-            _runData.SetPropData(AIRunData.dicKeys[ERunDataKey.Prop], null);
+            prop.transform.parent = null;
+            prop.transform.eulerAngles = Vector3.zero;
+            m_runData.SetPropData(AIRunData.dicKeys[ERunDataKey.Prop], null);
             prop.isOccupied = false;
 
         }
@@ -485,20 +485,20 @@ namespace GraphyFW.AI
         public override void ActionUpdate()
         {
             _curTime += Time.deltaTime;
-            if(_curTime > delayTime) _isCompleted = true;            
+            if(_curTime > delayTime) m_isCompleted = true;            
         }
 
         public override void ActionExit()
         {             
             //Debug.Log("Exit delay ----->");
             _curTime = 0;
-            _isCompleted = false;
+            m_isCompleted = false;
             delayTime = 1.5f;
         }
 
         public override bool ActionCompleted()
         {
-            return _isCompleted;
+            return m_isCompleted;
         }
     }
 
@@ -519,13 +519,47 @@ namespace GraphyFW.AI
         public override void ActionEnter()
         {
            
-            _actorPos = _map.WorldSpaceToMapSpace(_controller.transform.position);
-            _pos = _map.RandomPos(_actorPos,10);            
-            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS],_pos);
+            _actorPos = m_map.WorldSpaceToMapSpace(m_controller.transform.position);
+            _pos = m_map.RandomPos(_actorPos,10);            
+            m_runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS],_pos);
             //Debug.Log("Random pos is -->" + _pos);
-            _isCompleted = true;            
+            m_isCompleted = true;            
         } 
 
+    }
+
+
+    /// <summary>
+    /// Action: 吃东西
+    /// 1.吃完后，根据食物的属性，给Actor增加各种属性
+    /// 2.只要重写Enter方法
+    /// </summary>
+    public class ActionEat : StateBase
+    {
+        GameObject food;
+        public ActionEat(ActorController controller, AIRunData runData) : base(controller, runData)
+        {
+
+        }
+
+        public override void ActionEnter()
+        {
+            food = m_runData.GetGoData(AIRunData.dicKeys[ERunDataKey.FOOD]);
+            if(food == null)
+            {
+                ActionExecuteError("Attempt to access a null FOOD.");
+                return;
+            }
+            Food fcomp = food.GetComponent<Food>();
+            ControlledActor actor = m_controller.transform.GetComponent<ControlledActor>();
+            
+            actor.nutrition += fcomp.nutrition;
+            GameMode.instance.DestroyFood(food);
+            //TODO：属性增加
+
+            base.ActionEnter();
+            m_isCompleted = true;
+        }
     }
 
 

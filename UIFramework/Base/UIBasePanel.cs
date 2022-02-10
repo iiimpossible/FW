@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
+using GraphyFW.UI;
  
  /// <summary>
  /// 已经废弃
@@ -64,7 +65,7 @@ public abstract class UIBasePanel
     /// <summary>
     /// UI行为，在lua脚本中定义UI的行为,脚本的路径或者直接代码需要在子类中指定
     /// </summary>
-    public GraphyFW.UIBehavior uIBehavior {get; private set;}
+    //public GraphyFW.UIBehavior uIBehavior {get; private set;}
 
     /// <summary>
     /// UIBasePanel的构造函数，在子类中调用并赋值UIType(UI实例路径)
@@ -74,11 +75,11 @@ public abstract class UIBasePanel
     /// 初始化UIBehaviour，开启lua执行逻辑，在子类中调用
     /// @note 如果要使用此方法开启Lua执行逻辑，需要在场景中用一个游戏物体挂载Scpt_XLuaConfig(FW/ScriptFramework/Scpt_XLuaConfig)
     /// </summary>
-    public void InitializeUIBehaviour(GraphyFW.UIBehavior behavior)
-    {         
-        uIBehavior = behavior;     
-        uIBehavior.SetValue(this);//将自己作为一个uikey注册到脚本表  
-    } 
+    // public void InitializeUIBehaviour(GraphyFW.UIBehavior behavior)
+    // {         
+    //     uIBehavior = behavior;     
+    //     uIBehavior.SetValue(this);//将自己作为一个uikey注册到脚本表  
+    // } 
 
 
     /// <summary>
@@ -104,7 +105,7 @@ public abstract class UIBasePanel
     { 
         uiGo?.SetActive(true);
         
-        uIBehavior?.Enter(); 
+        //uIBehavior?.Enter(); 
 
     }
 
@@ -115,7 +116,7 @@ public abstract class UIBasePanel
     public virtual void OnPause() 
     { 
         GetComponentAnyway<CanvasGroup>().blocksRaycasts = false; 
-        uIBehavior?.Pause(); 
+        //uIBehavior?.Pause(); 
     }
 
     /// <summary>
@@ -125,7 +126,7 @@ public abstract class UIBasePanel
     { 
         GetComponentAnyway<CanvasGroup>().blocksRaycasts = true; 
         uiGo?.SetActive(true);
-        uIBehavior?.Resume();
+        //uIBehavior?.Resume();
     }
 
     /// <summary>
@@ -137,13 +138,74 @@ public abstract class UIBasePanel
         {
             OnExitUI(this); 
         }        
-        uIBehavior?.Exit();
+        //uIBehavior?.Exit();
     }
 
     public virtual void OnUpdate()
     {
-        uIBehavior?.Update();
+        //uIBehavior?.Update();
     }
+
+    /// <summary>
+    /// 打开属于本Panel的一个Widget
+    /// Widget其实应该不是一个独立的Prefab，只是new一个Widget类实例，将其与Panel里边的一个子物体绑定。这样就能将逻辑分开，防止开发混乱
+    /// widget 只能关闭，不能销毁
+    /// </summary>
+    public void OpenWidget(UIWidgetBase widget)
+    {
+        widget.widgetGo.SetActive(true);
+         widget?.OnEnter();
+    }
+
+    /// <summary>
+    /// 关闭属于本Panel的一个Widget
+    /// </summary>
+    public void CloseWidget(UIWidgetBase widget)
+    {
+        widget.widgetGo.SetActive(false);
+        widget?.OnExit();
+    }
+
+    /// <summary>
+    /// 绑定一个Panel下的子物体到Widget
+    /// </summary>
+    /// <param name="widget"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T BindWidget<T>(System.Type widget)  where T:UIWidgetBase, new()
+    {
+        GameObject ui = FindChild(widget.Name);
+        if(ui!= null)
+        {
+            T w = new T();
+            w.InitWidget(this,ui);
+            w.OnCreate();
+            return w;
+        }
+         return default(T);
+    }
+ 
+    /// <summary>
+    /// 绑定一个panel下的子物体的子物体的到Widget
+    /// </summary>
+    /// <param name="farther"></param>
+    /// <param name="widget"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T BindWidget<T>(GameObject farther,System.Type widget)where T:UIWidgetBase, new()
+    {
+         GameObject ui = FindChild(farther, widget.Name);
+        if(ui!= null)
+        {
+            T w = new T();
+            w.InitWidget(this,ui);
+            w.OnCreate();
+            return w;
+        }
+         return default(T);
+    }
+
+
 
 
     /// <summary>
@@ -163,7 +225,12 @@ public abstract class UIBasePanel
         }
     }
 
-
+    /// <summary>
+    /// 从所有的子物体中寻找目标子物体
+    /// </summary>
+    /// <param name="childName"></param>
+    /// <param name="includeInactive"></param>
+    /// <returns></returns>
     public GameObject FindChild(string childName, bool includeInactive = true)
     {
         foreach (Transform trans in uiGo.GetComponentsInChildren<Transform>(includeInactive))
@@ -190,7 +257,7 @@ public abstract class UIBasePanel
             if (trans.name == childName)
                 return trans.gameObject;
         }
-        Debug.LogError($"Can't find child. [{uiGo.name}].[{childName}]");
+        Debug.LogError($"Can't find child. [{farther.name}].[{childName}]");
         return null;
     }
 
@@ -255,7 +322,7 @@ public abstract class UIBasePanel
             if (comp != null)
                 return comp;
         }
-        Debug.LogError($"Can't find component. [{uiGo.name}].[{name}]");
+        Debug.LogError($"Can't find component. [{farther.name}].[{name}]");
         return default(T);
     }
 }

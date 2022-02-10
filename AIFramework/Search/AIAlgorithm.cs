@@ -190,7 +190,13 @@ namespace GraphyFW.AI
             return false;
         }
 
-
+        /// <summary>
+        /// 对于相邻的三个点的共线判断，只需要判断首尾与中点的两个向量的方向罢了
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="cur"></param>
+        /// <returns></returns>
         public static bool PosInLine(Vector2Int start, Vector2Int end, Vector2Int cur)
         {
             //判断方向是否改变

@@ -45,11 +45,11 @@ namespace GraphyFW.AI
             _pathMoveBack = new ActionPathMove(controller,runData, AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS]);
             _takeUp = new ActionTakeUp(controller,runData);
             _putDown = new ActionPutDown(controller,runData);
-            _actions.Add(_findProp);
-            _actions.Add(_pathMoveGo);
-            _actions.Add(_takeUp);
-            _actions.Add(_pathMoveBack);
-            _actions.Add(_putDown);//
+            m_actions.Add(_findProp);
+            m_actions.Add(_pathMoveGo);
+            m_actions.Add(_takeUp);
+            m_actions.Add(_pathMoveBack);
+            m_actions.Add(_putDown);//
         
         }
         
@@ -75,20 +75,20 @@ namespace GraphyFW.AI
     /// </summary>
     public class TaskIdle : TaskBase
     {
-        private ActionPathMove _pathMove;
-        private ActionDelay _delay;
-        private ActionRandomPos _randomPos;
-        private Vector2Int _tgPos = Vector2Int.zero;
+        private ActionPathMove m_pathMove;
+        private ActionDelay m_delay;
+        private ActionRandomPos m_randomPos;
+        private Vector2Int m_tgPos = Vector2Int.zero;
 
         public TaskIdle(ActorController controller, AIRunData runData) : base(controller, runData)
         {
-            _pathMove = new ActionPathMove(controller, runData, AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS]);
-            _delay = new ActionDelay(controller, runData);
-            _randomPos = new ActionRandomPos(controller,runData);
+            m_pathMove = new ActionPathMove(controller, runData, AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS]);
+            m_delay = new ActionDelay(controller, runData);
+            m_randomPos = new ActionRandomPos(controller,runData);
 
-            this._actions.Add(_randomPos);
-            this._actions.Add(_pathMove);
-            this._actions.Add(_delay);
+            this.m_actions.Add(m_randomPos);
+            this.m_actions.Add(m_pathMove);
+            this.m_actions.Add(m_delay);
         }
 
         
@@ -123,45 +123,48 @@ namespace GraphyFW.AI
     /// </summary>
     public class TaskMoveTo:TaskBase
     {
-        ActionPathMove _pathMove;
+        ActionPathMove m_pathMove;
         public TaskMoveTo(ActorController controller, AIRunData runData) :base(controller, runData)
         {
-            _pathMove = new ActionPathMove(controller, runData, AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS]);
+            m_pathMove = new ActionPathMove(controller, runData, AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS]);
             this.isStatic = true;
-            this.AddAction(_pathMove);
+            this.AddAction(m_pathMove);
         }
 
         public void SetMoveTarget(Vector2Int target)
         {
-            _runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS],target);
+            m_runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS],target);
             Debug.Log("Set pos is: "+ target);
         }
 
        
     }
 
+
+    /// <summary>
+    /// 手动控制模式下的搬运，
+    /// TODO：以后直接使用两个状态机，或者，Task兼容手动控制
+    /// </summary>
     public class TaskManualCarry : TaskBase
     {
-           private ActionPathMove _pathMoveGo;
-        private ActionPathMove _pathMoveBack;
+           private ActionPathMove m_pathMoveGo;
+        private ActionPathMove m_pathMoveBack;
  
 
-        private ActionTakeUp _takeUp;
+        private ActionTakeUp m_takeUp;
 
-        private ActionPutDown _putDown;
+        private ActionPutDown m_putDown;
           public TaskManualCarry(ActorController controller, AIRunData runData) :base(controller, runData)
-        {
+        {          
+            m_pathMoveGo = new ActionPathMove(controller,runData,AIRunData.dicKeys[ERunDataKey.PROP_POS]);
+            m_pathMoveBack = new ActionPathMove(controller,runData, AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS]);
+            m_takeUp = new ActionTakeUp(controller,runData);
+            m_putDown = new ActionPutDown(controller,runData);
            
-          
-            _pathMoveGo = new ActionPathMove(controller,runData,AIRunData.dicKeys[ERunDataKey.PROP_POS]);
-            _pathMoveBack = new ActionPathMove(controller,runData, AIRunData.dicKeys[ERunDataKey.STORAGE_VACANCY_POS]);
-            _takeUp = new ActionTakeUp(controller,runData);
-            _putDown = new ActionPutDown(controller,runData);
-           
-            _actions.Add(_pathMoveGo);
-            _actions.Add(_takeUp);
-            _actions.Add(_pathMoveBack);
-            _actions.Add(_putDown);//
+            m_actions.Add(m_pathMoveGo);
+            m_actions.Add(m_takeUp);
+            m_actions.Add(m_pathMoveBack);
+            m_actions.Add(m_putDown);//
         }
 
         public void SetTargetProp(Prop prop)
@@ -171,7 +174,37 @@ namespace GraphyFW.AI
 
     }
 
- 
+    /// <summary>
+    /// 对于手动控制Actor吃东西，
+    /// 1.食物GameObject引用
+    /// 2.位置，需要获取其周边的一个合法的，离Actor最近的一个位置
+    /// 3.指令：移动指令，
+    /// </summary>
+    public class TaskManualEat : TaskBase
+    {
+        private ActionPathMove actionMoveTo;
+
+        private ActionEat actionEat;
+
+        public TaskManualEat(ActorController controller, AIRunData runData) : base(controller, runData)
+        {
+            actionMoveTo = new ActionPathMove(controller,runData,AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS]);
+            actionEat = new ActionEat(controller,runData);
+
+            m_actions.Add(actionMoveTo);
+            m_actions.Add(actionEat);
+        }
+
+
+        public void SetTargetProp(GameObject food)
+        {
+            m_runData.SetVec2IData(AIRunData.dicKeys[ERunDataKey.Vec2I_TARGET_POS],food.GetComponent<GraphyFW.GamePlay.Food>().mapPos);
+            m_runData.SetGoData(AIRunData.dicKeys[ERunDataKey.FOOD],food);
+        }
+
+    }
+
+
 
 
 

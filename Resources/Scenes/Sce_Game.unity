@@ -165,6 +165,7 @@ GameObject:
   - component: {fileID: 952707293}
   - component: {fileID: 952707294}
   - component: {fileID: 952707292}
+  - component: {fileID: 952707295}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -227,6 +228,25 @@ MonoBehaviour:
   birckContainer: {fileID: 694191125}
   aiActor: {fileID: 457995693798140477, guid: b1365ce9a387c984a882f1f5a9223439, type: 3}
   playerCommand: 1
+--- !u!114 &952707295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 952707290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b9d198f0061f3842a59211bc63c2c21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_prefabs:
+  - name: Ant
+    prefab: {fileID: 457995693798140477, guid: b1365ce9a387c984a882f1f5a9223439, type: 3}
+  - name: StorageArea
+    prefab: {fileID: 1548372082961233522, guid: f887f10a46298624aae2c7939984f760, type: 3}
+  - name: Square
+    prefab: {fileID: 3519934824948091808, guid: 28e5a255c2a30ae4289b95461275d6ad, type: 3}
 --- !u!1 &1731449793
 GameObject:
   m_ObjectHideFlags: 0
